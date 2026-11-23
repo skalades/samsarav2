@@ -1050,15 +1050,56 @@
             Pilih tanggal mulai pendakian. Kuota harian dibatasi max {{ $profile['default_daily_quota'] ?? 150 }} orang per hari sesuai daya dukung konservasi.
           </div>
 
+          <!-- Kategori Pendakian: Tektok vs Camp -->
+          <div>
+            <label class="block text-[10px] text-stone-400 uppercase mb-1">KATEGORI PENDAKIAN</label>
+            <div class="grid grid-cols-2 gap-2">
+              <label id="catTektokLabel" class="relative flex flex-col p-2.5 rounded-xl border border-[#2A303C] bg-[#16191F] cursor-pointer hover:border-cyan-400/50 transition">
+                <div class="flex items-center gap-1.5 font-bold text-xs text-cyan-400">
+                  <input type="radio" name="wzCategory" value="tektok" class="accent-cyan-400" onchange="App.wizard.setCategory('tektok')">
+                  <span>TEKTOK (1 HARI)</span>
+                </div>
+                <span class="text-[9px] text-stone-400 mt-1 leading-tight">Buka Gerbang: 03:00 - 07:00 WIB. Turun hari yang sama (tanpa tenda).</span>
+              </label>
+
+              <label id="catCampLabel" class="relative flex flex-col p-2.5 rounded-xl border border-emerald-500/50 bg-emerald-500/10 cursor-pointer hover:border-emerald-400 transition">
+                <div class="flex items-center gap-1.5 font-bold text-xs text-emerald-400">
+                  <input type="radio" name="wzCategory" value="camp" checked class="accent-emerald-400" onchange="App.wizard.setCategory('camp')">
+                  <span>CAMP (BERMALAM)</span>
+                </div>
+                <span class="text-[9px] text-stone-400 mt-1 leading-tight">Buka Gerbang: Mulai 07:00 WIB. Bebas camp di Pos 2 atau Pos 3.</span>
+              </label>
+            </div>
+          </div>
+
           <div class="grid grid-cols-2 gap-2.5">
             <div>
               <label class="block text-[10px] text-stone-400 uppercase mb-1">Tanggal Naik</label>
-              <input type="date" id="wzHikingDate" min="{{ date('Y-m-d') }}" class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FF5722]">
+              <input type="date" id="wzHikingDate" min="{{ date('Y-m-d') }}" onchange="App.wizard.onDateChange()" class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FF5722]">
             </div>
             <div>
-              <label class="block text-[10px] text-stone-400 uppercase mb-1">Estimasi Turun</label>
+              <label id="wzReturnDateLabel" class="block text-[10px] text-stone-400 uppercase mb-1">Estimasi Turun</label>
               <input type="date" id="wzReturnDate" min="{{ date('Y-m-d') }}" class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FF5722]">
             </div>
+          </div>
+
+          <!-- Pilihan Rencana Camp (Hanya Muncul jika Kategori Camp) -->
+          <div id="wzCampsiteBox" class="p-2.5 rounded-lg bg-[#14171E] border border-[#222731] space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] text-stone-300 font-bold uppercase">RENCANA AREA CAMP RESMI</span>
+              <span class="text-[9px] text-emerald-400">*Bebas fleksibel di pos</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs text-stone-200">
+              <label class="p-2 rounded bg-[#181B22] border border-[#2A303C] flex items-center gap-2 cursor-pointer hover:border-emerald-500/40">
+                <input type="radio" name="wzCampsite" value="POS_2" checked class="accent-emerald-400">
+                <span>Pos 2 (Mata Air)</span>
+              </label>
+              <label class="p-2 rounded bg-[#181B22] border border-[#2A303C] flex items-center gap-2 cursor-pointer hover:border-emerald-500/40">
+                <input type="radio" name="wzCampsite" value="POS_3" class="accent-emerald-400">
+                <span>Pos 3 (Camp Atas)</span>
+              </label>
+            </div>
+            <p class="text-[9px] text-stone-400 leading-tight">Pos 2 dan Pos 3 adalah tempat camp resmi yang dijaga ranger. Di luar kedua pos ini dilarang mendirikan tenda.</p>
           </div>
 
           <!-- Stepper Rombongan -->
@@ -1418,7 +1459,7 @@
               <span class="text-stone-300 block font-bold">NMID: {{ $profile['payment_qris_nmid'] ?? 'ID102026110099' }} — {{ $profile['payment_qris_name'] ?? 'PT SAMSARA ADVENTURE GARUT' }}</span>
               <span>Mendukung: GoPay, OVO, Dana, ShopeePay, BCA, Livin, Mandiri, dll.</span>
               @if(!empty($profile['payment_qris_image']))
-                <a href="{{ asset('storage/' . $profile['payment_qris_image']) }}" target="_blank" class="text-[#FF5722] hover:underline block text-[9px] pt-0.5 font-bold">[🔍 KLIK UNTUK LIHAT / SIMPAN QRIS FULL HD]</a>
+                <a href="{{ asset('storage/' . $profile['payment_qris_image']) }}" target="_blank" class="text-[#FF5722] hover:underline block text-[9px] pt-0.5 font-bold">[LIHAT / SIMPAN QRIS FULL RESOLUSI]</a>
               @endif
             </div>
           </div>
@@ -1583,6 +1624,19 @@
                 <li>Rombongan wajib menjaga kebersihan jalur (bebas biaya uang jaminan sampah).</li>
               @endif
             </ul>
+          </div>
+
+          <!-- Direct Ticket Access & Download Buttons -->
+          <div class="grid grid-cols-2 gap-2 pt-1 font-mono-tech">
+            <a id="btnViewDigitalTicket" href="#" target="_blank" class="tap-active py-2.5 px-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition flex items-center justify-center gap-1.5 shadow-lg shadow-cyan-600/20">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              <span>SURAT JALAN DIGITAL</span>
+            </a>
+
+            <a id="btnDownloadTicketPdf" href="#" target="_blank" class="tap-active py-2.5 px-3 bg-[#FF5722] hover:bg-[#F4511E] text-black font-bold text-xs uppercase tracking-wider rounded-lg transition flex items-center justify-center gap-1.5 shadow-lg shadow-[#FF5722]/20">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              <span>UNDUH PDF RESMI</span>
+            </a>
           </div>
 
           <!-- Action Buttons -->

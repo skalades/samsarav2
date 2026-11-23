@@ -164,6 +164,11 @@
           <span>Gate Check-in & Sampah</span>
         </a>
 
+        <a href="{{ route('management.ranger.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg transition {{ request()->routeIs('management.ranger.*') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>Pos Ranger (Scanner 1-3)</span>
+        </a>
+
         <a href="{{ route('management.reports.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg transition {{ request()->routeIs('management.reports.*') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
           <svg class="w-4 h-4 {{ request()->routeIs('management.reports.*') ? 'text-black' : 'text-emerald-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
           <span>Laporan & Analitik</span>
@@ -267,17 +272,17 @@
             <span>{{ session('success') }}</span>
             @if(session('checkin_completed_id'))
               <a href="{{ route('management.gate.print_climber_pass', session('checkin_completed_id')) }}?print=1" target="_blank" class="px-2.5 py-1 bg-emerald-400 hover:bg-emerald-300 text-black font-bold rounded text-[10px] uppercase shadow transition flex items-center gap-1">
-                🖨️ Cetak Surat Jalan Pendaki (Struk Saku)
+                <span>[PRINT]</span> Cetak Surat Jalan Pendaki (Struk Saku)
               </a>
             @endif
             @if(session('checkin_has_ojek'))
               <a href="{{ route('management.gate.print_ojek_voucher', session('checkin_registration_id')) }}" target="_blank" class="px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-black font-bold rounded text-[10px] uppercase shadow transition">
-                🖨️ Cetak Voucher Ojek Resmi
+                <span>[PRINT]</span> Cetak Voucher Ojek Resmi
               </a>
             @endif
             @if(session('checkout_completed_id'))
               <a href="{{ route('management.gate.print_parking_pass', session('checkout_completed_id')) }}" target="_blank" class="px-2.5 py-1 bg-cyan-400 hover:bg-cyan-300 text-black font-bold rounded text-[10px] uppercase shadow transition">
-                🖨️ Cetak Izin Keluar Parkir
+                <span>[PRINT]</span> Cetak Izin Keluar Parkir
               </a>
             @endif
           </div>

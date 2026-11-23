@@ -159,7 +159,7 @@
                 <td class="py-3 text-stone-400">{{ $stl->settled_at->format('d/m/Y H:i') }} WIB</td>
                 <td class="py-3 text-right">
                   <a href="{{ route('management.ojek.print_settlement', $stl->id) }}" target="_blank" class="px-2 py-1 bg-[#16191F] hover:bg-[#202530] border border-[#262B35] text-stone-300 hover:text-white rounded text-[10px] font-bold transition">
-                    Cetak Slip 🖨️
+                    [PRINT] Slip
                   </a>
                 </td>
               </tr>

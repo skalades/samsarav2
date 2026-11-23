@@ -89,6 +89,8 @@ class PublicSimaksiController extends Controller
         }
 
         $request->validate([
+            'hiking_category' => 'nullable|string|in:tektok,camp',
+            'planned_campsite' => 'nullable|string|in:POS_2,POS_3',
             'hiking_date' => 'required|date',
             'return_date' => 'nullable|date',
             'leader_name' => 'required|string|max:100',
@@ -213,6 +215,12 @@ class PublicSimaksiController extends Controller
             $leaderAddress = $request->input('leader_address') ?: $request->input('leader_city', 'Indonesia');
             $leaderCity = $request->input('leader_city') ?: $leaderAddress;
 
+            $hikingCategory = $request->input('hiking_category', 'camp');
+            $plannedCampsite = ($hikingCategory === 'camp') ? $request->input('planned_campsite') : null;
+            $returnDateStr = ($hikingCategory === 'tektok')
+                ? $hikingDate->toDateString()
+                : ($request->input('return_date') ? Carbon::parse($request->input('return_date'))->toDateString() : $hikingDate->copy()->addDay()->toDateString());
+
             // Create Registration
             $reg = SimaksiRegistration::create([
                 'registration_code' => $code,
@@ -227,8 +235,10 @@ class PublicSimaksiController extends Controller
                 'emergency_contact_name' => $request->input('emergency_contact_name'),
                 'emergency_contact_phone' => $request->input('emergency_contact_phone'),
                 'emergency_relationship' => $request->input('emergency_relationship', 'Keluarga'),
+                'hiking_category' => $hikingCategory,
+                'planned_campsite' => $plannedCampsite,
                 'hiking_date' => $hikingDate->toDateString(),
-                'return_date' => $request->input('return_date') ? Carbon::parse($request->input('return_date'))->toDateString() : null,
+                'return_date' => $returnDateStr,
                 'total_climbers' => $totalClimbers,
                 'status' => 'pending', // Menunggu verifikasi / konfirmasi kasir
                 'simaksi_fee' => $simaksiFee,

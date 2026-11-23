@@ -59,14 +59,19 @@
         </a>
 
         <div class="flex items-center gap-2">
-            <button onclick="window.print()" class="inline-flex items-center gap-2 text-xs font-mono-tech font-bold text-stone-300 hover:text-white bg-[#16191F] hover:bg-[#1E232D] px-4 py-2.5 rounded-xl border border-[#2A303C] transition shadow-sm">
+            <button onclick="window.print()" class="inline-flex items-center gap-2 text-xs font-mono-tech font-bold text-stone-300 hover:text-white bg-[#16191F] hover:bg-[#1E232D] px-3.5 py-2.5 rounded-xl border border-[#2A303C] transition shadow-sm">
                 <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                Cetak Tiket
+                <span>Cetak</span>
             </button>
 
-            <a href="{{ route('portal.simaksi.ticket_pdf', $registration->registration_code) }}" class="inline-flex items-center gap-2 text-xs font-mono-tech font-bold text-black bg-[#FF5722] hover:bg-[#F4511E] px-5 py-2.5 rounded-xl shadow-lg shadow-[#FF5722]/20 transition transform active:scale-95">
+            <button type="button" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); alert('[PETUNJUK SCREENSHOT]\nSurat jalan digital ini telah dioptimasi untuk layar smartphone.\nSilakan ambil tangkapan layar (screenshot) penuh untuk disimpan sebagai bukti izin offline di area minim sinyal.');" class="inline-flex items-center gap-2 text-xs font-mono-tech font-bold text-stone-200 hover:text-white bg-[#16191F] hover:bg-[#1E232D] px-3.5 py-2.5 rounded-xl border border-[#2A303C] transition shadow-sm">
+                <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span>Screenshot</span>
+            </button>
+
+            <a href="{{ route('portal.simaksi.ticket_pdf', $registration->registration_code) }}" class="inline-flex items-center gap-2 text-xs font-mono-tech font-bold text-black bg-[#FF5722] hover:bg-[#F4511E] px-4 py-2.5 rounded-xl shadow-lg shadow-[#FF5722]/20 transition transform active:scale-95">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                Unduh PDF Resmi
+                <span>Unduh PDF Resmi</span>
             </a>
         </div>
     </div>
@@ -120,6 +125,103 @@
 
         <!-- Ticket Body -->
         <div class="p-6 md:p-8 space-y-6">
+
+            <!-- KATEGORI OPERASIONAL JALUR: TEKTOK VS CAMP -->
+            @if($registration->isTektok())
+                <div class="rounded-2xl p-4 bg-cyan-950/40 border border-cyan-500/40 text-cyan-200 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-mono-tech font-bold text-xs">
+                                TKT
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-mono-tech uppercase font-bold tracking-widest text-cyan-400 block">// SURAT JALAN KATEGORI</span>
+                                <h3 class="font-display font-black text-base text-white">TEKTOK (ONE-DAY SUMMIT)</h3>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-mono-tech font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 uppercase">
+                            03:00 - 07:00 WIB
+                        </span>
+                    </div>
+                    <div class="text-xs text-stone-300 bg-[#0A0B0D]/70 p-3 rounded-xl border border-cyan-500/20 font-mono-tech space-y-1">
+                        <p class="text-cyan-300 font-semibold">• Jam Buka Jalur Masuk: <strong>03:00 s/d 07:00 WIB</strong>.</p>
+                        <p>• Wajib turun dan melapor check-out di basecamp pada <strong>hari yang sama (maks. 19:00 WIB)</strong>.</p>
+                        <p class="text-rose-400 font-bold">• DILARANG mendirikan tenda di seluruh area pos (Pos 1 s/d Puncak).</p>
+                    </div>
+                </div>
+            @else
+                <div class="rounded-2xl p-4 bg-emerald-950/40 border border-emerald-500/40 text-emerald-200 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-mono-tech font-bold text-xs">
+                                CMP
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-mono-tech uppercase font-bold tracking-widest text-emerald-400 block">// SURAT JALAN KATEGORI</span>
+                                <h3 class="font-display font-black text-base text-white">CAMPING (BERMALAM)</h3>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-mono-tech font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 uppercase">
+                            Buka Jam 07:00+ WIB
+                        </span>
+                    </div>
+                    <div class="text-xs text-stone-300 bg-[#0A0B0D]/70 p-3 rounded-xl border border-emerald-500/20 font-mono-tech space-y-1">
+                        <p class="text-emerald-300 font-semibold">• Jam Buka Jalur Masuk: <strong>Mulai pukul 07:00 WIB</strong>.</p>
+                        <p>• Area Camp Resmi: <strong>Hanya di Pos 2 (Mata Air) dan Pos 3 (Camp Atas)</strong>.</p>
+                        <p>• Status Lokasi Camp: <strong class="text-white">{{ $registration->camp_location ? 'Terkonfirmasi: ' . $registration->camp_location : ($registration->planned_campsite ? 'Rencana: ' . $registration->planned_campsite : 'Pos 2 / Pos 3 (Bebas)') }}</strong>.</p>
+                    </div>
+                </div>
+            @endif
+
+            <!-- RADAR STATUS CHECKPOINT POS LAPANGAN -->
+            <div class="bg-[#0E1013] rounded-2xl p-4 border border-[#20242C] space-y-3 font-mono-tech">
+                <div class="flex items-center justify-between border-b border-[#1E2229] pb-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                        <span class="text-xs font-bold text-white uppercase tracking-wider">LOG CHECKPOINT RANGER POS</span>
+                    </div>
+                    <span class="text-[10px] text-stone-400">
+                        Posisi Terakhir: <strong class="text-[#FF5722]">{{ $registration->last_seen_pos ? $registration->last_seen_pos . ' [' . ($registration->last_seen_direction === 'ascending' ? '↑ NAIK' : ($registration->last_seen_direction === 'descending' ? '↓ TURUN' : 'CAMP')) . ']' : 'Menunggu Check-in Gerbang' }}</strong>
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+                    @php
+                        $checkpointLogs = $registration->checkpoints->keyBy('pos_code');
+                    @endphp
+
+                    <!-- Basecamp -->
+                    <div class="p-2.5 rounded-xl border {{ $registration->status === 'checked_in' || $registration->status === 'completed' ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-[#222731] bg-[#121418] text-stone-500' }}">
+                        <span class="text-[9px] block uppercase font-bold">GERBANG</span>
+                        <span class="font-bold text-xs">{{ $registration->checked_in_at ? 'CHECK-IN' : 'BELUM' }}</span>
+                        <span class="text-[8px] block mt-0.5 text-stone-400">{{ $registration->checked_in_at ? $registration->checked_in_at->format('H:i') . ' WIB' : '-' }}</span>
+                    </div>
+
+                    <!-- Pos 1 -->
+                    @php $p1 = $checkpointLogs->get('POS_1'); @endphp
+                    <div class="p-2.5 rounded-xl border {{ $p1 ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-[#222731] bg-[#121418] text-stone-500' }}">
+                        <span class="text-[9px] block uppercase font-bold">POS 1</span>
+                        <span class="font-bold text-xs">{{ $p1 ? ($p1->direction === 'ascending' ? 'LEWAT [↑]' : 'LEWAT [↓]') : 'TRANSIT' }}</span>
+                        <span class="text-[8px] block mt-0.5 text-stone-400">{{ $p1 ? $p1->scanned_at->format('H:i') . ' WIB' : 'Pending' }}</span>
+                    </div>
+
+                    <!-- Pos 2 -->
+                    @php $p2 = $checkpointLogs->get('POS_2'); @endphp
+                    <div class="p-2.5 rounded-xl border {{ $p2 ? ($p2->direction === 'camping' ? 'border-purple-500/40 bg-purple-500/10 text-purple-300' : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300') : 'border-[#222731] bg-[#121418] text-stone-500' }}">
+                        <span class="text-[9px] block uppercase font-bold">POS 2 (CAMP 1)</span>
+                        <span class="font-bold text-xs">{{ $p2 ? ($p2->direction === 'camping' ? 'CAMP' : ($p2->direction === 'ascending' ? 'LEWAT [↑]' : 'LEWAT [↓]')) : 'LOKASI CAMP' }}</span>
+                        <span class="text-[8px] block mt-0.5 text-stone-400">{{ $p2 ? $p2->scanned_at->format('H:i') . ' WIB' : 'Pending' }}</span>
+                    </div>
+
+                    <!-- Pos 3 -->
+                    @php $p3 = $checkpointLogs->get('POS_3'); @endphp
+                    <div class="p-2.5 rounded-xl border {{ $p3 ? ($p3->direction === 'camping' ? 'border-purple-500/40 bg-purple-500/10 text-purple-300' : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300') : 'border-[#222731] bg-[#121418] text-stone-500' }}">
+                        <span class="text-[9px] block uppercase font-bold">POS 3 (CAMP 2)</span>
+                        <span class="font-bold text-xs">{{ $p3 ? ($p3->direction === 'camping' ? 'CAMP' : ($p3->direction === 'ascending' ? 'LEWAT [↑]' : 'LEWAT [↓]')) : 'LOKASI CAMP' }}</span>
+                        <span class="text-[8px] block mt-0.5 text-stone-400">{{ $p3 ? $p3->scanned_at->format('H:i') . ' WIB' : 'Pending' }}</span>
+                    </div>
+                </div>
+            </div>
 
             <!-- Barcode Verification Box -->
             <div class="bg-[#0E1013] rounded-2xl p-5 border border-[#20242C] flex flex-col sm:flex-row items-center justify-between gap-5">

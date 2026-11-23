@@ -134,6 +134,9 @@
       <!-- Pass Title & Status -->
       <div class="text-center" style="margin: 6px 0;">
         <div class="badge-checkin">SURAT JALAN PENDAKI</div>
+        <div style="font-size: 10px; font-weight: 800; margin-top: 3px; border: 1px solid #000; padding: 2px 4px; display: inline-block;">
+          {{ $registration->isTektok() ? '[KATEGORI: TEKTOK • 1 HARI • DILARANG CAMP]' : '[KATEGORI: CAMP • POS 2 / POS 3]' }}
+        </div>
         <div style="font-size: 9px; font-weight: bold; margin-top: 2px;">BUKTI FISIK PEMERIKSAAN SETIAP POS</div>
       </div>
 
@@ -208,6 +211,23 @@
         @endforeach
       </div>
 
+      <!-- Kotak Paraf Fisik Ranger Pos (Analog Backup) -->
+      <div style="margin-top: 8px; border: 1.5px solid #000; padding: 4px; font-size: 8.5px;">
+        <div class="font-bold text-center border-b" style="padding-bottom: 2px; margin-bottom: 3px;">BUKTI PEMERIKSAAN POS LAPANGAN</div>
+        <div class="row" style="margin-bottom: 2px;">
+          <span>POS 1: [ ] Naik [ ] Turun</span>
+          <span>Jam:____ Paraf:____</span>
+        </div>
+        <div class="row" style="margin-bottom: 2px;">
+          <span>POS 2: [ ] Lewat [ ] CAMP</span>
+          <span>Jam:____ Paraf:____</span>
+        </div>
+        <div class="row">
+          <span>POS 3: [ ] Lewat [ ] CAMP</span>
+          <span>Jam:____ Paraf:____</span>
+        </div>
+      </div>
+
       <!-- Emergency Hotline & Safety Rules -->
       <div class="stamp-box">
         <div class="font-bold">HOTLINE RESCUE & FREKUENSI RADIO</div>
@@ -227,7 +247,7 @@
 
   <!-- Print Actions -->
   <div class="actions">
-    <button class="btn-print" onclick="window.print()">🖨️ CETAK SURAT JALAN (PRINT)</button>
+    <button class="btn-print" onclick="window.print()">CETAK SURAT JALAN (PRINT)</button>
     <a href="{{ route('management.gate.index', ['code' => $registration->registration_code]) }}" class="btn-back">KEMBALI KE POS GATE</a>
   </div>
 

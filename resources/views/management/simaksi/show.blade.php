@@ -439,7 +439,7 @@
       <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-3">
         <div class="flex items-center justify-between pb-2 border-b border-[#1E2229]">
           <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-            <span>💬 DISPATCH WHATSAPP RESMI</span>
+            <span>[WA] DISPATCH WHATSAPP RESMI</span>
           </h3>
           <span class="font-mono-tech text-[9px] text-stone-400">NOTIFIKASI</span>
         </div>

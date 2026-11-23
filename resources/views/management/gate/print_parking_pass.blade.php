@@ -102,7 +102,7 @@
 
   <!-- Screen Actions Bar -->
   <div class="actions">
-    <button class="btn-print" onclick="window.print()">🖨️ CETAK GATE PASS PARKIR (PRINT)</button>
+    <button class="btn-print" onclick="window.print()">[PRINT] CETAK GATE PASS PARKIR</button>
     <a href="{{ route('management.gate.index', ['code' => $registration->registration_code]) }}" class="btn-back">← KEMBALI KE GATE</a>
   </div>
 

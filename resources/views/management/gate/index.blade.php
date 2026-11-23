@@ -99,22 +99,22 @@
 
           <div class="flex items-center gap-2">
             <a href="{{ route('management.gate.print_climber_pass', $selectedRegistration->id) }}" target="_blank" class="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 text-[10px] font-bold flex items-center gap-1 transition">
-              <span>🖨️ Cetak Surat Jalan Saku</span>
+              <span>[PRINT] Surat Jalan Saku</span>
             </a>
 
             <a href="{{ route('management.gate.ticket_pdf', $selectedRegistration->id) }}" class="px-2.5 py-1 rounded bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 text-[10px] font-bold flex items-center gap-1 transition">
-              <span>📄 Unduh E-Tiket PDF</span>
+              <span>[PDF] Unduh E-Tiket</span>
             </a>
 
             @if($selectedRegistration->ojek_count > 0)
               <a href="{{ route('management.gate.print_ojek_voucher', $selectedRegistration->id) }}" target="_blank" class="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 text-[10px] font-bold flex items-center gap-1 transition">
-                <span>🖨️ Cetak Voucher Ojek ({{ $selectedRegistration->ojek_count }} Tiket)</span>
+                <span>[PRINT] Voucher Ojek ({{ $selectedRegistration->ojek_count }})</span>
               </a>
             @endif
 
             @if($selectedRegistration->has_vehicle || $selectedRegistration->parking_fee > 0 || $selectedRegistration->motorcycle_count > 0 || $selectedRegistration->car_count > 0)
               <a href="{{ route('management.gate.print_parking_pass', $selectedRegistration->id) }}" target="_blank" class="px-2.5 py-1 rounded bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 text-cyan-300 text-[10px] font-bold flex items-center gap-1 transition">
-                <span>🚗 Cetak Gate Pass Parkir</span>
+                <span>[PRINT] Pass Parkir</span>
               </a>
             @endif
           </div>
@@ -139,7 +139,7 @@
                 </span>
               @else
                 <span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold">
-                  ⚠️ BELUM DIUNGGAH OLEH PENDAKI
+                  [!] BELUM DIUNGGAH OLEH PENDAKI
                 </span>
               @endif
             </div>
@@ -164,14 +164,14 @@
                 </div>
                 <div class="flex items-center gap-2 pt-1">
                   <a href="{{ asset('storage/' . $selectedRegistration->group_photo_path) }}" target="_blank" class="px-2.5 py-1 rounded bg-[#181B22] border border-[#2A303C] text-stone-200 hover:text-white text-[10px] flex items-center gap-1">
-                    <span>🔍 Buka Foto Resolusi Penuh</span>
+                    <span>Buka Foto Resolusi Penuh</span>
                   </a>
                 </div>
               </div>
             </div>
           @else
             <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-xs text-amber-300 flex items-start gap-2.5">
-              <span class="text-base">📸</span>
+              <span class="text-amber-400 font-bold shrink-0">[!]</span>
               <div>
                 <span class="font-bold block">Rombongan belum mengunggah foto regu bersama di portal e-tiket.</span>
                 <span class="text-[10px] text-stone-400 block mt-0.5">
@@ -334,6 +334,143 @@
   @endif
 
   <!-- ======================================================== -->
+  <!-- 2.5 RADAR PERGERAKAN JALUR & DISPATCH RADIO HT          -->
+  <!-- ======================================================== -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 font-mono-tech">
+    
+    <!-- LIVE TELEMETRI PERGERAKAN JALUR -->
+    <div class="lg:col-span-2 bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-[#1E2229]">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+          <h3 class="font-bold text-xs uppercase tracking-wider text-white">
+            RADAR JALUR & STATUS SEKTOR POS (LIVE SAR TELEMETRY)
+          </h3>
+        </div>
+        <span class="text-[10px] text-stone-400">POS 1 • POS 2 • POS 3</span>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+        <div class="p-2.5 rounded-lg bg-[#16191F] border border-[#222731]">
+          <span class="text-[9px] text-stone-400 uppercase block">TOTAL DI TREK</span>
+          <span class="font-bold text-base text-white">{{ $radarData['counts']['total_active_climbers'] ?? 0 }}</span>
+          <span class="text-[8px] text-stone-500 block">Pendaki</span>
+        </div>
+
+        <div class="p-2.5 rounded-lg bg-cyan-950/30 border border-cyan-500/30">
+          <span class="text-[9px] text-cyan-400 uppercase block">TEKTOK (03-07)</span>
+          <span class="font-bold text-base text-cyan-300">{{ $radarData['counts']['tektok_count'] ?? 0 }}</span>
+          <span class="text-[8px] text-cyan-400/70 block">Maks Turun 19:00</span>
+        </div>
+
+        <div class="p-2.5 rounded-lg bg-emerald-950/30 border border-emerald-500/30">
+          <span class="text-[9px] text-emerald-400 uppercase block">CAMP AKTIF</span>
+          <span class="font-bold text-base text-emerald-300">{{ $radarData['counts']['camp_count'] ?? 0 }}</span>
+          <span class="text-[8px] text-emerald-400/70 block">{{ ($radarData['counts']['pos2_tents'] ?? 0) + ($radarData['counts']['pos3_tents'] ?? 0) }} Tenda Resmi</span>
+        </div>
+
+        <div class="p-2.5 rounded-lg {{ ($radarData['counts']['overdue_count'] ?? 0) > 0 ? 'bg-rose-950/50 border-rose-500 text-rose-300 animate-pulse' : 'bg-[#16191F] border-[#222731] text-stone-400' }}">
+          <span class="text-[9px] uppercase block">OVERDUE / SAR</span>
+          <span class="font-bold text-base {{ ($radarData['counts']['overdue_count'] ?? 0) > 0 ? 'text-rose-400' : 'text-stone-300' }}">{{ $radarData['counts']['overdue_count'] ?? 0 }}</span>
+          <span class="text-[8px] block">Perlu Pantauan</span>
+        </div>
+      </div>
+
+      <!-- Sektor Pos Live Status -->
+      <div class="space-y-2 pt-1 text-xs">
+        <div class="p-2 rounded-lg bg-[#16191F] border border-[#222731] flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-stone-400 font-bold">POS 1</span>
+            <span class="text-stone-300">Transit Ojek (1.780M)</span>
+          </div>
+          <span class="text-stone-400 font-bold">{{ count($radarData['by_pos']['POS_1'] ?? []) }} Rombongan Terakhir Terdata</span>
+        </div>
+
+        <div class="p-2 rounded-lg bg-emerald-950/20 border border-emerald-500/30 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-emerald-400 font-bold">POS 2</span>
+            <span class="text-emerald-200">Mata Air & Camp Resmi 1</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-purple-400 font-bold">{{ $radarData['counts']['pos2_tents'] ?? 0 }} Tenda [CAMP]</span>
+            <span class="text-stone-400">({{ count($radarData['by_pos']['POS_2'] ?? []) }} Rombongan)</span>
+          </div>
+        </div>
+
+        <div class="p-2 rounded-lg bg-purple-950/20 border border-purple-500/30 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-purple-400 font-bold">POS 3</span>
+            <span class="text-purple-200">Camp Resmi 2 & Puncak</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-purple-400 font-bold">{{ $radarData['counts']['pos3_tents'] ?? 0 }} Tenda [CAMP]</span>
+            <span class="text-stone-400">({{ count($radarData['by_pos']['POS_3'] ?? []) }} Rombongan)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL DISPATCH CEPAT RADIO HT (FALLBACK SAAT HP RANGER MATI) -->
+    <div class="bg-[#121418] border border-amber-500/30 rounded-xl p-5 space-y-3 font-mono-tech text-xs">
+      <div class="flex items-center justify-between pb-2 border-b border-[#1E2229]">
+        <div class="flex items-center gap-2">
+          <span class="text-amber-400 font-bold">[HT]</span>
+          <h3 class="font-bold text-xs uppercase tracking-wider text-amber-300">
+            DISPATCH RADIO HT (FALLBACK)
+          </h3>
+        </div>
+        <span class="text-[9px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold">
+          SAR: 149.250 MHz
+        </span>
+      </div>
+
+      <p class="text-[10px] text-stone-400 leading-tight">
+        Gunakan saat baterai smartphone ranger di Pos 1, 2, atau 3 mati/drop. Input laporan radio HT langsung ke sistem:
+      </p>
+
+      <form method="POST" action="{{ route('management.gate.ht_dispatch') }}" class="space-y-2.5">
+        @csrf
+        <div>
+          <label class="block text-[9px] text-stone-400 uppercase mb-1">KODE SIMAKSI / 3 DIGIT TERAKHIR:</label>
+          <input type="text" name="registration_code" required placeholder="Contoh: 001 atau SMK-202611-001" class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg px-3 py-2 text-xs text-white uppercase focus:outline-none focus:border-amber-400">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[9px] text-stone-400 uppercase mb-1">POS PELAPOR:</label>
+            <select name="pos_code" required class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none focus:border-amber-400">
+              <option value="POS_1">POS 1 (Ojek)</option>
+              <option value="POS_2" selected>POS 2 (Mata Air)</option>
+              <option value="POS_3">POS 3 (Camp)</option>
+              <option value="PUNCAK">PUNCAK</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[9px] text-stone-400 uppercase mb-1">ARAH PERGERAKAN:</label>
+            <select name="direction" required class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none focus:border-amber-400">
+              <option value="ascending">Naik [↑]</option>
+              <option value="descending">Turun [↓]</option>
+              <option value="camping">Buka Tenda [CAMP]</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[9px] text-stone-400 uppercase mb-1">CATATAN PESAN HT (OPSIONAL):</label>
+          <input type="text" name="notes" placeholder="Misal: Laporan HT Pos 2, HP ranger drop..." class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-400">
+        </div>
+
+        <button type="submit" class="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs uppercase rounded-lg transition shadow-md shadow-amber-600/20 flex items-center justify-center gap-1.5">
+          <span>CATAT LOG DISPATCH HT</span>
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- ======================================================== -->
   <!-- 3. ACTIVE CLIMBERS CURRENTLY ON MOUNTAIN                 -->
   <!-- ======================================================== -->
   <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4 font-mono-tech text-xs">
@@ -354,33 +491,51 @@
       <table class="w-full text-left font-mono-tech text-xs">
         <thead>
           <tr class="text-[10px] text-stone-400 uppercase border-b border-[#1E2229]">
-            <th class="pb-2">KODE</th>
+            <th class="pb-2">KODE & KATEGORI</th>
             <th class="pb-2">KETUA ROMBONGAN</th>
-            <th class="pb-2">KONTAK DARURAT</th>
+            <th class="pb-2">POSISI TERAKHIR & ARAH</th>
             <th class="pb-2">JAM CHECK-IN</th>
             <th class="pb-2">ANGGOTA</th>
-            <th class="pb-2">FOTO REGU SAR</th>
+            <th class="pb-2">FOTO REGU</th>
             <th class="pb-2 text-right">AKSI</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-[#1A1E26]">
           @forelse($activeOnMountain as $active)
             <tr class="hover:bg-[#16191F]">
-              <td class="py-3 font-bold text-[#FF5722]">{{ $active->registration_code }}</td>
+              <td class="py-3">
+                <span class="font-bold text-[#FF5722] block">{{ $active->registration_code }}</span>
+                @if($active->isTektok())
+                  <span class="text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-bold inline-block mt-0.5">TEKTOK</span>
+                @else
+                  <span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-bold inline-block mt-0.5">CAMP</span>
+                @endif
+              </td>
               <td class="py-3 text-white">
                 <div class="font-bold">{{ $active->leader_name }}</div>
                 <div class="text-[10px] text-stone-400">{{ $active->leader_phone }}</div>
               </td>
               <td class="py-3 text-stone-300">
-                <div>{{ $active->emergency_contact_name }}</div>
-                <div class="text-[10px] text-stone-400">{{ $active->emergency_contact_phone }}</div>
+                <div class="flex items-center gap-1.5">
+                  <span class="font-bold text-white">{{ $active->last_seen_pos ?: 'Basecamp' }}</span>
+                  @if($active->last_seen_direction === 'ascending')
+                    <span class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded">NAIK [↑]</span>
+                  @elseif($active->last_seen_direction === 'descending')
+                    <span class="text-[9px] font-bold text-amber-400 bg-amber-500/10 px-1.5 py-0.2 rounded">TURUN [↓]</span>
+                  @elseif($active->last_seen_direction === 'camping')
+                    <span class="text-[9px] font-bold text-purple-400 bg-purple-500/10 px-1.5 py-0.2 rounded">CAMP</span>
+                  @endif
+                </div>
+                <div class="text-[9px] text-stone-400 mt-0.5">
+                  {{ $active->last_seen_at ? $active->last_seen_at->format('H:i') . ' WIB (' . $active->last_seen_at->diffForHumans() . ')' : 'Saat gerbang' }}
+                </div>
               </td>
               <td class="py-3 text-stone-300">{{ $active->checked_in_at ? $active->checked_in_at->format('d/m H:i') : '-' }} WIB</td>
               <td class="py-3 font-bold text-white">{{ $active->total_climbers }} Orang</td>
               <td class="py-3">
                 @if($active->group_photo_path)
                   <a href="{{ asset('storage/' . $active->group_photo_path) }}" target="_blank" class="inline-flex items-center gap-1 text-[10px] text-emerald-400 hover:text-emerald-300 font-bold bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded transition">
-                    <span>📷 Lihat Foto</span>
+                    <span>[FOTO] Lihat</span>
                   </a>
                 @else
                   <span class="text-[10px] text-stone-500 italic">Belum ada</span>

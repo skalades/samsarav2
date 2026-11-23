@@ -75,6 +75,26 @@ class AppSetting extends Model
     }
 
     /**
+     * Get trail time-windows and checkpoint configuration.
+     */
+    public static function getTrailConfig(): array
+    {
+        return [
+            'tektok_checkin_start' => (string) static::get('tektok_checkin_start', '03:00'),
+            'tektok_checkin_end' => (string) static::get('tektok_checkin_end', '07:00'),
+            'tektok_max_checkout_hour' => (int) static::get('tektok_max_checkout_hour', 19),
+            'camp_checkin_start' => (string) static::get('camp_checkin_start', '07:00'),
+            'camp_checkin_end' => (string) static::get('camp_checkin_end', '16:00'),
+            'checkpoints' => [
+                'POS_1' => ['name' => 'Pos 1 (Transit Ojek)', 'elevation' => '1.780 MDPL', 'can_camp' => false],
+                'POS_2' => ['name' => 'Pos 2 (Mata Air / Camp)', 'elevation' => '2.050 MDPL', 'can_camp' => true],
+                'POS_3' => ['name' => 'Pos 3 (Camp Area Atas)', 'elevation' => '2.400 MDPL', 'can_camp' => true],
+                'PUNCAK' => ['name' => 'Puncak Cikuray', 'elevation' => '2.821 MDPL', 'can_camp' => false],
+            ],
+        ];
+    }
+
+    /**
      * Get full expedition and operational profile.
      */
     public static function getExpeditionProfile(): array

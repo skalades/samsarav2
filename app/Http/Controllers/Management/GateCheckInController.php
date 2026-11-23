@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\OjekDriver;
 use App\Models\SimaksiRegistration;
 use App\Services\CheckInService;
+use App\Services\CheckpointTrackingService;
 use App\Services\OjekService;
 use App\Services\TicketPdfService;
 use Illuminate\Http\Request;
@@ -14,7 +15,8 @@ use Illuminate\Support\Facades\Auth;
 class GateCheckInController extends Controller
 {
     public function __construct(
-        protected CheckInService $checkInService
+        protected CheckInService $checkInService,
+        protected CheckpointTrackingService $trackingService
     ) {}
 
     public function index(Request $request)
@@ -23,7 +25,7 @@ class GateCheckInController extends Controller
         $selectedRegistration = null;
 
         if ($code) {
-            $selectedRegistration = SimaksiRegistration::with(['members', 'reviewer'])
+            $selectedRegistration = SimaksiRegistration::with(['members', 'reviewer', 'checkpoints'])
                 ->where('registration_code', strtoupper(trim($code)))
                 ->first();
         }
@@ -33,6 +35,9 @@ class GateCheckInController extends Controller
             ->where('status', 'checked_in')
             ->latest('checked_in_at')
             ->get();
+
+        // Live Mountain Radar & Overdue Detection
+        $radarData = $this->trackingService->getActiveMountainRadar();
 
         // Ready for check-in today
         $readyForCheckIn = SimaksiRegistration::with('members')
@@ -51,9 +56,51 @@ class GateCheckInController extends Controller
             'code',
             'selectedRegistration',
             'activeOnMountain',
+            'radarData',
             'readyForCheckIn',
             'standbyDrivers'
         ));
+    }
+
+    /**
+     * Quick Radio HT Dispatch Entry when Ranger's phone in the mountain dies.
+     */
+    public function recordHtDispatch(Request $request)
+    {
+        $request->validate([
+            'registration_code' => 'required|string',
+            'pos_code' => 'required|string|in:POS_1,POS_2,POS_3,PUNCAK,BASECAMP',
+            'direction' => 'required|string|in:ascending,descending,camping',
+            'notes' => 'nullable|string|max:255',
+        ]);
+
+        $code = strtoupper(trim($request->input('registration_code')));
+        $registration = SimaksiRegistration::where('registration_code', $code)
+            ->orWhere('registration_code', 'LIKE', '%-'.ltrim($code, '#').'%')
+            ->first();
+
+        if (! $registration) {
+            return redirect()->route('management.gate.index')
+                ->with('error', "Kode registrasi [{$code}] tidak ditemukan dalam manifest.");
+        }
+
+        try {
+            $notes = $request->input('notes') ?: 'Input Cepat Operator Basecamp via Radio HT (Frekuensi 149.250 MHz)';
+            $this->trackingService->recordCheckpoint(
+                registration: $registration,
+                posCode: $request->input('pos_code'),
+                direction: $request->input('direction'),
+                rangerId: Auth::id() ?: 1,
+                source: 'radio_ht',
+                notes: $notes
+            );
+        } catch (\Exception $e) {
+            return redirect()->route('management.gate.index')
+                ->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('management.gate.index')
+            ->with('success', "DISPATCH HT BERHASIL: Rombongan {$registration->leader_name} ({$registration->registration_code}) dicatat di {$request->input('pos_code')} arah {$request->input('direction')}.");
     }
 
     public function processCheckIn(Request $request, int $id)

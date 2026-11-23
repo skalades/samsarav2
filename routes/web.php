@@ -9,6 +9,7 @@ use App\Http\Controllers\Management\OjekController;
 use App\Http\Controllers\Management\OperationalExpenseController;
 use App\Http\Controllers\Management\PosController;
 use App\Http\Controllers\Management\QuotaController;
+use App\Http\Controllers\Management\RangerCheckpointController;
 use App\Http\Controllers\Management\ReportController;
 use App\Http\Controllers\Management\SimaksiController;
 use App\Http\Controllers\Management\TariffSettingController;
@@ -91,7 +92,12 @@ Route::prefix('management')->name('management.')->group(function () {
         Route::middleware('role:superadmin,admin,kasir,gate_officer')->group(function () {
             Route::post('/gate/{id}/checkin', [GateCheckInController::class, 'processCheckIn'])->name('gate.checkin');
             Route::post('/gate/{id}/checkout', [GateCheckInController::class, 'processCheckOut'])->name('gate.checkout');
+            Route::post('/gate/ht-dispatch', [GateCheckInController::class, 'recordHtDispatch'])->name('gate.ht_dispatch');
         });
+
+        // Pos Ranger Checkpoints (Pos 1, Pos 2, Pos 3)
+        Route::get('/ranger', [RangerCheckpointController::class, 'index'])->name('ranger.index');
+        Route::post('/ranger/checkpoint', [RangerCheckpointController::class, 'store'])->name('ranger.checkpoint');
 
         // Transportasi & Ojek Resmi Basecamp
         Route::prefix('ojek')->name('ojek.')->group(function () {

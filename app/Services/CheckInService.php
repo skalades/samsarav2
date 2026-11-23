@@ -35,12 +35,27 @@ class CheckInService
                 ->update(['is_checked_in' => true]);
 
             // Update registration status
+            $now = Carbon::now();
             $lockedReg->update([
                 'status' => 'checked_in',
                 'checked_in_by' => $officerId,
-                'checked_in_at' => Carbon::now(),
+                'checked_in_at' => $now,
+                'last_seen_pos' => 'BASECAMP',
+                'last_seen_direction' => 'ascending',
+                'last_seen_at' => $now,
                 'trash_bag_code' => $trashBagCode ?: null,
                 'trash_deposit_status' => $lockedReg->trash_deposit_amount > 0 ? 'deposited' : 'none',
+            ]);
+
+            // Create initial checkpoint log for gate entry
+            \App\Models\SimaksiCheckpoint::create([
+                'simaksi_registration_id' => $lockedReg->id,
+                'pos_code' => 'BASECAMP',
+                'direction' => 'ascending',
+                'ranger_id' => $officerId,
+                'entry_source' => 'scanner',
+                'notes' => 'Check-in gerbang basecamp berhasil dibuka.',
+                'scanned_at' => $now,
             ]);
 
             // Automatically issue ojek trip vouchers if ojek was booked
@@ -77,7 +92,7 @@ class CheckInService
         bool $trashVerified,
         ?string $notes = null
     ): SimaksiRegistration {
-        return DB::transaction(function () use ($registration, $trashVerified, $notes) {
+        return DB::transaction(function () use ($registration, $officerId, $trashVerified, $notes) {
             // Lock registration row exclusively to prevent concurrent double-checkout
             $lockedReg = SimaksiRegistration::where('id', $registration->id)->lockForUpdate()->firstOrFail();
 
@@ -98,11 +113,25 @@ class CheckInService
                 }
             }
 
+            $now = Carbon::now();
             $lockedReg->update([
                 'status' => 'completed',
-                'checked_out_at' => Carbon::now(),
+                'checked_out_at' => $now,
+                'last_seen_pos' => 'BASECAMP',
+                'last_seen_direction' => 'descending',
+                'last_seen_at' => $now,
                 'trash_deposit_status' => $depositStatus,
                 'leader_ktp_path' => null, // Hapus referensi path KTP permanen
+            ]);
+
+            \App\Models\SimaksiCheckpoint::create([
+                'simaksi_registration_id' => $lockedReg->id,
+                'pos_code' => 'BASECAMP',
+                'direction' => 'descending',
+                'ranger_id' => $officerId,
+                'entry_source' => 'scanner',
+                'notes' => 'Check-out selesai. Pendakian selesai & sampah diverifikasi: '.($trashVerified ? 'Lengkap (Refund)' : 'Tidak Lengkap (Hangus)'),
+                'scanned_at' => $now,
             ]);
 
             AuditService::log(

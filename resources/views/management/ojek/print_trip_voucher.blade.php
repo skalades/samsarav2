@@ -91,7 +91,7 @@
 <body>
 
   <div class="actions">
-    <button class="btn-print" onclick="window.print()">🖨️ CETAK TIKET</button>
+    <button class="btn-print" onclick="window.print()">[PRINT] CETAK TIKET</button>
     <a href="{{ route('management.ojek.index') }}" class="btn-back">← KEMBALI KE DISPATCH</a>
   </div>
 

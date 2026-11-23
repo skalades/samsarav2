@@ -585,6 +585,67 @@ const App = {
       App.booking.recalc();
     },
 
+    category: 'camp',
+
+    setCategory(cat) {
+      this.category = cat;
+      const tektokLabel = document.getElementById('catTektokLabel');
+      const campLabel = document.getElementById('catCampLabel');
+      const campsiteBox = document.getElementById('wzCampsiteBox');
+      const returnDate = document.getElementById('wzReturnDate');
+      const returnDateLabel = document.getElementById('wzReturnDateLabel');
+      const hikingDate = document.getElementById('wzHikingDate');
+
+      if (cat === 'tektok') {
+        if (tektokLabel) {
+          tektokLabel.className = 'relative flex flex-col p-2.5 rounded-xl border border-cyan-400 bg-cyan-500/15 cursor-pointer transition';
+        }
+        if (campLabel) {
+          campLabel.className = 'relative flex flex-col p-2.5 rounded-xl border border-[#2A303C] bg-[#16191F] cursor-pointer hover:border-emerald-400/50 transition';
+        }
+        if (campsiteBox) campsiteBox.classList.add('hidden');
+        if (returnDate && hikingDate) {
+          returnDate.value = hikingDate.value;
+          returnDate.disabled = true;
+          returnDate.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+        if (returnDateLabel) returnDateLabel.innerText = 'TURUN HARI INI (TEKTOK)';
+      } else {
+        if (campLabel) {
+          campLabel.className = 'relative flex flex-col p-2.5 rounded-xl border border-emerald-500/50 bg-emerald-500/10 cursor-pointer hover:border-emerald-400 transition';
+        }
+        if (tektokLabel) {
+          tektokLabel.className = 'relative flex flex-col p-2.5 rounded-xl border border-[#2A303C] bg-[#16191F] cursor-pointer hover:border-cyan-400/50 transition';
+        }
+        if (campsiteBox) campsiteBox.classList.remove('hidden');
+        if (returnDate) {
+          returnDate.disabled = false;
+          returnDate.classList.remove('opacity-50', 'cursor-not-allowed');
+          if (hikingDate && hikingDate.value) {
+            const nextDay = new Date(hikingDate.value);
+            nextDay.setDate(nextDay.getDate() + 1);
+            returnDate.value = nextDay.toISOString().split('T')[0];
+          }
+        }
+        if (returnDateLabel) returnDateLabel.innerText = 'ESTIMASI TURUN';
+      }
+      this.recalc();
+    },
+
+    onDateChange() {
+      const hikingDate = document.getElementById('wzHikingDate');
+      const returnDate = document.getElementById('wzReturnDate');
+      if (!hikingDate || !returnDate) return;
+
+      if (this.category === 'tektok') {
+        returnDate.value = hikingDate.value;
+      } else {
+        const nextDay = new Date(hikingDate.value);
+        nextDay.setDate(nextDay.getDate() + 1);
+        returnDate.value = nextDay.toISOString().split('T')[0];
+      }
+    },
+
     recalc() {
       if (!this.uniqueCode) {
         this.uniqueCode = Math.floor(101 + Math.random() * 790);
@@ -1091,6 +1152,9 @@ const App = {
 
         // Build FormData
         const formData = new FormData();
+        const plannedCampsite = document.querySelector('input[name="wzCampsite"]:checked')?.value || 'POS_2';
+        formData.append('hiking_category', this.category || 'camp');
+        formData.append('planned_campsite', this.category === 'camp' ? plannedCampsite : '');
         formData.append('hiking_date', document.getElementById('wzHikingDate')?.value);
         formData.append('return_date', document.getElementById('wzReturnDate')?.value || '');
         formData.append('leader_name', leaderName);
@@ -1158,6 +1222,11 @@ const App = {
             ? 'text-[10px] text-amber-400 font-bold px-2.5 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded uppercase tracking-wider'
             : 'text-[10px] text-rose-400 font-bold px-2.5 py-0.5 bg-rose-500/10 border border-rose-500/30 rounded uppercase tracking-wider';
         }
+
+        const btnDigital = document.getElementById('btnViewDigitalTicket');
+        const btnPdf = document.getElementById('btnDownloadTicketPdf');
+        if (btnDigital) btnDigital.href = `/simaksi/ticket/${result.registration_code}`;
+        if (btnPdf) btnPdf.href = `/simaksi/ticket/${result.registration_code}/pdf`;
 
         // Cache into SAMSARA_CONFIG mockTickets for instant ticket lookup
         SAMSARA_CONFIG.mockTickets[result.registration_code] = {

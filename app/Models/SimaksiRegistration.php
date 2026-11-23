@@ -27,6 +27,12 @@ class SimaksiRegistration extends Model
         'hiking_date',
         'return_date',
         'total_climbers',
+        'hiking_category',
+        'planned_campsite',
+        'camp_location',
+        'last_seen_pos',
+        'last_seen_direction',
+        'last_seen_at',
         'status',
         'revision_notes',
         'rejection_reason',
@@ -65,6 +71,7 @@ class SimaksiRegistration extends Model
         'checked_out_at' => 'datetime',
         'paid_at' => 'datetime',
         'group_photo_uploaded_at' => 'datetime',
+        'last_seen_at' => 'datetime',
         'simaksi_fee' => 'decimal:2',
         'ojek_fee' => 'decimal:2',
         'ojek_count' => 'integer',
@@ -92,6 +99,38 @@ class SimaksiRegistration extends Model
     public function posOrders(): HasMany
     {
         return $this->hasMany(PosOrder::class, 'simaksi_registration_id');
+    }
+
+    public function checkpoints(): HasMany
+    {
+        return $this->hasMany(SimaksiCheckpoint::class, 'simaksi_registration_id')->orderBy('scanned_at', 'desc');
+    }
+
+    public function isTektok(): bool
+    {
+        return $this->hiking_category === 'tektok';
+    }
+
+    public function isCamp(): bool
+    {
+        return $this->hiking_category === 'camp';
+    }
+
+    public function getCategoryBadgeAttribute(): array
+    {
+        if ($this->isTektok()) {
+            return [
+                'bg' => 'bg-cyan-500/15 border-cyan-500/40 text-cyan-300',
+                'label' => 'TEKTOK (03:00 - 07:00)',
+                'icon' => '[TEKTOK]',
+            ];
+        }
+
+        return [
+            'bg' => 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300',
+            'label' => 'CAMP (BERMALAM)',
+            'icon' => '[CAMP]',
+        ];
     }
 
     public function reviewer(): BelongsTo

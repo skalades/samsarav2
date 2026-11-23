@@ -310,6 +310,18 @@
                 <div class="card-box">
                     <div class="card-title">Jadwal & Fasilitas Ekspedisi</div>
                     <div class="data-row">
+                        <span class="data-label">Kategori Izin:</span>
+                        <span class="data-val" style="color: {{ $registration->isTektok() ? '#0284c7' : '#047857' }};">
+                            {{ $registration->isTektok() ? 'TEKTOK (03:00 - 07:00 WIB)' : 'CAMP (MULAI 07:00 WIB)' }}
+                        </span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Aturan Camp:</span>
+                        <span class="data-val">
+                            {{ $registration->isTektok() ? 'DILARANG CAMP (Turun Hari Sama)' : 'Resmi di Pos 2 atau Pos 3' }}
+                        </span>
+                    </div>
+                    <div class="data-row">
                         <span class="data-label">Tanggal Naik:</span>
                         <span class="data-val" style="color: #065f46;">{{ \Carbon\Carbon::parse($registration->hiking_date)->translatedFormat('l, d F Y') }}</span>
                     </div>
@@ -382,6 +394,39 @@
                     <td colspan="6" style="text-align: center; color: #6b7280;">Tidak ada anggota terdaftar.</td>
                 </tr>
             @endforelse
+        </tbody>
+    </table>
+
+    <!-- Bukti Fisik Pemeriksaan Setiap Pos Ranger -->
+    <div style="font-weight: bold; font-size: 10px; color: #111827; text-transform: uppercase; margin-bottom: 3px;">
+        Bukti Pemeriksaan Pos Ranger Jalur SAMSARA (Verifikasi Lapangan)
+    </div>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 9px;">
+        <thead>
+            <tr style="background-color: #f3f4f6;">
+                <th style="border: 1px solid #d1d5db; padding: 4px; width: 33%; text-align: center;">POS 1 (Transit Ojek)</th>
+                <th style="border: 1px solid #d1d5db; padding: 4px; width: 34%; text-align: center;">POS 2 (Mata Air / Camp 1)</th>
+                <th style="border: 1px solid #d1d5db; padding: 4px; width: 33%; text-align: center;">POS 3 (Camp Area Atas)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="border: 1px solid #d1d5db; padding: 6px; vertical-align: top;">
+                    <div>[ &nbsp; ] Lewat Naik (Jam: _____ )</div>
+                    <div>[ &nbsp; ] Lewat Turun (Jam: _____ )</div>
+                    <div style="font-size: 8px; color: #6b7280; margin-top: 4px;">Paraf Ranger: ____________</div>
+                </td>
+                <td style="border: 1px solid #d1d5db; padding: 6px; vertical-align: top;">
+                    <div>[ &nbsp; ] Lewat Transit (Jam: _____ )</div>
+                    <div>[ &nbsp; ] Buka Tenda Camp (Jam: _____ )</div>
+                    <div style="font-size: 8px; color: #6b7280; margin-top: 4px;">Paraf Ranger: ____________</div>
+                </td>
+                <td style="border: 1px solid #d1d5db; padding: 6px; vertical-align: top;">
+                    <div>[ &nbsp; ] Menuju Puncak (Jam: _____ )</div>
+                    <div>[ &nbsp; ] Buka Tenda Camp (Jam: _____ )</div>
+                    <div style="font-size: 8px; color: #6b7280; margin-top: 4px;">Paraf Ranger: ____________</div>
+                </td>
+            </tr>
         </tbody>
     </table>
 

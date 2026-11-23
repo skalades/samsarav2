@@ -134,12 +134,12 @@
                   </select>
 
                   <button type="submit" name="action" value="assign_and_print" class="px-3 py-1.5 bg-[#FF5722] hover:bg-[#ff6f43] text-black font-bold rounded-lg transition whitespace-nowrap flex items-center gap-1">
-                    <span>Tugaskan & Cetak 🖨️</span>
+                    <span>Tugaskan & Cetak</span>
                   </button>
 
                   <button type="button" onclick="printTripWithSelectedDriver({{ $trip->id }})" title="Cetak Voucher Tiket" class="px-2.5 py-1.5 bg-[#16191F] hover:bg-[#202530] border border-[#262B35] rounded-lg text-stone-200 hover:text-white font-bold transition flex items-center gap-1.5 text-xs whitespace-nowrap">
                     <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    <span>Cetak 🖨️</span>
+                    <span>Cetak</span>
                   </button>
                 </form>
               </div>
@@ -199,7 +199,7 @@
                     <td class="py-3 text-right">
                       <div class="flex items-center justify-end gap-1.5">
                         <a href="{{ route('management.ojek.print_voucher', $active->id) }}" target="_blank" title="Cetak Ulang Voucher" class="px-2 py-1 bg-[#16191F] hover:bg-[#202530] border border-[#262B35] rounded text-stone-300 hover:text-white transition flex items-center gap-1 text-[10px]">
-                          <span>🖨️ Cetak</span>
+                          <span>Cetak</span>
                         </a>
                         <form action="{{ route('management.ojek.complete', $active->id) }}" method="POST" class="inline" onsubmit="return confirm('Konfirmasi trip {{ $active->trip_code }} telah selesai sampai tujuan?')">
                           @csrf

@@ -88,7 +88,7 @@
 <body>
 
   <div class="actions">
-    <button class="btn-print" onclick="window.print()">🖨️ CETAK SLIP PENCAIRAN</button>
+    <button class="btn-print" onclick="window.print()">[PRINT] CETAK SLIP PENCAIRAN</button>
     <a href="{{ route('management.ojek.settlements') }}" class="btn-back">← KEMBALI KE REKONSILIASI</a>
   </div>
 
