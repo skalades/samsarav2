@@ -119,3 +119,28 @@ SAMSARA/
 4. **Desain Visual Konsisten (Bold Adventure Brand)**:
    - Palet Matte Graphite (`#0A0B0D`, `#121418`) dan aksen Alpine Rescue Orange (`#FF5722`).
    - Tipografi teknikal: *Space Grotesk* (Display Headers) + *JetBrains Mono* (Data/Telemetri/Mata Uang/Status).
+
+---
+
+## 🚀 Konfigurasi Redis & Live Server Deployment
+
+Untuk mendukung performa tinggi, skalabilitas ribuan pendaki, dan isolasi proses di server produksi (VPS / Dedicated Server / Cloud), SAMSARA telah terkonfigurasi dengan arsitektur **Redis In-Memory Data Store**:
+
+### 1. Redis Database Index Isolation
+Redis diisolasi per indeks database agar flushing cache tidak merusak antrean atau sesi login staf:
+- **DB 0 (`REDIS_DB=0`)**: Default framework & sistem umum.
+- **DB 1 (`REDIS_CACHE_DB=1`)**: Fast in-memory cache & rate limiter kuota (aman di-flush sewaktu-waktu).
+- **DB 2 (`REDIS_SESSION_DB=2`)**: Dedicated session store (mencegah user/petugas ter-logout saat cache dibersihkan).
+- **DB 3 (`REDIS_QUEUE_DB=3`)**: Queue background jobs (antrean email tiket PDF, notifikasi WhatsApp, sinkronisasi stok).
+
+### 2. Client Redis & Kompatibilitas
+Aplikasi mendukung 2 mode client:
+- **`predis`** (`REDIS_CLIENT=predis`): Paket PHP murni (`predis/predis`), terpasang secara default untuk kompatibilitas universal di berbagai lingkungan server tanpa ketergantungan ekstensi C.
+- **`phpredis`** (`REDIS_CLIENT=phpredis`): Ekstensi C PHP native berkecepatan tinggi untuk throughput maksimal pada server berbeban berat.
+
+### 3. Template Konfigurasi Produksi
+Telah disediakan berkas template siap pakai di root proyek:
+- [`.env.production.example`](file:///c:/Users/skala/OneDrive/Documents/SAMSARA/.env.production.example): Contoh konfigurasi environment produksi lengkap dengan Redis session, cache, dan queue.
+- [`deployment/supervisor/samsara-worker.conf`](file:///c:/Users/skala/OneDrive/Documents/SAMSARA/deployment/supervisor/samsara-worker.conf): Konfigurasi Supervisor process manager untuk menjaga queue worker Redis tetap aktif 24/7.
+- [`deployment/nginx/samsara.conf`](file:///c:/Users/skala/OneDrive/Documents/SAMSARA/deployment/nginx/samsara.conf): Konfigurasi Nginx produksi dengan security headers, denial aturan file sensitif (`.env`, `.git`), dan optimasi asset caching.
+- [`deployment/deploy.sh`](file:///c:/Users/skala/OneDrive/Documents/SAMSARA/deployment/deploy.sh): Skrip otomasi deployment zero-downtime (git pull, composer install, migration, caching, queue restart).
