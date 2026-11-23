@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --color-bg-primary: #0A0B0D;
+  --color-bg-surface: #121418;
+  --color-bg-elevated: #16191F;
+  --color-border: #1E2229;
+  --color-accent: #FF5722;
+  --color-accent-hover: #F4511E;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg-primary);
+  color: #E5E7EB;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.font-display { font-family: var(--font-display); }
+.font-mono-tech { font-family: var(--font-mono); }
+
+/* Technical grid background */
+.bg-grid-tech {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+/* Alpine Orange Accent */
+.accent-orange { color: var(--color-accent); }
+.bg-accent-orange { background-color: var(--color-accent); }
+.border-accent-orange { border-color: var(--color-accent); }
+
+/* Touch active state */
+.tap-active:active {
+  transform: scale(0.97);
+}
+
+/* Support iOS Safe Area Bottom */
+.safe-pb {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+/* Custom scrollbar for technical aesthetic */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #0A0B0D;
+}
+::-webkit-scrollbar-thumb {
+  background: #20242C;
+  border-radius: 2px;
+}

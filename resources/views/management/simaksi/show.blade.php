@@ -1,0 +1,480 @@
+@extends('management.layout')
+
+@section('title', 'Detail SIMAKSI ' . $registration->registration_code)
+@section('page_title', 'Detail Permohonan ' . $registration->registration_code)
+@section('page_subtitle', 'Verifikasi Dokumen, Anggota Rombongan, & Putusan Izin')
+
+@section('content')
+<div class="space-y-6">
+
+  <!-- Top Breadcrumb & Status Header -->
+  <div class="flex items-center justify-between bg-[#121418] border border-[#1E2229] rounded-xl p-4">
+    <div class="flex items-center gap-3">
+      <a href="{{ route('management.simaksi.index') }}" class="p-2 rounded bg-[#16191F] hover:bg-[#202530] text-stone-400 hover:text-white transition">
+        ← Kembali
+      </a>
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="font-display font-black text-xl text-white">{{ $registration->registration_code }}</h2>
+          <span class="px-2.5 py-0.5 rounded text-xs font-mono-tech font-bold border {{ $registration->status_badge['bg'] }}">
+            {{ $registration->status_badge['label'] }}
+          </span>
+        </div>
+        <p class="font-mono-tech text-[10px] text-stone-400 mt-0.5">
+          Diajukan: {{ $registration->created_at->format('d M Y H:i WIB') }} • Jalur {{ \App\Models\AppSetting::get('expedition_name', 'SAMSARA') }} {{ \App\Models\AppSetting::get('mountain_name', 'Cikuray') }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick Payment & Check-in info & PDF Download -->
+    <div class="flex items-center gap-4">
+      <div class="text-right font-mono-tech text-xs">
+        <span class="text-stone-400 block text-[10px]">TOTAL BIAYA:</span>
+        <span class="font-bold text-white text-base">Rp {{ number_format($registration->total_amount, 0, ',', '.') }}</span>
+        <span class="block text-[10px] {{ $registration->payment_status === 'paid' ? 'text-emerald-400' : 'text-amber-400' }}">
+          STATUS: {{ strtoupper($registration->payment_status) }} ({{ strtoupper($registration->payment_method ?? 'BELUM BAYAR') }})
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="{{ route('management.simaksi.ticket_pdf', $registration->id) }}" class="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold font-mono-tech text-xs flex items-center gap-1.5 shadow-md shadow-emerald-500/20 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span>Unduh PDF</span>
+        </a>
+        <a href="{{ route('portal.simaksi.ticket', $registration->registration_code) }}" target="_blank" class="px-3 py-2 rounded-lg bg-[#181B22] hover:bg-[#202530] border border-[#2A303C] text-stone-200 font-bold font-mono-tech text-xs flex items-center gap-1 transition">
+          <span>E-Tiket ↗</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rejection / Revision Alert if applicable -->
+  @if($registration->status === 'needs_revision')
+    <div class="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1 font-mono-tech text-xs text-amber-300">
+      <div class="flex items-center gap-2 font-bold uppercase">
+        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <span>STATUS: PERLU PERBAIKAN DOKUMEN / DATA</span>
+      </div>
+      <p class="text-stone-300">Instruksi Petugas: "{{ $registration->revision_notes }}"</p>
+    </div>
+  @endif
+
+  @if($registration->status === 'rejected')
+    <div class="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl space-y-1 font-mono-tech text-xs text-rose-300">
+      <div class="flex items-center gap-2 font-bold uppercase">
+        <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <span>STATUS: PERMOHONAN DITOLAK RESMI</span>
+      </div>
+      <p class="text-stone-300">Alasan Penolakan: "{{ $registration->rejection_reason }}"</p>
+    </div>
+  @endif
+
+  <!-- ======================================================== -->
+  <!-- MAIN GRID: DETAILS & ACTIONS                             -->
+  <!-- ======================================================== -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+    <!-- Left 2 Cols: Leader, Emergency Contact, Members Table -->
+    <div class="lg:col-span-2 space-y-6">
+      
+      <!-- Leader & Schedule Card -->
+      <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-[#1E2229]">
+          <div class="flex items-center gap-2">
+            <div class="w-2.5 h-2.5 rounded-sm bg-[#FF5722]"></div>
+            <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-white">
+              DATA KETUA ROMBONGAN & JADWAL
+            </h3>
+          </div>
+          <span class="font-mono-tech text-[10px] text-stone-400">LEADER DATA</span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 font-mono-tech text-xs">
+          <div>
+            <span class="text-[10px] text-stone-400 block uppercase">NAMA LENGKAP KETUA</span>
+            <span class="font-bold text-white text-sm block mt-0.5">{{ $registration->leader_name }}</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-stone-400 block uppercase">NIK KTP</span>
+            <span class="font-bold text-stone-200 block mt-0.5">{{ $registration->leader_nik }}</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-stone-400 block uppercase">NO. WHATSAPP</span>
+            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $registration->leader_phone) }}" target="_blank" class="font-bold text-[#FF5722] hover:underline block mt-0.5">
+              {{ $registration->leader_phone }}
+            </a>
+          </div>
+          <div>
+            <span class="text-[10px] text-stone-400 block uppercase">ALAMAT LENGKAP DOMISILI</span>
+            <span class="text-stone-300 block mt-0.5">{{ $registration->leader_address ?? $registration->leader_city ?? '-' }}</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-stone-400 block uppercase">TANGGAL PENDAKIAN</span>
+            <span class="font-bold text-emerald-400 block mt-0.5">{{ $registration->hiking_date->format('d M Y') }}</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-stone-400 block uppercase">ESTIMASI TURUN</span>
+            <span class="text-stone-300 block mt-0.5">{{ $registration->return_date ? $registration->return_date->format('d M Y') : '-' }}</span>
+          </div>
+          <div class="col-span-2 sm:col-span-3 pt-2 border-t border-[#1E2229]">
+            <span class="text-[10px] text-stone-400 block uppercase">RIWAYAT PENYAKIT BAWAAN / KONDISI MEDIS KETUA</span>
+            <span class="font-bold {{ $registration->medical_conditions && $registration->medical_conditions !== 'Tidak Ada' ? 'text-amber-400' : 'text-stone-300' }} block mt-0.5">
+              {{ $registration->medical_conditions ?? 'Tidak Ada' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Emergency Contact -->
+        <div class="p-3 bg-[#16191F] border border-[#20242C] rounded-lg font-mono-tech text-xs space-y-1">
+          <span class="text-[10px] text-[#FF5722] font-bold uppercase tracking-wider block">KONTAK DARURAT (KELUARGA TIDAK IKUT MENDAKI)</span>
+          <div class="flex justify-between items-center text-stone-300 pt-1">
+            <span>Nama: <strong class="text-white">{{ $registration->emergency_contact_name }}</strong> ({{ $registration->emergency_relationship }})</span>
+            <span>Telp: <a href="tel:{{ $registration->emergency_contact_phone }}" class="text-[#FF5722] font-bold hover:underline">{{ $registration->emergency_contact_phone }}</a></span>
+          </div>
+        </div>
+
+        <!-- Foto Dokumen KTP Asli Ketua -->
+        <div class="p-3.5 bg-[#16191F] border border-[#20242C] rounded-xl font-mono-tech text-xs space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5 text-stone-200">
+              <svg class="w-4 h-4 text-[#FF5722]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg>
+              <span class="text-[10px] font-bold uppercase tracking-wider">FOTO / SCAN KTP ASLI KETUA:</span>
+            </div>
+            @if($registration->leader_ktp_path)
+              <span class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded uppercase">
+                [✓] TERUNGGAH & TERKOMPRESI
+              </span>
+            @elseif($registration->status === 'completed')
+              <span class="text-[10px] text-stone-400 font-bold bg-stone-500/10 border border-stone-500/30 px-2.5 py-0.5 rounded uppercase">
+                [✓] DIMUSNAHKAN OTOMATIS (PDP PRIVASI)
+              </span>
+            @else
+              <span class="text-[10px] text-amber-400 font-bold bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded uppercase">
+                [!] BELUM DILAMPIRKAN
+              </span>
+            @endif
+          </div>
+
+          @if($registration->leader_ktp_path)
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-1">
+              <a href="{{ route('management.simaksi.ktp', $registration->id) }}" target="_blank" class="group relative block overflow-hidden rounded-lg border border-[#2A303C] hover:border-[#FF5722] bg-black transition flex-shrink-0">
+                <img src="{{ route('management.simaksi.ktp', $registration->id) }}" alt="KTP {{ $registration->leader_name }}" class="h-28 w-44 object-cover group-hover:opacity-90 transition">
+                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] text-white font-bold transition">
+                  [KLIK PERBESAR KTP]
+                </div>
+              </a>
+              <div class="text-[11px] text-stone-300 space-y-1.5 leading-relaxed">
+                <div>Cocokkan NIK KTP: <strong class="text-white text-xs">{{ $registration->leader_nik }}</strong></div>
+                <div>Nama Lengkap: <strong class="text-white text-xs">{{ $registration->leader_name }}</strong></div>
+                <div class="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                  <span>DILINDUNGI RUTE TERPROTEKSI (UU PDP)</span>
+                </div>
+                <div class="text-[10px] text-stone-400">Verifikator wajib memvalidasi foto identitas dengan data manifest rombongan sebelum putusan izin.</div>
+              </div>
+            </div>
+          @elseif($registration->status === 'completed')
+            <div class="p-2.5 bg-[#0D0F12] border border-emerald-500/20 rounded-lg text-[10px] text-stone-400 flex items-center gap-2">
+              <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>Sesuai SOP Perlindungan Data Pribadi (PDP), berkas fisik KTP ketua rombongan telah dimusnahkan secara otomatis saat pendaki check-out selesai turun gunung.</span>
+            </div>
+          @else
+            <div class="p-2.5 bg-[#0D0F12] border border-[#222731] rounded-lg text-[10px] text-stone-400">
+              Pemohon belum melampirkan foto KTP fisik. Jika diperlukan untuk SOP verifikasi, gunakan formulir <strong>Minta Perbaikan Berkas</strong> di samping.
+            </div>
+          @endif
+        </div>
+      </div>
+
+      <!-- Climber Members Manifest Table -->
+      <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-[#1E2229]">
+          <div class="flex items-center gap-2">
+            <div class="w-2.5 h-2.5 rounded-sm bg-[#FF5722]"></div>
+            <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-white">
+              MANIFEST SELURUH ANGGOTA ROMBONGAN ({{ $registration->members->count() }} ORANG)
+            </h3>
+          </div>
+          <span class="font-mono-tech text-[10px] text-stone-400">CREW ROSTER</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left font-mono-tech text-xs">
+            <thead>
+              <tr class="text-[10px] text-stone-400 uppercase border-b border-[#1E2229]">
+                <th class="pb-2">NO</th>
+                <th class="pb-2">NAMA LENGKAP</th>
+                <th class="pb-2">NIK</th>
+                <th class="pb-2">GENDER</th>
+                <th class="pb-2">KOTA</th>
+                <th class="pb-2">KONDISI MEDIS</th>
+                <th class="pb-2">PERAN</th>
+                <th class="pb-2">GATE CHECK-IN</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#1A1E26]">
+              @foreach($registration->members as $idx => $m)
+                <tr class="hover:bg-[#16191F]">
+                  <td class="py-2.5 text-stone-400">{{ $idx + 1 }}</td>
+                  <td class="py-2.5 font-bold text-white">{{ $m->full_name }}</td>
+                  <td class="py-2.5 text-stone-300">{{ $m->nik ?? '-' }}</td>
+                  <td class="py-2.5 text-stone-300">{{ $m->gender === 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                  <td class="py-2.5 text-stone-400">{{ $m->city_origin ?? '-' }}</td>
+                  <td class="py-2.5">
+                    @if($m->medical_conditions && $m->medical_conditions !== 'Tidak Ada')
+                      <span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold">
+                        [!] {{ $m->medical_conditions }}
+                      </span>
+                    @else
+                      <span class="text-stone-400 text-[10px]">Tidak Ada</span>
+                    @endif
+                  </td>
+                  <td class="py-2.5">
+                    @if($m->is_leader)
+                      <span class="px-2 py-0.5 rounded bg-[#FF5722]/10 border border-[#FF5722]/30 text-[#FF5722] text-[10px] font-bold">
+                        KETUA TIM
+                      </span>
+                    @else
+                      <span class="text-stone-400 text-[10px]">Anggota</span>
+                    @endif
+                  </td>
+                  <td class="py-2.5">
+                    @if($m->is_checked_in)
+                      <span class="text-emerald-400 text-[10px] font-bold">✓ HADIR</span>
+                    @else
+                      <span class="text-stone-400 text-[10px]">Belum</span>
+                    @endif
+                  </td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Audit Trail for this registration -->
+      <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4">
+        <div class="flex items-center gap-2 pb-3 border-b border-[#1E2229]">
+          <div class="w-2.5 h-2.5 rounded-sm bg-[#FF5722]"></div>
+          <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-white">
+            JEJAK AUDIT & RIWAYAT KEPUTUSAN PETUGAS
+          </h3>
+        </div>
+
+        <div class="space-y-3 font-mono-tech text-xs">
+          @forelse($auditLogs as $log)
+            <div class="p-3 bg-[#16191F] border border-[#20242C] rounded-lg space-y-1">
+              <div class="flex justify-between items-center text-[10px]">
+                <span class="font-bold text-[#FF5722]">{{ $log->action }}</span>
+                <span class="text-stone-400">{{ $log->created_at->format('d M Y H:i:s') }}</span>
+              </div>
+              <p class="text-stone-200 text-xs">{{ $log->description }}</p>
+              @if($log->reason)
+                <div class="text-[11px] text-amber-300/90 bg-amber-500/10 p-2 rounded border border-amber-500/20 mt-1">
+                  Alasan: {{ $log->reason }}
+                </div>
+              @endif
+              <div class="pt-1 border-t border-[#1E2229] text-[9px] text-stone-400 flex justify-between">
+                <span>Oleh: {{ $log->actor_name }} ({{ $log->actor_role }})</span>
+                <span>IP: {{ $log->ip_address }}</span>
+              </div>
+            </div>
+          @empty
+            <div class="text-center py-4 text-stone-400">Belum ada jejak audit untuk permohonan ini.</div>
+          @endforelse
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Col: Fee Breakdown & Verifier Decision Actions -->
+    <div class="space-y-6">
+      
+      <!-- Fee Breakdown Card -->
+      <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-[#1E2229]">
+          <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-white">
+            RINCIAN TARIF & LAYANAN
+          </h3>
+          <span class="font-mono-tech text-[10px] text-stone-400">RESMI</span>
+        </div>
+
+        <div class="space-y-2 font-mono-tech text-xs">
+          <div class="flex justify-between text-stone-300">
+            <span>Tiket SIMAKSI ({{ $registration->total_climbers }} org @ Rp 25k):</span>
+            <span class="font-bold">Rp {{ number_format($registration->simaksi_fee, 0, ',', '.') }}</span>
+          </div>
+          <div class="flex justify-between text-stone-300">
+            <span>Shuttle Ojek ({{ $registration->ojek_count ?? ($registration->ojek_fee > 0 ? 1 : 0) }} Armada @ Rp 30k):</span>
+            <span class="font-bold">Rp {{ number_format($registration->ojek_fee, 0, ',', '.') }}</span>
+          </div>
+          @if($registration->has_vehicle || $registration->parking_fee > 0)
+            <div class="flex justify-between text-cyan-300 bg-cyan-950/20 p-1.5 rounded border border-cyan-800/30">
+              <span>Titip Parkir ({{ $registration->motorcycle_count }} Motor, {{ $registration->car_count }} Mobil):</span>
+              <span class="font-bold">Rp {{ number_format($registration->parking_fee, 0, ',', '.') }}</span>
+            </div>
+          @endif
+          @if($registration->unique_code > 0)
+            <div class="flex justify-between text-amber-400 bg-amber-500/10 p-2 rounded border border-amber-500/20">
+              <span>Kode Unik Verifikasi Bank:</span>
+              <span class="font-bold">+Rp {{ $registration->unique_code }}</span>
+            </div>
+          @endif
+          <div class="pt-2 border-t border-[#1E2229] flex justify-between items-center text-sm font-bold text-white">
+            <span>TOTAL TAGIHAN:</span>
+            <span class="text-[#FF5722] text-base">Rp {{ number_format($registration->total_amount, 0, ',', '.') }}</span>
+          </div>
+          
+          <div class="p-2.5 bg-[#0A0B0D] border border-[#1E2229] rounded-lg text-[10px] text-stone-400 mt-2 space-y-1">
+            @if($registration->unique_code > 0)
+              <div class="text-amber-300 font-bold pb-1 border-b border-[#1E2229]">
+                // Verifikasi Mutasi Bank: Nominal transfer persis <strong class="text-white">Rp {{ number_format($registration->total_amount, 0, ',', '.') }}</strong> (Kode unik: {{ $registration->unique_code }}).
+              </div>
+            @endif
+            <div>
+              @if($registration->trash_deposit_amount > 0)
+                <span class="text-stone-300 font-bold">UANG JAMINAN SAMPAH: Rp {{ number_format($registration->trash_deposit_amount, 0, ',', '.') }}</span> (Diserahkan saat Gate Check-in & dikembalikan 100% setelah sampah dibawa turun).
+              @else
+                <span class="text-stone-400 font-bold">JAMINAN SAMPAH: NONAKTIF / BEBAS DEPOSIT</span>
+              @endif
+            </div>
+          </div>
+        </div>
+
+        <!-- Bukti Pembayaran yang Diunggah Pendaki -->
+        @if($registration->payment_proof_path)
+          <div class="p-3 bg-[#16191F] border border-blue-500/40 rounded-xl space-y-2 font-mono-tech">
+            <div class="flex items-center justify-between text-[10px]">
+              <span class="text-blue-400 font-bold uppercase">BUKTI BAYAR DIUNGGAH PENDAKI:</span>
+              <span class="text-stone-400">Metode: {{ strtoupper($registration->payment_method) }}</span>
+            </div>
+            <button type="button" onclick="showProofModal('{{ asset('storage/' . $registration->payment_proof_path) }}', '{{ $registration->registration_code }}', '{{ addslashes($registration->leader_name) }}', '{{ number_format($registration->total_amount, 0, ',', '.') }}', '{{ strtoupper($registration->payment_method ?? 'QRIS') }}')" class="block w-full text-left group relative overflow-hidden rounded-lg border border-[#2A303C] bg-black cursor-pointer">
+              <img src="{{ asset('storage/' . $registration->payment_proof_path) }}" alt="Bukti Transfer" class="w-full max-h-48 object-contain group-hover:opacity-90 transition">
+              <div class="p-1.5 text-center bg-[#1A1D24] text-[9px] text-stone-300 group-hover:text-cyan-300 transition flex items-center justify-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <span>[KLIK UNTUK MEMPERBESAR BUKTI BAYAR]</span>
+              </div>
+            </button>
+          </div>
+        @endif
+
+        <!-- Payment action if pending -->
+        @if($registration->status === 'pending' || $registration->payment_status !== 'paid')
+          <form action="{{ route('management.simaksi.paid', $registration->id) }}" method="POST" class="pt-3 border-t border-[#1E2229] space-y-3">
+            @csrf
+            <div>
+              <label for="payment_method" class="block text-[10px] font-mono-tech font-bold text-stone-300 uppercase mb-1.5 flex items-center justify-between">
+                <span>Kanal Masuk Pembayaran:</span>
+                <span class="text-cyan-400 font-normal">Pilihan Pendaki: {{ strtoupper($registration->payment_method ?? ($registration->payment_proof_path ? 'TRANSFER' : 'CASH')) }}</span>
+              </label>
+              @php
+                $defaultMethod = old('payment_method', $registration->payment_method ?? ($registration->payment_proof_path ? 'transfer' : 'cash_pos'));
+              @endphp
+              <select id="payment_method" name="payment_method" class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg px-3 py-2 text-white font-mono-tech font-bold text-xs focus:outline-none focus:border-emerald-500">
+                <option value="qris" {{ $defaultMethod === 'qris' ? 'selected' : '' }}>QRIS Resmi Basecamp</option>
+                <option value="transfer" {{ in_array($defaultMethod, ['transfer', 'bank_transfer']) ? 'selected' : '' }}>Transfer Bank (BCA)</option>
+                <option value="cash_pos" {{ in_array($defaultMethod, ['cash', 'cash_pos']) ? 'selected' : '' }}>Uang Tunai (Cash Fisik Posko)</option>
+              </select>
+              <p class="text-[9px] text-stone-400 mt-1">Uang non-tunai (QRIS & Transfer) tidak membebani laci fisik kasir posko.</p>
+            </div>
+            <button type="submit" onclick="return confirm('Konfirmasi terima pembayaran dan set status ke PAID?')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-mono-tech font-bold text-xs uppercase tracking-wider rounded-lg transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              <span>TERIMA PEMBAYARAN & SET STATUS PAID</span>
+            </button>
+          </form>
+        @else
+          <div class="pt-3 border-t border-[#1E2229] space-y-2">
+            <div class="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg font-mono-tech text-xs text-emerald-300 text-center font-bold">
+              [✓] STATUS: PAID / LUNAS (IZIN TERBIT)
+            </div>
+            @if($registration->status === 'paid')
+              <a href="{{ route('management.gate.index', ['code' => $registration->registration_code]) }}" class="block w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-center font-mono-tech font-bold text-xs uppercase rounded-lg transition">
+                BUKA GATE CHECK-IN UNTUK ROMBONGAN INI →
+              </a>
+            @endif
+          </div>
+        @endif
+      </div>
+
+      <!-- Decision Box (Revision & Rejection if pending) -->
+      <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4">
+        <div class="flex items-center gap-2 pb-3 border-b border-[#1E2229]">
+          <div class="w-2.5 h-2.5 rounded-sm bg-[#FF5722]"></div>
+          <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-white">
+            KONTROL STATUS KASIR
+          </h3>
+        </div>
+
+        <!-- 2. REQUEST REVISION FORM -->
+        @if(!in_array($registration->status, ['checked_in', 'completed', 'rejected']))
+          <div class="pt-3 border-t border-[#1E2229] space-y-2">
+            <span class="block font-mono-tech text-[10px] text-amber-400 font-bold uppercase">MINTA PERBAIKAN BERKAS / DATA:</span>
+            <form action="{{ route('management.simaksi.revision', $registration->id) }}" method="POST" class="space-y-2">
+              @csrf
+              <textarea name="revision_notes" required rows="2" placeholder="Tuliskan instruksi perbaikan untuk ketua tim..." class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg p-2.5 text-xs font-mono-tech text-white focus:outline-none focus:border-amber-500">{{ $registration->revision_notes }}</textarea>
+              <button type="submit" class="w-full py-2 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 font-mono-tech font-bold text-xs rounded-lg transition">
+                KIRIM PERMINTAAN REVISI
+              </button>
+            </form>
+          </div>
+        @endif
+
+        <!-- 3. REJECT FORM -->
+        @if(!in_array($registration->status, ['checked_in', 'completed', 'rejected']))
+          <div class="pt-3 border-t border-[#1E2229] space-y-2">
+            <span class="block font-mono-tech text-[10px] text-rose-400 font-bold uppercase">TOLAK PERMOHONAN:</span>
+            <form action="{{ route('management.simaksi.reject', $registration->id) }}" method="POST" class="space-y-2">
+              @csrf
+              <textarea name="rejection_reason" required rows="2" placeholder="Tuliskan alasan penolakan resmi (wajib)..." class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg p-2.5 text-xs font-mono-tech text-white focus:outline-none focus:border-rose-500"></textarea>
+              <button type="submit" onclick="return confirm('Yakin ingin MENOLAK permohonan SIMAKSI ini? Tindakan akan diaudit.')" class="w-full py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 font-mono-tech font-bold text-xs rounded-lg transition">
+                TOLAK PERMOHONAN RESMI
+              </button>
+            </form>
+          </div>
+        @endif
+
+      </div>
+
+      <!-- WhatsApp Gateway Action Card -->
+      <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-[#1E2229]">
+          <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+            <span>💬 DISPATCH WHATSAPP RESMI</span>
+          </h3>
+          <span class="font-mono-tech text-[9px] text-stone-400">NOTIFIKASI</span>
+        </div>
+
+        <p class="font-mono-tech text-[10px] text-stone-300">
+          Kirim pesan notifikasi resmi langsung ke nomor WhatsApp Ketua (<strong>{{ $registration->leader_phone }}</strong>):
+        </p>
+
+        <div class="space-y-1.5 font-mono-tech text-xs">
+          @if($registration->status === 'pending')
+            <a href="{{ \App\Services\NotificationService::getWhatsAppUrl($registration->leader_phone, \App\Services\NotificationService::bookingCreatedMessage($registration)) }}" target="_blank" class="flex items-center justify-between w-full p-2.5 bg-[#16191F] hover:bg-emerald-950/40 text-emerald-300 border border-emerald-500/30 font-bold text-[10px] rounded-lg transition">
+              <span>Kirim Tagihan & Rekening Transfer</span>
+              <span>→</span>
+            </a>
+          @endif
+
+          @if(in_array($registration->status, ['paid', 'approved']))
+            <a href="{{ \App\Services\NotificationService::getWhatsAppUrl($registration->leader_phone, \App\Services\NotificationService::paymentConfirmedMessage($registration)) }}" target="_blank" class="flex items-center justify-between w-full p-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold text-[10px] rounded-lg transition">
+              <span>Kirim Tiket Lunas & SOP Check-in</span>
+              <span>→</span>
+            </a>
+          @endif
+
+          @if($registration->status === 'needs_revision')
+            <a href="{{ \App\Services\NotificationService::getWhatsAppUrl($registration->leader_phone, \App\Services\NotificationService::revisionRequestedMessage($registration, $registration->revision_notes ?? 'Harap upload ulang foto KTP')) }}" target="_blank" class="flex items-center justify-between w-full p-2.5 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 font-bold text-[10px] rounded-lg transition">
+              <span>Kirim Instruksi Perbaikan Berkas</span>
+              <span>→</span>
+            </a>
+          @endif
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+@endsection
