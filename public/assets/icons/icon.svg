@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#181C22" />
+      <stop offset="100%" stop-color="#0B0D10" />
+    </linearGradient>
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF7A50" />
+      <stop offset="50%" stop-color="#FF5722" />
+      <stop offset="100%" stop-color="#E64A19" />
+    </linearGradient>
+    <linearGradient id="peakGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#ECEFF3" />
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="50%" cy="45%" r="40%">
+      <stop offset="0%" stop-color="#FF5722" stop-opacity="0.45" />
+      <stop offset="100%" stop-color="#FF5722" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#FF5722" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <rect width="504" height="504" x="4" y="4" rx="108" fill="none" stroke="#2F3641" stroke-width="4" />
+
+  <!-- Ambient Glow -->
+  <circle cx="256" cy="240" r="180" fill="url(#sunGlow)" />
+
+  <!-- Sunrise Crest / Halo -->
+  <circle cx="256" cy="220" r="76" fill="url(#brandGrad)" opacity="0.9" />
+
+  <!-- Mountain Silhouettes (Gunung Cikuray Peak) -->
+  <g filter="url(#shadow)">
+    <!-- Back Peak -->
+    <polygon points="120,360 210,210 300,360" fill="#232932" />
+    <polygon points="210,210 236,252 200,268 210,210" fill="#3B4350" />
+
+    <!-- Main Majestic Peak (Cikuray 2.821 M) -->
+    <polygon points="170,370 290,160 410,370" fill="url(#brandGrad)" />
+    <!-- Snowcap / Peak highlight -->
+    <polygon points="290,160 326,224 290,210 264,228" fill="url(#peakGrad)" />
+
+    <!-- Foreground Ridge -->
+    <polygon points="70,380 180,240 280,380" fill="#181C22" opacity="0.95" />
+    <polygon points="180,240 205,275 180,268 165,278" fill="#ECEFF3" />
+  </g>
+
+  <!-- Base Grid / Contour Line -->
+  <path d="M60 380 Q 256 360 452 380" fill="none" stroke="#FF5722" stroke-width="6" stroke-linecap="round" opacity="0.8" />
+  <path d="M90 405 Q 256 390 422 405" fill="none" stroke="#2F3641" stroke-width="3" stroke-linecap="round" />
+
+  <!-- Text Badge SAMSARA OPS -->
+  <text x="256" y="450" font-family="'Space Grotesk', 'Inter', -apple-system, sans-serif" font-size="34" font-weight="800" fill="#ECEFF3" text-anchor="middle" letter-spacing="6">SAMSARA OPS</text>
+  <text x="256" y="475" font-family="'JetBrains Mono', monospace" font-size="16" font-weight="600" fill="#A0A9B6" text-anchor="middle" letter-spacing="3">2.821 MDPL</text>
+</svg>

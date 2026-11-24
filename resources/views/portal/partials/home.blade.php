@@ -270,6 +270,8 @@
     </div>
   </section>
 
+  @include('portal.partials.location')
+
   {{-- ================= FAQ ================= --}}
   <section>
     <p class="text-xs font-semibold uppercase tracking-wider text-brand">Pertanyaan umum</p>

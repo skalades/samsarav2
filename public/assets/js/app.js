@@ -220,40 +220,52 @@ const App = {
 
   renderWaypoints() {
     const container = document.getElementById('waypointContainer');
-    if (!container) return;
+    if (!container || container.dataset.static) return; // timeline sudah dirender server dari pengaturan jalur
 
-    container.innerHTML = SAMSARA_CONFIG.waypoints.map((wp, idx) => `
-      <div class="relative pl-6 pb-6 border-l-2 border-[#1E2229] last:border-transparent last:pb-0">
-        <!-- Node Marker -->
-        <div class="absolute -left-[9px] top-0.5 w-4 h-4 rounded-full bg-[#16191F] border-2 ${
-          idx === SAMSARA_CONFIG.waypoints.length - 1 ? 'border-[#FF5722] bg-[#FF5722]' : 'border-stone-500'
-        } flex items-center justify-center">
-          ${idx === SAMSARA_CONFIG.waypoints.length - 1 ? '<span class="w-1.5 h-1.5 rounded-full bg-black"></span>' : ''}
-        </div>
+    const wps = SAMSARA_CONFIG.waypoints;
+    const last = wps.length - 1;
+    const fmt = (n) => Number(n).toLocaleString('id-ID');
 
-        <div class="bg-[#121418] border border-[#1E2229] p-3 rounded-lg">
-          <div class="flex items-center justify-between mb-1">
-            <span class="font-mono-tech text-[10px] text-[#FF5722] font-bold tracking-wider">${wp.code}</span>
-            <span class="font-mono-tech text-[11px] font-bold text-stone-300">${wp.elevation} MDPL</span>
-          </div>
-          <h4 class="font-display font-bold text-sm text-white mb-1.5">${wp.name}</h4>
-          
-          <div class="flex flex-wrap gap-2 text-[10px] font-mono-tech text-stone-400 mb-2">
-            <span class="px-1.5 py-0.5 bg-[#1A1D24] rounded border border-[#262B35]">JARAK: ${wp.distance}</span>
-            <span class="px-1.5 py-0.5 bg-[#1A1D24] rounded border border-[#262B35]">EST: ${wp.duration}</span>
-            ${wp.waterSource ? '<span class="px-1.5 py-0.5 bg-cyan-950/50 text-cyan-400 rounded border border-cyan-800/40">SUMBER AIR</span>' : ''}
-            ${wp.campArea ? '<span class="px-1.5 py-0.5 bg-emerald-950/50 text-emerald-400 rounded border border-emerald-800/40">CAMP AREA</span>' : ''}
-          </div>
+    // Ringkasan jarak & jumlah pos dihitung dari data rute itu sendiri
+    const totalKm = wps.reduce((sum, wp) => sum + (parseFloat(String(wp.distance).replace(/[^0-9.]/g, '')) || 0), 0);
+    const summary = document.getElementById('wpSummary');
+    if (summary) summary.textContent = `${totalKm.toFixed(1).replace('.', ',')} km · ${wps.length} pos`;
 
-          <p class="text-xs text-stone-400 leading-relaxed">${wp.description}</p>
-          ${wp.criticalWarning ? `
-            <div class="mt-2 p-2 bg-amber-500/10 border border-amber-500/30 rounded text-[11px] text-amber-300 font-mono-tech">
-              ${wp.criticalWarning}
+    container.innerHTML = '<ol class="relative">' + wps.map((wp, idx) => {
+      const isLast = idx === last;
+      const badges = [
+        wp.waterSource ? '<span class="inline-flex items-center h-6 px-2 rounded-full bg-sky-500/10 text-sky-300 ring-1 ring-inset ring-sky-500/25 text-[11px] font-semibold">Sumber air</span>' : '',
+        wp.campArea ? '<span class="inline-flex items-center h-6 px-2 rounded-full bg-emerald-500/10 text-emerald-300 ring-1 ring-inset ring-emerald-500/25 text-[11px] font-semibold">Area camp</span>' : '',
+      ].join('');
+
+      return `
+      <li class="relative flex gap-4 ${isLast ? '' : 'pb-5'}">
+        ${isLast ? '' : '<span class="absolute left-[15px] top-8 bottom-0 w-0.5 bg-line-strong" aria-hidden="true"></span>'}
+        <span class="relative z-10 w-8 h-8 shrink-0 rounded-full flex items-center justify-center ${isLast ? 'bg-brand text-white' : 'bg-raised ring-2 ring-line-strong text-muted'}">
+          ${isLast ? '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m3 20 6.5-11 4 6.5 2.5-4L21 20H3Z"/></svg>' : `<span class="text-[11px] font-bold tabular-nums">${idx}</span>`}
+        </span>
+        <div class="flex-1 min-w-0 rounded-2xl bg-surface ring-1 ${isLast ? 'ring-brand/30' : 'ring-line'} p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <p class="font-code text-[11px] font-semibold ${isLast ? 'text-brand-soft' : 'text-subtle'}">${wp.code}</p>
+              <h4 class="font-display font-bold text-base text-ink mt-0.5 leading-snug">${wp.name}</h4>
             </div>
-          ` : ''}
+            <span class="shrink-0 font-display font-bold text-ink tabular-nums">${fmt(wp.elevation)} <span class="text-xs font-medium text-muted">mdpl</span></span>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5 mt-2.5">
+            <span class="inline-flex items-center h-6 px-2 rounded-full bg-raised text-muted ring-1 ring-inset ring-line text-[11px] font-medium">${wp.distance}</span>
+            <span class="inline-flex items-center h-6 px-2 rounded-full bg-raised text-muted ring-1 ring-inset ring-line text-[11px] font-medium">${wp.duration}</span>
+            ${badges}
+          </div>
+          <p class="text-sm text-muted mt-2.5 leading-relaxed">${wp.description}</p>
+          ${wp.criticalWarning ? `
+            <div class="mt-3 flex gap-2.5 p-3 rounded-xl bg-amber-500/10 ring-1 ring-amber-500/25 text-sm text-amber-200">
+              <svg class="w-5 h-5 shrink-0 text-amber-400" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 4.2 2.6 17.5A2 2 0 0 0 4.3 20.5h15.4a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0Z"/></svg>
+              <span>${wp.criticalWarning}</span>
+            </div>` : ''}
         </div>
-      </div>
-    `).join('');
+      </li>`;
+    }).join('') + '</ol>';
   },
 
   nav: {
@@ -277,26 +289,22 @@ const App = {
 
       // Update Top Nav Tab Buttons
       document.querySelectorAll('.tab-btn').forEach(btn => {
-        const target = btn.getAttribute('data-tab');
-        if (target === tabId) {
-          btn.classList.add('bg-[#FF5722]', 'text-black', 'border-[#FF5722]');
-          btn.classList.remove('text-stone-400', 'border-[#222731]', 'bg-[#121418]');
-        } else {
-          btn.classList.remove('bg-[#FF5722]', 'text-black', 'border-[#FF5722]');
-          btn.classList.add('text-stone-400', 'border-[#222731]', 'bg-[#121418]');
-        }
+        const active = btn.getAttribute('data-tab') === tabId;
+        btn.classList.toggle('bg-raised', active);
+        btn.classList.toggle('text-ink', active);
+        btn.classList.toggle('ring-1', active);
+        btn.classList.toggle('ring-line-strong', active);
+        btn.classList.toggle('text-muted', !active);
       });
 
       // Update Mobile Bottom Nav Items
       document.querySelectorAll('.nav-item').forEach(item => {
         const target = item.getAttribute('data-tab') || item.getAttribute('href')?.replace('#', '');
-        if (target === tabId) {
-          item.classList.remove('text-stone-400');
-          item.classList.add('text-[#FF5722]');
-        } else if (target && target.startsWith('sec-')) {
-          item.classList.remove('text-[#FF5722]');
-          item.classList.add('text-stone-400');
-        }
+        if (!target || !target.startsWith('sec-')) return;
+        const active = target === tabId;
+        item.classList.toggle('text-brand', active && !item.classList.contains('nav-cta'));
+        item.classList.toggle('text-ink', active && item.classList.contains('nav-cta'));
+        item.classList.toggle('text-muted', !active);
       });
 
       // Smooth scroll to top of content container if scrolled down

@@ -82,7 +82,7 @@ class SamsaraManagementSeeder extends Seeder
 
         // 3. Daily Quotas (30 days from today)
         $today = Carbon::today();
-        $defaultDailyQuota = (int) AppSetting::get('default_daily_quota', 150);
+        $defaultDailyQuota = (int) AppSetting::get('default_daily_quota', 300);
         for ($i = 0; $i < 30; $i++) {
             $date = $today->copy()->addDays($i);
             $booked = $i === 0 ? 108 : ($i === 7 ? 142 : rand(10, 60));
@@ -161,7 +161,7 @@ class SamsaraManagementSeeder extends Seeder
         );
         AppSetting::updateOrCreate(
             ['key' => 'default_daily_quota'],
-            ['value' => '150', 'label' => 'Kapasitas Kuota Harian Resmi', 'description' => 'Batas maksimal pendaki per hari sesuai daya dukung jalur', 'type' => 'number', 'group' => 'capacity']
+            ['value' => '300', 'label' => 'Kapasitas Kuota Harian Resmi', 'description' => 'Batas maksimal pendaki per hari sesuai daya dukung jalur', 'type' => 'number', 'group' => 'capacity']
         );
         AppSetting::updateOrCreate(
             ['key' => 'min_climbers_per_group'],

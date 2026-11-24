@@ -23,6 +23,10 @@ use Illuminate\Support\Facades\Route;
 // Public Mobile Landing Page
 Route::get('/', [PublicSimaksiController::class, 'portal'])->name('portal.home');
 
+// PWA Offline Fallback Routes
+Route::get('/offline', fn () => response(file_get_contents(public_path('offline.html')))->header('Content-Type', 'text/html; charset=utf-8'))->name('pwa.offline');
+Route::get('/management/offline', fn () => response(file_get_contents(public_path('offline.html')))->header('Content-Type', 'text/html; charset=utf-8'))->name('management.offline');
+
 // Public Self-Service SIMAKSI Registration & Ticket Tracking (with Anti-Abuse Rate Limiting)
 Route::middleware('throttle:60,1')->group(function () {
     Route::get('/api/simaksi/quota', [PublicSimaksiController::class, 'checkQuota'])->name('portal.simaksi.quota');

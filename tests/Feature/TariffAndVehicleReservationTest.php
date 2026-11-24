@@ -377,4 +377,43 @@ class TariffAndVehicleReservationTest extends TestCase
         $this->assertNull(AppSetting::get('payment_qris_image'));
         Storage::disk('public')->assertMissing($qrisPath);
     }
+
+    public function test_updating_default_daily_quota_synchronizes_upcoming_unclosed_quotas(): void
+    {
+        $superadmin = User::factory()->create([
+            'role' => 'superadmin',
+            'status' => 'active',
+        ]);
+
+        AppSetting::set('default_daily_quota', 150, 'Kapasitas Kuota Harian Resmi', 'number', 'capacity');
+
+        // Create 2 upcoming unclosed quotas with old default 150, and 1 closed emergency quota
+        $tomorrow = \Carbon\Carbon::tomorrow()->toDateString();
+        $nextWeek = \Carbon\Carbon::today()->addDays(7)->toDateString();
+        $closedDate = \Carbon\Carbon::today()->addDays(10)->toDateString();
+
+        $q1 = \App\Models\DailyQuota::create(['quota_date' => $tomorrow, 'max_quota' => 150, 'booked_quota' => 10, 'is_closed' => false]);
+        $q2 = \App\Models\DailyQuota::create(['quota_date' => $nextWeek, 'max_quota' => 150, 'booked_quota' => 25, 'is_closed' => false]);
+        $q3 = \App\Models\DailyQuota::create(['quota_date' => $closedDate, 'max_quota' => 150, 'booked_quota' => 0, 'is_closed' => true, 'closure_reason' => 'Bad Weather']);
+
+        $response = $this->actingAs($superadmin)->post(route('management.settings.tariffs.update'), [
+            'simaksi_fee_per_person' => 25000,
+            'ojek_fee_per_trip' => 30000,
+            'parking_motor_fee' => 10000,
+            'parking_car_fee' => 25000,
+            'trash_deposit_amount' => 50000,
+            'default_daily_quota' => 300,
+            'sync_upcoming_quotas' => '1',
+        ]);
+
+        $response->assertSessionHas('success');
+        $this->assertEquals(300, (int) AppSetting::get('default_daily_quota'));
+
+        // q1 and q2 should be synchronized to 300
+        $this->assertEquals(300, $q1->fresh()->max_quota);
+        $this->assertEquals(300, $q2->fresh()->max_quota);
+
+        // q3 was closed, remains closed
+        $this->assertTrue((bool) $q3->fresh()->is_closed);
+    }
 }

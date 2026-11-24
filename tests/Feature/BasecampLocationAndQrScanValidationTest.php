@@ -41,7 +41,7 @@ class BasecampLocationAndQrScanValidationTest extends TestCase
         $response->assertOk();
 
         // Check for presence of Basecamp Google Maps section
-        $response->assertSee('LOKASI RESMI', false);
+        $response->assertSee('Lokasi resmi', false);
         $response->assertSee('https://maps.app.goo.gl/xGzRkQTTArmDxpQf9', false);
         $response->assertSee('-7.331855, 107.8096294', false);
         $response->assertSee('BUKA NAVIGASI GOOGLE MAPS', false);

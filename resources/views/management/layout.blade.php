@@ -87,6 +87,11 @@
     </nav>
 
     <div class="p-3 border-t border-line space-y-1 shrink-0 safe-bottom">
+      {{-- PWA Install Button (sidebar) --}}
+      <button type="button" class="pwa-install-trigger pwa-btn-install w-full hidden items-center gap-3 h-10 px-3 rounded-xl text-sm bg-brand/10 text-brand ring-1 ring-inset ring-brand/30 hover:bg-brand hover:text-white transition group">
+        <x-ui.icon name="download" class="w-[18px] h-[18px] shrink-0 text-brand group-hover:text-white" />
+        <span class="font-semibold truncate">Pasang Aplikasi (PWA)</span>
+      </button>
       <button type="button" onclick="toggleViewMode()" class="view-mode-toggle w-full hidden items-center gap-3 h-10 px-3 rounded-xl text-sm text-muted hover:text-ink hover:bg-hover">
         <x-ui.icon name="phone" class="w-[18px] h-[18px] text-subtle view-mode-icon-mobile" />
         <x-ui.icon name="monitor" class="w-[18px] h-[18px] text-subtle view-mode-icon-desktop hidden" />
@@ -127,6 +132,18 @@
       </div>
 
       <div class="flex items-center gap-2 shrink-0">
+        {{-- PWA Status Jaringan Lapangan (Real-time Online/Offline) --}}
+        <div class="pwa-net-badge hidden sm:inline-flex items-center gap-1.5 h-8 px-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold transition" title="Status Jaringan Lapangan">
+          <span class="pwa-net-dot w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span class="pwa-net-label">Online</span>
+        </div>
+
+        {{-- PWA Tombol Pasang Aplikasi (Muncul otomatis jika peramban mendukung & belum terpasang) --}}
+        <button type="button" class="pwa-install-trigger pwa-btn-install hidden h-9 px-3 rounded-xl bg-brand text-white text-xs font-semibold items-center gap-1.5 shadow-md shadow-brand/25 active:scale-95 transition" title="Pasang aplikasi SAMSARA OPS ke perangkat">
+          <x-ui.icon name="download" class="w-4 h-4" />
+          <span class="hidden md:inline">Install App</span>
+        </button>
+
         <!-- Tombol Mode Mobile / Desktop (satu klik) -->
         <button type="button" onclick="toggleViewMode()" title="Ganti tampilan mobile / desktop" class="view-mode-toggle hidden h-9 px-3 rounded-xl bg-raised ring-1 ring-line text-xs font-semibold text-muted hover:text-ink items-center gap-1.5">
           <x-ui.icon name="phone" class="w-4 h-4 view-mode-icon-mobile" />

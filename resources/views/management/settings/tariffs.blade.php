@@ -380,6 +380,10 @@
           </label>
           <input type="number" id="default_daily_quota" name="default_daily_quota" value="{{ old('default_daily_quota', $profile['default_daily_quota'] ?? 150) }}" min="10" max="1000" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-amber-500">
           <p class="text-[9px] text-stone-400">Kapasitas standar harian yang diterapkan saat hari baru diinisialisasi di sistem kalender.</p>
+          <label class="flex items-center gap-2 pt-1 cursor-pointer">
+            <input type="checkbox" name="sync_upcoming_quotas" value="1" checked class="w-4 h-4 rounded bg-surface border-line-strong text-brand focus:ring-brand">
+            <span class="text-[10px] text-stone-300 font-medium">Sinkronkan ke seluruh tanggal kalender mendatang</span>
+          </label>
         </div>
 
         <!-- Min Climbers per Group -->

@@ -86,10 +86,14 @@ class AppSetting extends Model
             'camp_checkin_start' => (string) static::get('camp_checkin_start', '07:00'),
             'camp_checkin_end' => (string) static::get('camp_checkin_end', '16:00'),
             'checkpoints' => [
-                'POS_1' => ['name' => 'Pos 1 (Transit Ojek)', 'elevation' => '1.780 MDPL', 'can_camp' => false],
-                'POS_2' => ['name' => 'Pos 2 (Mata Air / Camp)', 'elevation' => '2.050 MDPL', 'can_camp' => true],
-                'POS_3' => ['name' => 'Pos 3 (Camp Area Atas)', 'elevation' => '2.400 MDPL', 'can_camp' => true],
-                'PUNCAK' => ['name' => 'Puncak Cikuray', 'elevation' => '2.821 MDPL', 'can_camp' => false],
+                'POS_1' => ['name' => 'Pos 1 (Transit Ojek)', 'elevation' => '1.780 MDPL', 'can_camp' => false, 'water' => false,
+                    'description' => 'Titik turun armada ojek trail dan pintu gerbang hutan tropis primer.'],
+                'POS_2' => ['name' => 'Pos 2 (Mata Air / Camp)', 'elevation' => '2.050 MDPL', 'can_camp' => true, 'water' => true,
+                    'description' => 'Mata air alami dan area camp resmi. Titik pengisian air terakhir — isi penuh botol di sini.'],
+                'POS_3' => ['name' => 'Pos 3 (Camp Area Atas)', 'elevation' => '2.400 MDPL', 'can_camp' => true, 'water' => false,
+                    'description' => 'Area camp resmi di bagian atas jalur, titik terakhir sebelum jalur puncak.'],
+                'PUNCAK' => ['name' => 'Puncak Cikuray', 'elevation' => '2.821 MDPL', 'can_camp' => false, 'water' => false,
+                    'description' => 'Titik tertinggi dengan panorama samudra awan 360°.'],
             ],
         ];
     }

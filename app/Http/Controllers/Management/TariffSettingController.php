@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Management;
 
 use App\Http\Controllers\Controller;
 use App\Models\AppSetting;
+use App\Models\DailyQuota;
 use App\Models\InventoryItem;
 use App\Services\AuditService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -52,6 +54,7 @@ class TariffSettingController extends Controller
 
             // Capacity & Quota
             'default_daily_quota' => 'nullable|integer|min:10|max:1000',
+            'sync_upcoming_quotas' => 'nullable|in:0,1',
             'min_climbers_per_group' => 'nullable|integer|min:1|max:10',
             'max_climbers_per_group' => 'nullable|integer|min:1|max:50',
 
@@ -136,7 +139,38 @@ class TariffSettingController extends Controller
 
         // Update Capacity & Quotas
         if ($request->filled('default_daily_quota')) {
-            AppSetting::set('default_daily_quota', (int) $request->input('default_daily_quota'), 'Kapasitas Kuota Harian Resmi', 'number', 'capacity');
+            $newDailyQuota = (int) $request->input('default_daily_quota');
+            $oldDailyQuota = (int) AppSetting::get('default_daily_quota', 150);
+
+            AppSetting::set('default_daily_quota', $newDailyQuota, 'Kapasitas Kuota Harian Resmi', 'number', 'capacity');
+
+            // Sinkronkan seluruh tanggal kalender mendatang yang aktif jika diaktifkan atau jika nilai berubah
+            $shouldSync = $request->has('sync_upcoming_quotas')
+                ? $request->boolean('sync_upcoming_quotas')
+                : ($newDailyQuota !== $oldDailyQuota);
+
+            if ($shouldSync) {
+                $query = DailyQuota::where('quota_date', '>=', Carbon::today())
+                    ->where('is_closed', false);
+
+                if ($newDailyQuota !== $oldDailyQuota) {
+                    $query->where('max_quota', $oldDailyQuota);
+                } else {
+                    $query->where('max_quota', '!=', $newDailyQuota);
+                }
+
+                $syncedCount = $query->update(['max_quota' => $newDailyQuota]);
+
+                if ($syncedCount > 0) {
+                    AuditService::log(
+                        action: 'SYNC_DAILY_QUOTAS',
+                        entityType: 'DailyQuota',
+                        entityId: 0,
+                        description: "Kapasitas {$syncedCount} tanggal kalender mendatang otomatis disinkronkan ke {$newDailyQuota} pendaki/hari.",
+                        payload: ['old_quota' => $oldDailyQuota, 'new_quota' => $newDailyQuota, 'synced_dates' => $syncedCount]
+                    );
+                }
+            }
         }
         if ($request->filled('min_climbers_per_group')) {
             AppSetting::set('min_climbers_per_group', (int) $request->input('min_climbers_per_group'), 'Batas Minimal Pendaki Rombongan', 'number', 'capacity');

@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+  "name": "SAMSARA EXPEDITION — Backoffice",
+  "short_name": "SAMSARA OPS",
+  "id": "/management",
+  "description": "Sistem Manajemen Operasional & Backoffice Pendakian Gunung Cikuray (2.821 MDPL) via SAMSARA Garut",
+  "start_url": "/management",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#0B0D10",
+  "theme_color": "#0B0D10",
+  "lang": "id-ID",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Gate Scanner & Periksa",
+      "short_name": "Gate",
+      "description": "Pemeriksaan rombongan & scan QR e-SIMAKSI di pintu rimba",
+      "url": "/management/gate",
+      "icons": [
+        {
+          "src": "/assets/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Antrean Kasir & Cetak",
+      "short_name": "Kasir",
+      "description": "Antrean kiriman Gate, cetak Surat Jalan & Voucher Ojek",
+      "url": "/management/kasir/antrean",
+      "icons": [
+        {
+          "src": "/assets/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "POS Kasir Basecamp",
+      "short_name": "POS",
+      "description": "Kasir transaksi F&B, logistik, dan sewa alat",
+      "url": "/management/pos",
+      "icons": [
+        {
+          "src": "/assets/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Scanner Ranger Pos Jalur",
+      "short_name": "Ranger",
+      "description": "Pencatatan pergerakan rombongan Pos 1-3 & Puncak",
+      "url": "/management/ranger",
+      "icons": [
+        {
+          "src": "/assets/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}

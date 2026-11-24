@@ -5,6 +5,14 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SAMSARA OPS">
+<meta name="application-name" content="SAMSARA OPS">
+
+{{-- PWA Manifest & App Icons --}}
+<link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/icons/apple-touch-icon.png') }}">
+<link rel="icon" type="image/svg+xml" href="{{ asset('assets/icons/icon.svg') }}">
+<link rel="icon" type="image/png" sizes="192x192" href="{{ asset('assets/icons/icon-192.png') }}">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,20 +63,16 @@
 </script>
 
 <style>
-  html, body {
-    background-color: #0B0D10;
-    height: 100%;
-    height: 100dvh;
-    overflow: hidden;
-  }
+  html, body { background-color: #0B0D10; }
+  @if($lockViewport ?? true)
+  /* Shell aplikasi (backoffice): viewport terkunci, hanya area konten yang menggulir */
+  html, body { height: 100%; height: 100dvh; overflow: hidden; }
+  @endif
   body {
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
     color: #ECEFF3;
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
-    height: 100%;
-    height: 100dvh;
-    overflow: hidden;
   }
   .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; }
   .font-code { font-family: 'JetBrains Mono', ui-monospace, monospace; letter-spacing: -0.01em; }
@@ -116,3 +120,4 @@
 </style>
 
 <script src="{{ asset('assets/js/currency-input.js') }}"></script>
+<script src="{{ asset('assets/js/pwa.js') }}" defer></script>
