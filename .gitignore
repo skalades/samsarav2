@@ -26,6 +26,7 @@
 !/graphify-out/.graphify_labels.json
 /halaman-pengembangan/
 /video-reels-simaksi/
+*.mp4
 Homestead.json
 Homestead.yaml
 Thumbs.db

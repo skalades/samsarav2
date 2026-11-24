@@ -138,6 +138,11 @@ class QrCode
      */
     public static function matrixV1M(string $text): array
     {
+        // Versi 1-M alfanumerik maksimal 20 karakter; lebih dari itu data terpotong dan QR rusak diam-diam
+        if (strlen(trim($text)) > 20) {
+            throw new \InvalidArgumentException('QrCode V1-M hanya menampung 20 karakter alfanumerik: '.$text);
+        }
+
         $size = 21;
         $grid = array_fill(0, $size, array_fill(0, $size, null));
         $reserved = array_fill(0, $size, array_fill(0, $size, false));
@@ -154,29 +159,21 @@ class QrCode
             }
         }
 
-        // 2. Separators around finders
+        // 2. Separators (strip putih 1 modul) di sisi dalam tiap finder.
+        // Catatan: jangan pakai isset() — sel grid masih bernilai null, dan isset(null) === false,
+        // sehingga separator dulu tidak pernah terpasang dan QR tidak terbaca scanner mana pun.
+        $separators = [];
         for ($i = 0; $i < 8; $i++) {
-            // Top-left
-            if ($i < $size) {
-                if (isset($grid[7][$i])) { $grid[7][$i] = 0; $reserved[7][$i] = true; }
-                if (isset($grid[$i][7])) { $grid[$i][7] = 0; $reserved[$i][7] = true; }
-            }
-            // Top-right
-            $c = 13 + $i;
-            if ($c < $size) {
-                if (isset($grid[7][$c])) { $grid[7][$c] = 0; $reserved[7][$c] = true; }
-            }
-            if ($i < 8 && isset($grid[$i][13])) {
-                $grid[$i][13] = 0; $reserved[$i][13] = true;
-            }
-            // Bottom-left
-            $r = 13 + $i;
-            if ($r < $size) {
-                if (isset($grid[$r][7])) { $grid[$r][7] = 0; $reserved[$r][7] = true; }
-            }
-            if ($i < 8 && isset($grid[13][$i])) {
-                $grid[13][$i] = 0; $reserved[13][$i] = true;
-            }
+            $separators[] = [7, $i];            // top-left: baris 7
+            $separators[] = [$i, 7];            // top-left: kolom 7
+            $separators[] = [7, $size - 8 + $i]; // top-right: baris 7
+            $separators[] = [$i, $size - 8];     // top-right: kolom 13
+            $separators[] = [$size - 8, $i];     // bottom-left: baris 13
+            $separators[] = [$size - 8 + $i, 7]; // bottom-left: kolom 7
+        }
+        foreach ($separators as [$r, $c]) {
+            $grid[$r][$c] = 0;
+            $reserved[$r][$c] = true;
         }
 
         // 3. Timing patterns at row 6 and col 6
