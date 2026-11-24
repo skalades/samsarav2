@@ -25,7 +25,7 @@ class TariffCalculatorService
             'ojek_rate' => (float) ($tariffs['ojek_fee_per_trip'] ?? (InventoryItem::where('sku', 'SRV-OJEK')->value('price') ?? 30000)),
             'motorcycle_rate' => (float) ($tariffs['parking_motor_fee'] ?? (InventoryItem::where('sku', 'PRK-MOTOR')->value('price') ?? 10000)),
             'car_rate' => (float) ($tariffs['parking_car_fee'] ?? (InventoryItem::where('sku', 'PRK-MOBIL')->value('price') ?? 25000)),
-            'trash_deposit_enabled' => (bool) ($tariffs['trash_deposit_enabled'] ?? true),
+            'trash_deposit_enabled' => (bool) ($tariffs['trash_deposit_enabled'] ?? false),
             'trash_deposit_amount' => (float) ($tariffs['trash_deposit_amount'] ?? 50000),
         ];
     }

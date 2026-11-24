@@ -14,7 +14,7 @@ class AuthController extends Controller
     public function showLogin()
     {
         if (Auth::check()) {
-            return redirect()->route('management.dashboard');
+            return redirect()->route(Auth::user()->homeRoute());
         }
 
         return view('management.auth.login');
@@ -32,6 +32,14 @@ class AuthController extends Controller
 
             /** @var User $user */
             $user = Auth::user();
+
+            if (! $user->isActive()) {
+                Auth::logout();
+                $request->session()->invalidate();
+
+                return back()->withErrors(['email' => 'Akun ini dinonaktifkan. Hubungi superadmin basecamp.'])->onlyInput('email');
+            }
+
             $user->update(['last_login_at' => Carbon::now()]);
 
             AuditService::log(
@@ -40,7 +48,7 @@ class AuthController extends Controller
                 payload: ['role' => $user->role]
             );
 
-            return redirect()->intended(route('management.dashboard'));
+            return redirect()->intended(route($user->homeRoute()));
         }
 
         return back()->withErrors([
@@ -55,8 +63,8 @@ class AuthController extends Controller
         }
 
         // One-click quick login for testing different roles
-        $role = $request->input('role', 'admin');
-        $user = User::where('role', $role)->first();
+        $role = User::normalizeRole($request->input('role', User::ROLE_SUPERADMIN));
+        $user = User::where('role', $role)->where('status', 'active')->first();
 
         if ($user) {
             Auth::login($user);
@@ -69,7 +77,7 @@ class AuthController extends Controller
                 payload: ['role' => $user->role]
             );
 
-            return redirect()->route('management.dashboard')->with('success', "Masuk sebagai {$user->name} ({$user->role})");
+            return redirect()->route($user->homeRoute())->with('success', "Masuk sebagai {$user->name} ({$user->roleLabel()})");
         }
 
         return redirect()->route('management.login')->with('error', 'Role tidak ditemukan.');

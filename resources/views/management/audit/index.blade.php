@@ -8,11 +8,11 @@
 <div class="space-y-6">
 
   <!-- Filter & Search Bar -->
-  <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-4 font-mono-tech text-xs">
+  <div class="bg-surface border border-line rounded-xl p-4 font-mono-tech text-xs">
     <form action="{{ route('management.audit.index') }}" method="GET" class="flex flex-wrap items-center gap-3">
       
       <div>
-        <select name="action" onchange="this.form.submit()" class="bg-[#181B22] border border-[#2A303C] rounded-lg p-2 text-white text-xs">
+        <select name="action" onchange="this.form.submit()" class="bg-raised border border-line-strong rounded-lg p-2 text-white text-xs">
           <option value="">-- Semua Jenis Tindakan --</option>
           @foreach($actions as $act)
             <option value="{{ $act }}" {{ $action === $act ? 'selected' : '' }}>{{ $act }}</option>
@@ -21,10 +21,10 @@
       </div>
 
       <div class="flex-1 min-w-[200px]">
-        <input type="text" name="search" value="{{ $search }}" placeholder="Cari deskripsi, alasan, atau nama petugas..." class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg p-2 text-white text-xs">
+        <input type="text" name="search" value="{{ $search }}" placeholder="Cari deskripsi, alasan, atau nama petugas..." class="w-full bg-raised border border-line-strong rounded-lg p-2 text-white text-xs">
       </div>
 
-      <button type="submit" class="px-4 py-2 bg-[#1A1E26] hover:bg-[#252A36] text-white border border-[#2E3544] font-bold rounded-lg transition">
+      <button type="submit" class="px-4 py-2 bg-raised hover:bg-hover text-white border border-line-strong font-bold rounded-lg transition">
         FILTER
       </button>
 
@@ -38,10 +38,10 @@
   </div>
 
   <!-- Audit Table -->
-  <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-[#1E2229]">
+  <div class="bg-surface border border-line rounded-xl p-5 space-y-4 font-mono-tech text-xs">
+    <div class="flex items-center justify-between pb-3 border-b border-line">
       <div class="flex items-center gap-2">
-        <span class="w-2.5 h-2.5 rounded-sm bg-[#FF5722]"></span>
+        <span class="w-2.5 h-2.5 rounded-sm bg-brand"></span>
         <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-white">
           DAFTAR LOG AKTIVITAS PETUGAS ({{ $logs->total() }} CATATAN)
         </h3>
@@ -52,7 +52,7 @@
     <div class="overflow-x-auto">
       <table class="w-full text-left font-mono-tech text-xs">
         <thead>
-          <tr class="text-[10px] text-stone-400 uppercase border-b border-[#1E2229]">
+          <tr class="text-[10px] text-stone-400 uppercase border-b border-line">
             <th class="pb-3">WAKTU (WIB)</th>
             <th class="pb-3">TINDAKAN</th>
             <th class="pb-3">DESKRIPSI AKTIVITAS</th>
@@ -61,19 +61,19 @@
             <th class="pb-3 text-right">IP ADDR</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-[#1A1E26]">
+        <tbody class="divide-y divide-line">
           @forelse($logs as $log)
-            <tr class="hover:bg-[#16191F]">
+            <tr class="hover:bg-raised">
               <td class="py-3 text-stone-400 whitespace-nowrap">{{ $log->created_at->format('d/m/Y H:i:s') }}</td>
               <td class="py-3">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FF5722]/10 text-[#FF5722] border border-[#FF5722]/30">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-brand/10 text-brand border border-brand/30">
                   {{ $log->action }}
                 </span>
               </td>
               <td class="py-3 text-white font-medium max-w-sm">{{ $log->description }}</td>
               <td class="py-3 text-stone-300">
                 <div class="font-bold text-stone-200">{{ $log->actor_name }}</div>
-                <div class="text-[9px] text-[#FF5722] uppercase">{{ $log->actor_role }}</div>
+                <div class="text-[9px] text-brand uppercase">{{ $log->actor_role }}</div>
               </td>
               <td class="py-3 text-amber-300/90 text-[11px] max-w-xs">
                 {{ $log->reason ?? '-' }}
@@ -89,7 +89,7 @@
       </table>
     </div>
 
-    <div class="pt-4 border-t border-[#1E2229]">
+    <div class="pt-4 border-t border-line">
       {{ $logs->links() }}
     </div>
   </div>

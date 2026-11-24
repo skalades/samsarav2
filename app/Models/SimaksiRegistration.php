@@ -11,6 +11,45 @@ class SimaksiRegistration extends Model
 {
     use HasFactory;
 
+    /*
+    |--------------------------------------------------------------------------
+    | Alur status rombongan
+    |--------------------------------------------------------------------------
+    | pending → paid (Kasir verifikasi lunas)
+    |   → gate_cleared (Gatekeeper: alat, logistik, foto tim OK)
+    |   → checked_in  (Kasir cetak Surat Jalan & Voucher Ojek — sedang mendaki)
+    |   → returned    (Gatekeeper: logistik dicocokkan ulang saat turun)
+    |   → completed   (Kasir menyelesaikan & cetak Izin Keluar Parkir)
+    */
+    public const STATUS_PENDING_GROUP = ['pending', 'submitted', 'needs_revision', 'approved'];
+
+    public const POST_PAYMENT_STATUSES = ['paid', 'gate_cleared', 'checked_in', 'returned', 'completed'];
+
+    public const REVENUE_STATUSES = ['approved', 'paid', 'gate_cleared', 'checked_in', 'returned', 'completed'];
+
+    public const STATUS_LABELS = [
+        'pending' => 'Menunggu pembayaran',
+        'submitted' => 'Menunggu pembayaran',
+        'needs_revision' => 'Perlu perbaikan berkas',
+        'approved' => 'Menunggu pembayaran',
+        'paid' => 'Lunas · menunggu pemeriksaan Gate',
+        'gate_cleared' => 'Lolos Gate · menunggu cetak kasir',
+        'checked_in' => 'Sedang mendaki',
+        'returned' => 'Sudah turun · menunggu kasir',
+        'completed' => 'Selesai',
+        'rejected' => 'Ditolak / batal',
+    ];
+
+    public const STATUS_TONES = [
+        'paid' => 'success',
+        'gate_cleared' => 'info',
+        'checked_in' => 'brand',
+        'returned' => 'violet',
+        'completed' => 'neutral',
+        'rejected' => 'danger',
+        'needs_revision' => 'warning',
+    ];
+
     protected $fillable = [
         'registration_code',
         'leader_name',
@@ -61,6 +100,19 @@ class SimaksiRegistration extends Model
         'trash_deposit_amount',
         'trash_deposit_status',
         'trash_bag_code',
+        'gate_up_by',
+        'gate_up_at',
+        'gate_up_notes',
+        'gate_photo_path',
+        'gate_photo_verified',
+        'released_by',
+        'released_at',
+        'gate_down_by',
+        'gate_down_at',
+        'gate_down_notes',
+        'gate_down_clear',
+        'finalized_by',
+        'finalized_at',
     ];
 
     protected $casts = [
@@ -70,6 +122,12 @@ class SimaksiRegistration extends Model
         'checked_in_at' => 'datetime',
         'checked_out_at' => 'datetime',
         'paid_at' => 'datetime',
+        'gate_up_at' => 'datetime',
+        'gate_photo_verified' => 'boolean',
+        'released_at' => 'datetime',
+        'gate_down_at' => 'datetime',
+        'gate_down_clear' => 'boolean',
+        'finalized_at' => 'datetime',
         'group_photo_uploaded_at' => 'datetime',
         'last_seen_at' => 'datetime',
         'simaksi_fee' => 'decimal:2',
@@ -99,6 +157,63 @@ class SimaksiRegistration extends Model
     public function posOrders(): HasMany
     {
         return $this->hasMany(PosOrder::class, 'simaksi_registration_id');
+    }
+
+    public function inspectionItems(): HasMany
+    {
+        return $this->hasMany(SimaksiInspectionItem::class, 'simaksi_registration_id')->orderBy('id');
+    }
+
+    public function whatsappMessages(): HasMany
+    {
+        return $this->hasMany(WhatsappMessage::class, 'simaksi_registration_id')->latest();
+    }
+
+    public function gateUpOfficer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'gate_up_by');
+    }
+
+    public function gateDownOfficer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'gate_down_by');
+    }
+
+    public function releasedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'released_by');
+    }
+
+    public function finalizedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'finalized_by');
+    }
+
+    public function statusLabel(): string
+    {
+        return self::STATUS_LABELS[$this->status] ?? ucfirst((string) $this->status);
+    }
+
+    public function statusTone(): string
+    {
+        return self::STATUS_TONES[$this->status] ?? 'warning';
+    }
+
+    /**
+     * Catatan medis "bermakna" (bukan kosong / "Tidak Ada" / "-").
+     */
+    public static function meaningfulMedical(?string $text): ?string
+    {
+        $clean = trim((string) $text);
+
+        return in_array(mb_strtolower($clean), ['', '-', 'tidak ada', 'tidak', 'none', 'nihil', 'tidak ada riwayat'], true) ? null : $clean;
+    }
+
+    public function photoUrl(): ?string
+    {
+        $path = $this->gate_photo_path ?: $this->group_photo_path;
+
+        return $path ? asset('storage/'.$path) : null;
     }
 
     public function checkpoints(): HasMany
@@ -156,12 +271,16 @@ class SimaksiRegistration extends Model
 
     public function getStatusBadgeAttribute(): array
     {
-        return match ($this->status) {
-            'paid' => ['bg' => 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400', 'label' => 'PAID / LUNAS'],
-            'checked_in' => ['bg' => 'bg-[#FF5722]/10 border-[#FF5722]/30 text-[#FF5722]', 'label' => 'CHECKED-IN (DI JALUR)'],
-            'completed' => ['bg' => 'bg-stone-500/10 border-stone-500/30 text-stone-300', 'label' => 'SELESAI (TURUN)'],
-            'rejected' => ['bg' => 'bg-rose-500/10 border-rose-500/30 text-rose-400', 'label' => 'DITOLAK / BATAL'],
-            default => ['bg' => 'bg-amber-500/10 border-amber-500/30 text-amber-400', 'label' => 'PENDING (MENUNGGU PEMBAYARAN)'],
+        $bg = match ($this->status) {
+            'paid' => 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
+            'gate_cleared' => 'bg-sky-500/10 border-sky-500/30 text-sky-400',
+            'checked_in' => 'bg-brand/10 border-brand/30 text-brand',
+            'returned' => 'bg-violet-500/10 border-violet-500/30 text-violet-300',
+            'completed' => 'bg-stone-500/10 border-stone-500/30 text-stone-300',
+            'rejected' => 'bg-rose-500/10 border-rose-500/30 text-rose-400',
+            default => 'bg-amber-500/10 border-amber-500/30 text-amber-400',
         };
+
+        return ['bg' => $bg, 'label' => strtoupper($this->statusLabel()), 'tone' => $this->statusTone()];
     }
 }

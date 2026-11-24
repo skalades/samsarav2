@@ -1,117 +1,114 @@
+@php
+  $logo = \App\Models\AppSetting::get('app_logo');
+  $mountain = \App\Models\AppSetting::get('mountain_name', 'Gunung Cikuray');
+  $elevation = \App\Models\AppSetting::get('mountain_elevation', '2.821 MDPL');
+  $levelMeta = [
+    'superadmin' => ['tone' => 'brand', 'icon' => 'shield'],
+    'kasir' => ['tone' => 'success', 'icon' => 'cash'],
+    'gatekeeper' => ['tone' => 'info', 'icon' => 'gate'],
+    'ranger' => ['tone' => 'violet', 'icon' => 'pin'],
+  ];
+@endphp
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-[#0A0B0D] text-stone-200">
+<html lang="id" class="h-full">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Petugas Operasional — SAMSARA EXPEDITION</title>
-  
-  <!-- Tailwind CSS Framework CDN -->
-  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
-
-  <!-- Google Fonts: Space Grotesk + JetBrains Mono -->
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
-
-    :root {
-      --font-display: 'Space Grotesk', -apple-system, sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
-      --font-body: 'Inter', -apple-system, sans-serif;
-    }
-
-    body {
-      font-family: var(--font-body);
-      background-color: #0A0B0D;
-    }
-
-    .font-display { font-family: var(--font-display); }
-    .font-mono-tech { font-family: var(--font-mono); }
-  </style>
+  @include('management.partials.head')
+  <title>Masuk Petugas — {{ \App\Models\AppSetting::get('expedition_name', 'SAMSARA EXPEDITION') }}</title>
 </head>
-<body class="h-full flex items-center justify-center p-4">
+<body class="min-h-full bg-canvas antialiased">
+  <div class="min-h-screen grid lg:grid-cols-2">
 
-  <div class="w-full max-w-md space-y-6">
-    
-    <!-- Brand Header -->
-    <div class="text-center space-y-2">
-      <div class="w-12 h-12 mx-auto rounded-xl bg-[#16191F] border border-[#282E3A] flex items-center justify-center font-mono-tech text-base font-bold text-[#FF5722] shadow-xl shadow-[#FF5722]/10">
-        ▲
+    {{-- Panel visual (desktop) --}}
+    <div class="hidden lg:flex relative overflow-hidden bg-surface border-r border-line p-12 flex-col justify-between">
+      <svg class="absolute inset-x-0 bottom-0 w-full text-raised" viewBox="0 0 800 300" preserveAspectRatio="none" aria-hidden="true">
+        <path fill="currentColor" d="M0 300 L0 210 L120 150 L210 190 L330 80 L420 140 L500 60 L610 170 L700 120 L800 180 L800 300 Z"/>
+        <path fill="#0B0D10" opacity=".6" d="M0 300 L0 250 L150 200 L260 240 L380 170 L480 220 L600 190 L720 240 L800 220 L800 300 Z"/>
+      </svg>
+      <div class="relative flex items-center gap-3">
+        <span class="w-11 h-11 rounded-2xl bg-brand/15 ring-1 ring-brand/30 flex items-center justify-center text-brand"><x-ui.icon name="mountain" class="w-6 h-6" /></span>
+        <div>
+          <p class="font-display font-bold text-lg text-ink leading-none">SAMSARA OPS</p>
+          <p class="text-xs text-muted mt-1">{{ $mountain }} · {{ $elevation }}</p>
+        </div>
       </div>
-      <div>
-        <h1 class="font-display font-black text-2xl text-white tracking-wider uppercase">{{ \App\Models\AppSetting::get('expedition_name', 'SAMSARA') }} OPS</h1>
-        <p class="font-mono-tech text-xs text-stone-400 mt-0.5">SISTEM MANAJEMEN PENDAKIAN {{ strtoupper(\App\Models\AppSetting::get('mountain_name', 'CIKURAY')) }} {{ \App\Models\AppSetting::get('mountain_elevation', '2.821M') }}</p>
+      <div class="relative max-w-md">
+        <h1 class="font-display font-bold text-4xl text-ink leading-tight">Satu sistem untuk seluruh tim basecamp.</h1>
+        <p class="text-muted mt-3">Kasir, Gatekeeper, dan Ranger bekerja di alur yang sama — dari verifikasi bayar, pemeriksaan logistik, sampai rombongan kembali dengan selamat.</p>
+        <div class="grid grid-cols-2 gap-2 mt-8">
+          @foreach(\App\Models\User::ROLES as $key => $role)
+            <div class="p-3 rounded-xl bg-canvas/60 ring-1 ring-line">
+              <x-ui.icon :name="$levelMeta[$key]['icon']" class="w-5 h-5 text-brand" />
+              <p class="text-sm font-semibold text-ink mt-2">{{ $role['label'] }}</p>
+            </div>
+          @endforeach
+        </div>
       </div>
+      <p class="relative text-xs text-subtle">© {{ date('Y') }} {{ \App\Models\AppSetting::get('basecamp_name', 'Basecamp SAMSARA') }}</p>
     </div>
 
-    <!-- Login Box -->
-    <div class="bg-[#121418] border border-[#20242C] rounded-2xl p-6 shadow-2xl space-y-5">
-      
-      <div class="pb-3 border-b border-[#1E2229] flex items-center justify-between">
-        <span class="font-mono-tech text-xs font-bold text-white uppercase tracking-wider">AUTENTIKASI PETUGAS</span>
-        <span class="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-[9px] font-mono-tech text-emerald-400 font-bold">
-          SISTEM TERENKRIPSI
-        </span>
-      </div>
-
-      @if (isset($errors) && $errors->any())
-        <div class="p-3 bg-rose-950/60 border border-rose-500/30 rounded-lg text-xs font-mono-tech text-rose-300">
-          {{ $errors->first() }}
-        </div>
-      @endif
-
-      <form action="{{ route('management.login.submit') }}" method="POST" class="space-y-4">
-        @csrf
-        <div>
-          <label class="block font-mono-tech text-[10px] text-stone-400 uppercase tracking-wider mb-1.5">EMAIL RESMI PETUGAS</label>
-          <input type="email" name="email" value="{{ old('email') }}" placeholder="petugas@samsara.id" required autofocus class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg px-3 py-2.5 text-xs font-mono-tech text-white focus:outline-none focus:border-[#FF5722] transition">
+    {{-- Form --}}
+    <div class="flex flex-col justify-center px-5 py-10 sm:px-10">
+      <div class="w-full max-w-sm mx-auto">
+        <div class="lg:hidden flex flex-col items-center text-center mb-8">
+          @if($logo)
+            <img src="{{ asset('storage/'.$logo) }}" alt="Logo" class="w-16 h-16 rounded-2xl object-contain bg-raised ring-1 ring-line p-1">
+          @else
+            <span class="w-16 h-16 rounded-2xl bg-brand/15 ring-1 ring-brand/30 flex items-center justify-center text-brand"><x-ui.icon name="mountain" class="w-8 h-8" /></span>
+          @endif
+          <p class="font-display font-bold text-2xl text-ink mt-4">SAMSARA OPS</p>
+          <p class="text-sm text-muted">{{ $mountain }} · {{ $elevation }}</p>
         </div>
 
-        <div>
-          <label class="block font-mono-tech text-[10px] text-stone-400 uppercase tracking-wider mb-1.5">KATA SANDI</label>
-          <input type="password" name="password" value="" placeholder="••••••••" required class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg px-3 py-2.5 text-xs font-mono-tech text-white focus:outline-none focus:border-[#FF5722] transition">
-        </div>
+        <h2 class="font-display font-bold text-2xl text-ink">Masuk petugas</h2>
+        <p class="text-sm text-muted mt-1">Menu yang tampil menyesuaikan level akses akun Anda.</p>
 
-        <button type="submit" class="w-full py-3 bg-[#FF5722] hover:bg-[#F4511E] text-black font-mono-tech font-bold text-xs uppercase tracking-wider rounded-lg transition shadow-lg shadow-[#FF5722]/20">
-          MASUK KE SISTEM MANAJEMEN
-        </button>
-      </form>
-
-      @if (!app()->environment('production') && config('app.allow_quick_login', false))
-      <!-- Quick Role Selection (Testing Only - Disabled in Production) -->
-      <div class="pt-4 border-t border-[#1E2229] space-y-2.5">
-        <span class="block font-mono-tech text-[10px] text-amber-400 uppercase tracking-wider text-center">
-          // MASUK CEPAT (DEVELOPMENT ONLY):
-        </span>
-        
-        <!-- Merged Kasir All-in-One Role -->
-        <a href="{{ route('management.quick_login', ['role' => 'kasir']) }}" class="block p-3 rounded-xl bg-gradient-to-r from-[#FF5722]/20 via-[#16191F] to-[#16191F] border border-[#FF5722]/50 hover:border-[#FF5722] text-left transition group">
-          <div class="flex items-center justify-between font-mono-tech">
-            <span class="text-xs font-bold text-white group-hover:text-[#FF5722]">KASIR OPERASIONAL LOKET</span>
-            <span class="text-[9px] px-1.5 py-0.5 rounded bg-[#FF5722] text-black font-bold">ALL-IN-ONE</span>
+        @if (isset($errors) && $errors->any())
+          <div class="mt-5 flex gap-3 rounded-2xl bg-rose-500/10 ring-1 ring-rose-500/25 px-4 py-3 text-sm text-rose-200">
+            <x-ui.icon name="alert" class="w-5 h-5 text-rose-400 shrink-0" />
+            <p>{{ $errors->first() }}</p>
           </div>
-          <p class="font-mono-tech text-[10px] text-stone-300 mt-1">
-            Kasir POS • Verifikasi SIMAKSI • Gate Check-in • Inventori Sewa Alat
-          </p>
+        @endif
+        @if (session('error'))
+          <div class="mt-5 flex gap-3 rounded-2xl bg-rose-500/10 ring-1 ring-rose-500/25 px-4 py-3 text-sm text-rose-200">
+            <x-ui.icon name="alert" class="w-5 h-5 text-rose-400 shrink-0" />
+            <p>{{ session('error') }}</p>
+          </div>
+        @endif
+
+        <form action="{{ route('management.login.submit') }}" method="POST" class="mt-6 space-y-4">
+          @csrf
+          <div>
+            <label class="label" for="email">Email</label>
+            <input id="email" type="email" name="email" value="{{ old('email') }}" placeholder="nama@samsara.id" required autofocus autocomplete="username" class="field !h-12">
+          </div>
+          <div>
+            <label class="label" for="password">Kata sandi</label>
+            <input id="password" type="password" name="password" placeholder="••••••••" required autocomplete="current-password" class="field !h-12">
+          </div>
+          <label class="flex items-center gap-2 text-sm text-muted">
+            <input type="checkbox" name="remember" value="1" class="w-4 h-4 accent-orange-500"> Ingat saya di perangkat ini
+          </label>
+          <x-ui.button type="submit" size="lg" block>Masuk</x-ui.button>
+        </form>
+
+        @if (!app()->environment('production') && config('app.allow_quick_login', false))
+          <div class="mt-8">
+            <p class="text-xs font-semibold text-subtle uppercase tracking-wider mb-2">Masuk cepat (mode uji)</p>
+            <div class="grid grid-cols-2 gap-2">
+              @foreach(\App\Models\User::ROLES as $key => $role)
+                <a href="{{ route('management.quick_login', ['role' => $key]) }}" class="p-3 rounded-xl bg-surface ring-1 ring-line hover:ring-brand/40">
+                  <x-ui.badge :tone="$levelMeta[$key]['tone']" size="xs">{{ $role['label'] }}</x-ui.badge>
+                </a>
+              @endforeach
+            </div>
+          </div>
+        @endif
+
+        <a href="{{ route('portal.home') }}" class="mt-8 inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink">
+          <x-ui.icon name="chevron-right" class="w-4 h-4 rotate-180" /> Portal publik
         </a>
-
-        <div class="grid grid-cols-2 gap-2 font-mono-tech text-[10px]">
-          <a href="{{ route('management.quick_login', ['role' => 'superadmin']) }}" class="p-2 text-center rounded bg-[#16191F] border border-[#262B35] text-stone-300 hover:text-[#FF5722] hover:border-[#FF5722]/40 transition">
-            SUPERADMIN
-          </a>
-          <a href="{{ route('management.quick_login', ['role' => 'auditor']) }}" class="p-2 text-center rounded bg-[#16191F] border border-[#262B35] text-stone-300 hover:text-[#FF5722] hover:border-[#FF5722]/40 transition">
-            AUDITOR SISTEM
-          </a>
-        </div>
       </div>
-      @endif
-
     </div>
-
-    <!-- Back to Public Portal -->
-    <div class="text-center font-mono-tech text-xs text-stone-400">
-      <a href="{{ route('portal.home') }}" class="hover:text-stone-300 transition">← Kembali ke Portal Publik SAMSARA</a>
-    </div>
-
   </div>
-
 </body>
 </html>

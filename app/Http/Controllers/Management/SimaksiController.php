@@ -45,13 +45,14 @@ class SimaksiController extends Controller
 
         $registrations = $query->latest()->paginate(15)->withQueryString();
 
+        $byStatus = SimaksiRegistration::selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status');
         $statusCounts = [
-            'all' => SimaksiRegistration::count(),
-            'pending' => SimaksiRegistration::whereIn('status', ['pending', 'submitted', 'needs_revision', 'approved'])->count(),
-            'paid' => SimaksiRegistration::where('status', 'paid')->count(),
-            'checked_in' => SimaksiRegistration::where('status', 'checked_in')->count(),
-            'completed' => SimaksiRegistration::where('status', 'completed')->count(),
+            'all' => (int) $byStatus->sum(),
+            'pending' => collect(SimaksiRegistration::STATUS_PENDING_GROUP)->sum(fn ($s) => (int) ($byStatus[$s] ?? 0)),
         ];
+        foreach (['paid', 'gate_cleared', 'checked_in', 'returned', 'completed', 'rejected'] as $s) {
+            $statusCounts[$s] = (int) ($byStatus[$s] ?? 0);
+        }
 
         return view('management.simaksi.index', compact('registrations', 'status', 'search', 'statusCounts'));
     }

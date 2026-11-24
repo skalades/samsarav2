@@ -27,7 +27,7 @@ class TektokCampAndCheckpointTrackingTest extends TestCase
             'name' => 'Ranger Pos',
             'email' => 'ranger-pos@samsara.id',
             'password' => bcrypt('password'),
-            'role' => 'gate_officer',
+            'role' => 'ranger',
         ]);
 
         $this->gateOfficer = User::create([

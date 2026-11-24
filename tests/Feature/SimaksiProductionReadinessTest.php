@@ -162,11 +162,26 @@ class SimaksiProductionReadinessTest extends TestCase
 
     public function test_rbac_least_privilege_enforcement(): void
     {
+        // Peran lama 'auditor' kini digabung ke superadmin
         $auditor = User::create([
             'name' => 'Auditor Lapangan',
             'email' => 'auditor@samsara.id',
             'password' => bcrypt('password'),
             'role' => 'auditor',
+        ]);
+        $this->assertTrue($auditor->isSuperadmin());
+
+        $gatekeeper = User::create([
+            'name' => 'Gatekeeper',
+            'email' => 'gatekeeper-rbac@samsara.id',
+            'password' => bcrypt('password'),
+            'role' => 'gatekeeper',
+        ]);
+        $ranger = User::create([
+            'name' => 'Ranger',
+            'email' => 'ranger-rbac@samsara.id',
+            'password' => bcrypt('password'),
+            'role' => 'ranger',
         ]);
 
         $reg = SimaksiRegistration::create([
@@ -188,10 +203,17 @@ class SimaksiProductionReadinessTest extends TestCase
         // Auditor CAN view audit log
         $this->actingAs($auditor)->get(route('management.audit.index'))->assertStatus(200);
 
-        // Auditor CANNOT approve SIMAKSI (Must be redirected with access denied)
-        $approveResponse = $this->actingAs($auditor)->post(route('management.simaksi.approve', $reg->id));
-        $approveResponse->assertRedirect(route('management.dashboard'));
+        // Gatekeeper & Ranger CANNOT approve SIMAKSI, audit, or open the cashier modules
+        $approveResponse = $this->actingAs($gatekeeper)->post(route('management.simaksi.approve', $reg->id));
+        $approveResponse->assertRedirect(route('management.gate.index'));
         $approveResponse->assertSessionHas('error');
+        $this->actingAs($gatekeeper)->get(route('management.pos.index'))->assertRedirect(route('management.gate.index'));
+        $this->actingAs($gatekeeper)->get(route('management.ranger.index'))->assertRedirect(route('management.gate.index'));
+
+        $this->actingAs($ranger)->get(route('management.audit.index'))->assertRedirect(route('management.ranger.index'));
+        $this->actingAs($ranger)->get(route('management.gate.index'))->assertRedirect(route('management.ranger.index'));
+        $this->actingAs($ranger)->get(route('management.dashboard'))->assertRedirect(route('management.ranger.index'));
+        $this->assertEquals('pending', $reg->fresh()->status);
 
         // Kasir CAN mark paid
         $kasir = User::create([
@@ -264,6 +286,12 @@ class SimaksiProductionReadinessTest extends TestCase
         $expectedSubtotal = (4 * 25000) + (2 * 30000) + ((2 * 10000) + (1 * 25000));
         $this->assertEquals($expectedSubtotal, $result['subtotal']);
         $this->assertEquals($expectedSubtotal + 250, $result['total_amount']);
-        $this->assertEquals(50000, $result['trash_deposit_amount']);
+        // Deposit sampah dinonaktifkan sementara (default)
+        $this->assertEquals(0, $result['trash_deposit_amount']);
+        $this->assertEquals('waived', $result['trash_deposit_status']);
+
+        \App\Models\AppSetting::set('trash_deposit_enabled', true, 'Status Deposit Sampah', 'boolean');
+        $enabled = $calcService->calculate(totalClimbers: 1, ojekCount: 0, hasVehicle: false, motorcycleCount: 0, carCount: 0, uniqueCode: 0);
+        $this->assertEquals(50000, $enabled['trash_deposit_amount']);
     }
 }

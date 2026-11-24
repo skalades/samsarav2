@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AppSetting;
 use App\Models\DailyQuota;
 use App\Models\SimaksiRegistration;
+use App\Services\WhatsApp\WhatsAppNotifier;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
@@ -124,15 +125,23 @@ class SimaksiService
 
     public function markAsPaid(SimaksiRegistration $registration, string $method, ?int $officerId = null): SimaksiRegistration
     {
-        return DB::transaction(function () use ($registration, $method) {
+        return DB::transaction(function () use ($registration, $method, $officerId) {
             $locked = SimaksiRegistration::where('id', $registration->id)->lockForUpdate()->firstOrFail();
+
+            // Idempoten: rombongan yang sudah lunas / sudah lanjut ke Gate tidak boleh mundur statusnya
+            if ($locked->payment_status === 'paid' && in_array($locked->status, SimaksiRegistration::POST_PAYMENT_STATUSES, true)) {
+                return $locked;
+            }
 
             $locked->update([
                 'payment_status' => 'paid',
                 'payment_method' => $method,
                 'paid_at' => Carbon::now(),
-                'status' => 'paid', // siap check-in di gerbang
+                'status' => 'paid', // siap diperiksa Gatekeeper
             ]);
+
+            // Kirim WhatsApp otomatis: info pendakian lengkap + tautan e-SIMAKSI (setelah commit)
+            app(WhatsAppNotifier::class)->notifyPaymentConfirmed($locked, $officerId);
 
             AuditService::log(
                 action: 'PAID_SIMAKSI',

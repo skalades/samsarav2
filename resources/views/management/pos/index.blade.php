@@ -8,22 +8,22 @@
   <!-- ======================================================== -->
   <!-- TOP BAR: CASH DRAWER STATUS & QUICK ACTIONS              -->
   <!-- ======================================================== -->
-  <div class="mb-4 bg-[#121418] border border-[#1E2229] rounded-xl p-3 flex flex-col md:flex-row items-center justify-between gap-3 font-mono-tech text-xs">
+  <div class="mb-4 bg-surface border border-line rounded-xl p-3 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 font-mono-tech text-xs">
     <div class="flex flex-wrap items-center gap-4">
       <div class="flex items-center gap-2">
         <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
         <span class="text-stone-400 uppercase text-[10px]">KAS FISIK LACI (DRAWER):</span>
         <span class="font-black text-sm text-emerald-400">Rp {{ number_format($cashDrawer['net_cash_in_drawer'] ?? 0, 0, ',', '.') }}</span>
       </div>
-      <div class="hidden sm:flex items-center gap-3 text-[11px] text-stone-400 border-l border-[#262B35] pl-3">
+      <div class="hidden sm:flex items-center gap-3 text-[11px] text-stone-400 border-l border-line-strong pl-3">
         <span>Kas Masuk: <strong class="text-stone-200">Rp {{ number_format($cashDrawer['total_cash_in'] ?? 0, 0, ',', '.') }}</strong></span>
         <span>Payout Ojek: <strong class="text-amber-400">-Rp {{ number_format($cashDrawer['ojek_payout_cash'] ?? 0, 0, ',', '.') }}</strong></span>
         <span>Kas Keluar: <strong class="text-rose-400">-Rp {{ number_format($cashDrawer['operational_expenses_cash'] ?? 0, 0, ',', '.') }}</strong></span>
       </div>
     </div>
 
-    <div class="flex items-center gap-2 w-full md:w-auto justify-end">
-      <a href="{{ route('management.pos.expenses.index') }}" class="px-3 py-1.5 rounded-lg bg-[#16191F] border border-[#262B35] text-stone-300 hover:text-white transition text-xs flex items-center gap-1.5">
+    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-start md:justify-end">
+      <a href="{{ route('management.pos.expenses.index') }}" class="px-3 py-1.5 rounded-lg bg-raised border border-line-strong text-stone-300 hover:text-white transition text-xs flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         <span>Buku Kas Keluar</span>
       </a>
@@ -33,58 +33,58 @@
         <span>- Catat Kas Keluar</span>
       </button>
 
-      <a href="{{ route('management.pos.history') }}" class="px-3 py-1.5 rounded-lg bg-[#16191F] border border-[#262B35] text-stone-300 hover:text-white transition text-xs flex items-center gap-1.5">
+      <a href="{{ route('management.pos.history') }}" class="px-3 py-1.5 rounded-lg bg-raised border border-line-strong text-stone-300 hover:text-white transition text-xs flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         <span>Rekap Shift</span>
       </a>
     </div>
   </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)]">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 lg:h-[calc(100vh-12rem)]">
 
   <!-- ======================================================== -->
   <!-- 1. LEFT 2 COLS: ITEM CATALOG GRID                        -->
   <!-- ======================================================== -->
-  <div class="lg:col-span-2 flex flex-col bg-[#121418] border border-[#1E2229] rounded-xl overflow-hidden">
+  <div class="lg:col-span-2 h-[62vh] lg:h-auto flex flex-col bg-surface border border-line rounded-xl overflow-hidden">
     
     <!-- Category Filter Tabs -->
-    <div class="p-3 border-b border-[#1E2229] flex items-center justify-between bg-[#0E1013]">
-      <div class="flex flex-wrap gap-1.5 font-mono-tech text-xs" id="catFilterContainer">
-        <button onclick="filterCat('all', this)" class="cat-pill active px-3 py-1.5 rounded-lg bg-[#FF5722] text-black font-bold">
+    <div class="p-3 border-b border-line flex items-center justify-between gap-3 bg-canvas">
+      <div class="flex flex-nowrap lg:flex-wrap overflow-x-auto lg:overflow-visible gap-1.5 font-mono-tech text-xs min-w-0 -mx-1 px-1 pb-0.5 [&>button]:shrink-0 [&>button]:whitespace-nowrap" id="catFilterContainer">
+        <button onclick="filterCat('all', this)" class="cat-pill active px-3 py-1.5 rounded-lg bg-brand text-black font-bold">
           SEMUA
         </button>
-        <button onclick="filterCat('izin', this)" class="cat-pill px-3 py-1.5 rounded-lg bg-[#16191F] text-stone-300 hover:text-white">
+        <button onclick="filterCat('izin', this)" class="cat-pill px-3 py-1.5 rounded-lg bg-raised text-stone-300 hover:text-white">
           SIMAKSI
         </button>
-        <button onclick="filterCat('shuttle_ojek', this)" class="cat-pill px-3 py-1.5 rounded-lg bg-[#16191F] text-stone-300 hover:text-white">
+        <button onclick="filterCat('shuttle_ojek', this)" class="cat-pill px-3 py-1.5 rounded-lg bg-raised text-stone-300 hover:text-white">
           OJEK TRAIL
         </button>
-        <button onclick="filterCat('parkir', this)" class="cat-pill px-3 py-1.5 rounded-lg bg-[#16191F] text-stone-300 hover:text-white">
+        <button onclick="filterCat('parkir', this)" class="cat-pill px-3 py-1.5 rounded-lg bg-raised text-stone-300 hover:text-white">
           TITIP PARKIR
         </button>
-        <button onclick="filterCat('alat_gunung', this)" class="cat-pill px-3 py-1.5 rounded-lg bg-[#16191F] text-stone-300 hover:text-white">
+        <button onclick="filterCat('alat_gunung', this)" class="cat-pill px-3 py-1.5 rounded-lg bg-raised text-stone-300 hover:text-white">
           ALAT GUNUNG
         </button>
-        <button onclick="filterCat('konsumsi', this)" class="cat-pill px-3 py-1.5 rounded-lg bg-[#16191F] text-stone-300 hover:text-white">
+        <button onclick="filterCat('konsumsi', this)" class="cat-pill px-3 py-1.5 rounded-lg bg-raised text-stone-300 hover:text-white">
           GAS & LOGISTIK
         </button>
-        <button onclick="filterCat('porter', this)" class="cat-pill px-3 py-1.5 rounded-lg bg-[#16191F] text-stone-300 hover:text-white">
+        <button onclick="filterCat('porter', this)" class="cat-pill px-3 py-1.5 rounded-lg bg-raised text-stone-300 hover:text-white">
           PORTER
         </button>
       </div>
 
-      <div class="font-mono-tech text-[10px] text-stone-400">
+      <div class="hidden xl:block shrink-0 font-mono-tech text-[10px] text-stone-400">
         KLIK ITEM UNTUK MENAMBAH KE KERANJANG
       </div>
     </div>
 
     <!-- Scrollable Items Grid -->
-    <div class="flex-1 overflow-y-auto p-4 grid grid-cols-2 sm:grid-cols-3 gap-3 font-mono-tech">
+    <div class="flex-1 overflow-y-auto p-3 lg:p-4 grid grid-cols-2 sm:grid-cols-3 gap-2 lg:gap-3 content-start font-mono-tech">
       @foreach($items as $item)
-        <div data-cat="{{ $item->category }}" onclick="addToCart({{ $item->id }}, '{{ addslashes($item->name) }}', {{ $item->price }}, '{{ $item->type }}', {{ $item->stock_available }})" class="item-card cursor-pointer p-3 rounded-xl bg-[#16191F] border border-[#222731] hover:border-[#FF5722] transition flex flex-col justify-between select-none">
+        <div data-cat="{{ $item->category }}" onclick="addToCart({{ $item->id }}, '{{ addslashes($item->name) }}', {{ $item->price }}, '{{ $item->type }}', {{ $item->stock_available }})" class="item-card cursor-pointer p-3 rounded-xl bg-raised border border-line-strong hover:border-brand transition flex flex-col justify-between select-none">
           <div>
             <div class="flex items-center justify-between text-[9px] mb-1">
-              <span class="text-[#FF5722] font-bold">{{ $item->sku }}</span>
+              <span class="text-brand font-bold">{{ $item->sku }}</span>
               <span class="text-stone-400 uppercase">
                 {{ $item->type === 'service' ? 'LAYANAN' : ($item->type === 'rental' ? 'SEWA' : 'BARANG') }}
               </span>
@@ -92,7 +92,7 @@
             <h4 class="font-display font-bold text-xs text-white line-clamp-2 leading-snug">{{ $item->name }}</h4>
           </div>
 
-          <div class="pt-2 mt-2 border-t border-[#20242C] flex items-center justify-between">
+          <div class="pt-2 mt-2 border-t border-line flex items-center justify-between">
             <span class="font-bold text-white text-xs">Rp {{ number_format($item->price, 0, ',', '.') }}</span>
             <span class="text-[9px] text-stone-400">
               @if($item->type !== 'service')
@@ -108,15 +108,27 @@
 
   </div>
 
+  <!-- Ringkasan keranjang melayang (mobile): lompat ke struk transaksi -->
+  <button type="button" id="mobileCartBar" onclick="document.getElementById('posCart').scrollIntoView({ behavior: 'smooth', block: 'start' })" class="lg:hidden hidden sticky bottom-2 z-20 w-full items-center justify-between gap-2 px-4 py-3 rounded-xl bg-brand text-black font-mono-tech text-xs font-bold shadow-xl shadow-black/50">
+    <span class="flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+      <span id="mobileCartCount">0 item</span>
+    </span>
+    <span class="flex items-center gap-1.5">
+      <span id="mobileCartTotal">Rp 0</span>
+      <span>→ BAYAR</span>
+    </span>
+  </button>
+
   <!-- ======================================================== -->
   <!-- 2. RIGHT COL: INTERACTIVE CART & CHECKOUT                -->
   <!-- ======================================================== -->
-  <div class="flex flex-col bg-[#121418] border border-[#1E2229] rounded-xl overflow-hidden font-mono-tech">
+  <div id="posCart" class="scroll-mt-3 lg:min-h-0 flex flex-col bg-surface border border-line rounded-xl overflow-hidden font-mono-tech">
     
     <!-- Cart Header -->
-    <div class="p-3 border-b border-[#1E2229] flex items-center justify-between bg-[#0E1013]">
+    <div class="p-3 border-b border-line flex items-center justify-between bg-canvas">
       <div class="flex items-center gap-2">
-        <svg class="w-4 h-4 text-[#FF5722]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <svg class="w-4 h-4 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
         <span class="font-bold text-xs text-white uppercase tracking-wider">STRUK TRANSAKSI</span>
       </div>
       <button onclick="clearCart()" class="text-[10px] text-stone-400 hover:text-rose-400">
@@ -125,10 +137,10 @@
     </div>
 
     <!-- Customer & Link SIMAKSI inputs -->
-    <div class="p-3 border-b border-[#1E2229] bg-[#16191F] space-y-2 text-xs">
+    <div class="p-3 border-b border-line bg-raised space-y-2 text-xs">
       <div>
         <label class="block text-[9px] text-stone-400 uppercase mb-0.5">HUBUNGKAN DENGAN KODE SIMAKSI (OPSIONAL):</label>
-        <select id="cartSimaksiId" onchange="autoFillCustomerFromSimaksi(this)" class="w-full bg-[#121418] border border-[#262B35] rounded p-1.5 text-xs text-white focus:outline-none focus:border-[#FF5722]">
+        <select id="cartSimaksiId" onchange="autoFillCustomerFromSimaksi(this)" class="w-full bg-surface border border-line-strong rounded p-1.5 text-xs text-white focus:outline-none focus:border-brand">
           <option value="">-- Bukan Transaksi SIMAKSI Langsung --</option>
           @foreach($activeRegistrations as $reg)
             <option value="{{ $reg->id }}" data-name="{{ $reg->leader_name }}" data-phone="{{ $reg->leader_phone }}">
@@ -141,11 +153,11 @@
       <div class="grid grid-cols-2 gap-2">
         <div>
           <label class="block text-[9px] text-stone-400 uppercase mb-0.5">NAMA PELANGGAN / KETUA</label>
-          <input type="text" id="cartCustomerName" placeholder="Contoh: Arif" required class="w-full bg-[#121418] border border-[#262B35] rounded p-1.5 text-xs text-white focus:outline-none focus:border-[#FF5722]">
+          <input type="text" id="cartCustomerName" placeholder="Contoh: Arif" required class="w-full bg-surface border border-line-strong rounded p-1.5 text-xs text-white focus:outline-none focus:border-brand">
         </div>
         <div>
           <label class="block text-[9px] text-stone-400 uppercase mb-0.5">NO. WHATSAPP</label>
-          <input type="text" id="cartCustomerPhone" placeholder="0812..." class="w-full bg-[#121418] border border-[#262B35] rounded p-1.5 text-xs text-white focus:outline-none focus:border-[#FF5722]">
+          <input type="text" id="cartCustomerPhone" placeholder="0812..." class="w-full bg-surface border border-line-strong rounded p-1.5 text-xs text-white focus:outline-none focus:border-brand">
         </div>
       </div>
     </div>
@@ -155,36 +167,36 @@
       <!-- Items dynamically populated via JS -->
       <div class="text-center py-12 text-stone-400" id="emptyCartNotice">
         Keranjang transaksi kosong.<br>
-        <span class="text-[10px]">Klik barang di katalog sebelah kiri.</span>
+        <span class="text-[10px]">Pilih barang dari katalog.</span>
       </div>
     </div>
 
     <!-- Cart Totals & Checkout -->
-    <div class="p-3 border-t border-[#1E2229] bg-[#0E1013] space-y-2 text-xs">
+    <div class="p-3 border-t border-line bg-canvas space-y-2 text-xs">
       
       <div class="flex justify-between items-center text-sm font-bold pt-1">
         <span class="text-stone-300">TOTAL BAYAR:</span>
-        <span class="text-xl text-[#FF5722]" id="cartTotalDisplay">Rp 0</span>
+        <span class="text-xl text-brand" id="cartTotalDisplay">Rp 0</span>
       </div>
 
       <!-- Payment Method Toggle -->
       <div class="grid grid-cols-3 gap-1 pt-1">
-        <button type="button" onclick="setPaymentMethod('cash', this)" class="pay-method-btn active py-1.5 text-center rounded border border-[#FF5722] bg-[#FF5722] text-black font-bold text-[10px]">
+        <button type="button" onclick="setPaymentMethod('cash', this)" class="pay-method-btn active py-1.5 text-center rounded border border-brand bg-brand text-black font-bold text-[10px]">
           TUNAI / CASH
         </button>
-        <button type="button" onclick="setPaymentMethod('qris', this)" class="pay-method-btn py-1.5 text-center rounded border border-[#262B35] bg-[#16191F] text-stone-300 hover:text-white font-bold text-[10px]">
+        <button type="button" onclick="setPaymentMethod('qris', this)" class="pay-method-btn py-1.5 text-center rounded border border-line-strong bg-raised text-stone-300 hover:text-white font-bold text-[10px]">
           QRIS RESMI
         </button>
-        <button type="button" onclick="setPaymentMethod('transfer', this)" class="pay-method-btn py-1.5 text-center rounded border border-[#262B35] bg-[#16191F] text-stone-300 hover:text-white font-bold text-[10px]">
+        <button type="button" onclick="setPaymentMethod('transfer', this)" class="pay-method-btn py-1.5 text-center rounded border border-line-strong bg-raised text-stone-300 hover:text-white font-bold text-[10px]">
           TRANSFER
         </button>
       </div>
 
       <!-- Cash calculation -->
-      <div id="cashCalcBox" class="p-2 bg-[#16191F] rounded border border-[#20242C] space-y-1">
+      <div id="cashCalcBox" class="p-2 bg-raised rounded border border-line space-y-1">
         <div class="flex justify-between items-center">
           <label class="text-[9px] text-stone-400 uppercase">Uang Diterima:</label>
-          <input type="number" id="cashTendered" oninput="calcChange()" placeholder="0" class="w-28 bg-[#121418] border border-[#2A303C] rounded px-2 py-1 text-right text-white font-bold text-xs">
+          <input type="number" id="cashTendered" oninput="calcChange()" placeholder="0" class="w-28 bg-surface border border-line-strong rounded px-2 py-1 text-right text-white font-bold text-xs">
         </div>
         <div class="flex justify-between items-center text-[10px]">
           <span class="text-stone-400">Kembalian:</span>
@@ -193,7 +205,7 @@
       </div>
 
       <!-- QRIS Display Box (When QRIS is selected) -->
-      <div id="qrisDisplayBox" class="hidden p-2.5 bg-[#16191F] rounded border border-blue-500/40 space-y-1.5 text-center">
+      <div id="qrisDisplayBox" class="hidden p-2.5 bg-raised rounded border border-blue-500/40 space-y-1.5 text-center">
         <div class="flex items-center justify-between text-[10px]">
           <span class="text-blue-400 font-bold uppercase">QRIS {{ \App\Models\AppSetting::get('basecamp_name', 'BASECAMP SAMSARA') }}</span>
           <span class="text-[9px] text-stone-400 font-mono-tech">NMID: {{ \App\Models\AppSetting::get('payment_qris_nmid', 'ID102026110099') }}</span>
@@ -209,7 +221,7 @@
       </div>
 
       <!-- Submit Checkout Button -->
-      <button type="button" onclick="submitCheckout()" id="btnCheckout" class="w-full py-3 bg-[#FF5722] hover:bg-[#F4511E] text-black font-mono-tech font-bold text-xs uppercase tracking-wider rounded-lg transition shadow-lg shadow-[#FF5722]/20">
+      <button type="button" onclick="submitCheckout()" id="btnCheckout" class="w-full py-3 bg-brand hover:bg-brand-hover text-black font-mono-tech font-bold text-xs uppercase tracking-wider rounded-lg transition shadow-lg shadow-[#FF5722]/20">
         CETAK STRUK & SELESAIKAN TRANSAKSI
       </button>
 
@@ -226,9 +238,9 @@
 
   function filterCat(cat, btn) {
     document.querySelectorAll('.cat-pill').forEach(b => {
-      b.className = 'cat-pill px-3 py-1.5 rounded-lg bg-[#16191F] text-stone-300 hover:text-white';
+      b.className = 'cat-pill px-3 py-1.5 rounded-lg bg-raised text-stone-300 hover:text-white';
     });
-    btn.className = 'cat-pill active px-3 py-1.5 rounded-lg bg-[#FF5722] text-black font-bold';
+    btn.className = 'cat-pill active px-3 py-1.5 rounded-lg bg-brand text-black font-bold';
 
     document.querySelectorAll('.item-card').forEach(card => {
       if (cat === 'all' || card.dataset.cat === cat) {
@@ -278,10 +290,11 @@
       container.innerHTML = `
         <div class="text-center py-12 text-stone-400" id="emptyCartNotice">
           Keranjang transaksi kosong.<br>
-          <span class="text-[10px]">Klik barang di katalog sebelah kiri.</span>
+          <span class="text-[10px]">Pilih barang dari katalog.</span>
         </div>
       `;
       document.getElementById('cartTotalDisplay').innerText = 'Rp 0';
+      updateMobileCartBar(0, 0);
       calcChange();
       return;
     }
@@ -291,13 +304,13 @@
       const lineSub = item.price * item.qty;
       total += lineSub;
       return `
-        <div class="p-2 bg-[#16191F] border border-[#20242C] rounded flex items-center justify-between">
+        <div class="p-2 bg-raised border border-line rounded flex items-center justify-between">
           <div class="flex-1 pr-2">
             <span class="font-bold text-white block text-xs truncate">${item.name}</span>
             <span class="text-[10px] text-stone-400">@ Rp ${item.price.toLocaleString('id-ID')}</span>
           </div>
           <div class="flex items-center gap-1.5">
-            <div class="flex items-center bg-[#121418] border border-[#2A303C] rounded">
+            <div class="flex items-center bg-surface border border-line-strong rounded">
               <button onclick="adjustQty(${item.id}, -1)" class="px-2 py-0.5 text-stone-300 hover:text-white">-</button>
               <span class="px-2 font-bold text-white text-xs">${item.qty}</span>
               <button onclick="adjustQty(${item.id}, 1)" class="px-2 py-0.5 text-stone-300 hover:text-white">+</button>
@@ -309,15 +322,25 @@
     }).join('');
 
     document.getElementById('cartTotalDisplay').innerText = 'Rp ' + total.toLocaleString('id-ID');
+    updateMobileCartBar(cart.reduce((n, i) => n + i.qty, 0), total);
     calcChange();
+  }
+
+  function updateMobileCartBar(qty, total) {
+    const bar = document.getElementById('mobileCartBar');
+    if (!bar) return;
+    document.getElementById('mobileCartCount').innerText = qty + ' item';
+    document.getElementById('mobileCartTotal').innerText = 'Rp ' + total.toLocaleString('id-ID');
+    bar.classList.toggle('hidden', qty === 0);
+    bar.classList.toggle('flex', qty > 0);
   }
 
   function setPaymentMethod(method, btn) {
     paymentMethod = method;
     document.querySelectorAll('.pay-method-btn').forEach(b => {
-      b.className = 'pay-method-btn py-1.5 text-center rounded border border-[#262B35] bg-[#16191F] text-stone-300 hover:text-white font-bold text-[10px]';
+      b.className = 'pay-method-btn py-1.5 text-center rounded border border-line-strong bg-raised text-stone-300 hover:text-white font-bold text-[10px]';
     });
-    btn.className = 'pay-method-btn active py-1.5 text-center rounded border border-[#FF5722] bg-[#FF5722] text-black font-bold text-[10px]';
+    btn.className = 'pay-method-btn active py-1.5 text-center rounded border border-brand bg-brand text-black font-bold text-[10px]';
     
     const cashBox = document.getElementById('cashCalcBox');
     const qrisBox = document.getElementById('qrisDisplayBox');
@@ -421,9 +444,9 @@
 <!-- MODAL CEPAT: CATAT KAS KELUAR MENDADAK DI POS            -->
 <!-- ======================================================== -->
 <div id="quickExpenseModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-  <div class="bg-[#121418] border border-[#222731] rounded-2xl w-full max-w-md overflow-hidden shadow-2xl space-y-4">
+  <div class="bg-surface border border-line-strong rounded-2xl w-full max-w-md overflow-hidden shadow-2xl space-y-4">
     
-    <div class="p-4 border-b border-[#1E2229] flex items-center justify-between bg-[#0E1013]">
+    <div class="p-4 border-b border-line flex items-center justify-between bg-canvas">
       <div class="flex items-center gap-2">
         <div class="w-3 h-3 rounded-full bg-rose-500"></div>
         <h3 class="font-display font-black text-sm uppercase text-white tracking-wider">CATAT KAS KELUAR (MENDADAK)</h3>
@@ -437,7 +460,7 @@
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-[10px] text-stone-400 uppercase font-bold mb-1">Kategori *</label>
-          <select name="category" required class="w-full bg-[#181B22] border border-[#282E3A] rounded-lg px-2.5 py-2 text-white text-xs focus:outline-none focus:border-rose-500">
+          <select name="category" required class="w-full bg-raised border border-line-strong rounded-lg px-2.5 py-2 text-white text-xs focus:outline-none focus:border-rose-500">
             <option value="bbm_genset">BBM Genset</option>
             <option value="operasional_pos">Operasional Pos</option>
             <option value="logistik_sar">P3K / SAR</option>
@@ -450,7 +473,7 @@
 
         <div>
           <label class="block text-[10px] text-stone-400 uppercase font-bold mb-1">Metode *</label>
-          <select name="payment_method" required class="w-full bg-[#181B22] border border-[#282E3A] rounded-lg px-2.5 py-2 text-white text-xs focus:outline-none focus:border-rose-500">
+          <select name="payment_method" required class="w-full bg-raised border border-line-strong rounded-lg px-2.5 py-2 text-white text-xs focus:outline-none focus:border-rose-500">
             <option value="cash">Tunai (Laci Kasir)</option>
             <option value="transfer">Transfer</option>
           </select>
@@ -461,22 +484,22 @@
         <label class="block text-[10px] text-stone-400 uppercase font-bold mb-1">Nominal Kas Keluar (Rp) *</label>
         <div class="relative">
           <span class="absolute left-3 top-2 text-stone-500 font-bold">Rp</span>
-          <input type="number" name="amount" min="1000" step="500" required placeholder="50000" class="w-full bg-[#181B22] border border-[#282E3A] rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-rose-500">
+          <input type="number" name="amount" min="1000" step="500" required placeholder="50000" class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-rose-500">
         </div>
       </div>
 
       <div>
         <label class="block text-[10px] text-stone-400 uppercase font-bold mb-1">Penerima Dana / Toko *</label>
-        <input type="text" name="recipient_name" required placeholder="SPBU / Warung / Toko Kelontong" class="w-full bg-[#181B22] border border-[#282E3A] rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-rose-500">
+        <input type="text" name="recipient_name" required placeholder="SPBU / Warung / Toko Kelontong" class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-rose-500">
       </div>
 
       <div>
         <label class="block text-[10px] text-stone-400 uppercase font-bold mb-1">Keperluan Pengeluaran *</label>
-        <textarea name="notes" rows="2" required placeholder="Tuliskan keperluan pembelian mendadak..." class="w-full bg-[#181B22] border border-[#282E3A] rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-rose-500"></textarea>
+        <textarea name="notes" rows="2" required placeholder="Tuliskan keperluan pembelian mendadak..." class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-rose-500"></textarea>
       </div>
 
-      <div class="pt-2 border-t border-[#1E2229] flex items-center justify-end gap-3">
-        <button type="button" onclick="closeQuickExpenseModal()" class="px-3.5 py-2 rounded-lg bg-[#181B22] border border-[#282E3A] text-stone-300 hover:text-white font-bold text-xs uppercase">
+      <div class="pt-2 border-t border-line flex items-center justify-end gap-3">
+        <button type="button" onclick="closeQuickExpenseModal()" class="px-3.5 py-2 rounded-lg bg-raised border border-line-strong text-stone-300 hover:text-white font-bold text-xs uppercase">
           Batal
         </button>
         <button type="submit" class="tap-active px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase tracking-wider transition">

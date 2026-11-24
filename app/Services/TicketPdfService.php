@@ -26,14 +26,16 @@ class TicketPdfService
             'needs_revision' => 'PERLU PERBAIKAN',
             'approved' => 'DISETUJUI (SIAP CHECK-IN)',
             'paid' => 'LUNAS (SIAP CHECK-IN)',
+            'gate_cleared' => 'LOLOS PEMERIKSAAN GATE (AMBIL SURAT JALAN DI KASIR)',
             'checked_in' => 'SEDANG MENDAKI (AKTIF DI JALUR)',
+            'returned' => 'SUDAH TURUN (PENYELESAIAN DI KASIR)',
             'completed' => 'PENDAKIAN SELESAI',
             'rejected' => 'DITOLAK',
         ];
 
         $statusColor = match ($registration->status) {
             'approved', 'paid' => '#059669', // Emerald
-            'checked_in' => '#2563eb', // Blue
+            'gate_cleared', 'checked_in', 'returned' => '#2563eb', // Blue
             'completed' => '#4b5563', // Gray
             'rejected' => '#dc2626', // Red
             default => '#d97706', // Amber

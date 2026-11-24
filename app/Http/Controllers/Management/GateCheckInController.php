@@ -3,63 +3,184 @@
 namespace App\Http\Controllers\Management;
 
 use App\Http\Controllers\Controller;
-use App\Models\OjekDriver;
+use App\Models\SimaksiInspectionItem;
 use App\Models\SimaksiRegistration;
-use App\Services\CheckInService;
 use App\Services\CheckpointTrackingService;
+use App\Services\GateFlowService;
 use App\Services\OjekService;
 use App\Services\TicketPdfService;
+use App\Support\InspectionTemplate;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Gatekeeper: arahkan pendaki, periksa alat/logistik/foto tim saat naik,
+ * hitung ulang logistik saat turun, lalu teruskan ke kasir.
+ * Cetak dokumen (surat jalan, voucher ojek, izin parkir) tetap di sini tetapi khusus kasir.
+ */
 class GateCheckInController extends Controller
 {
     public function __construct(
-        protected CheckInService $checkInService,
+        protected GateFlowService $gateFlow,
         protected CheckpointTrackingService $trackingService
     ) {}
 
     public function index(Request $request)
     {
-        $code = $request->input('code');
-        $selectedRegistration = null;
+        $code = strtoupper(trim((string) $request->input('code')));
 
-        if ($code) {
-            $selectedRegistration = SimaksiRegistration::with(['members', 'reviewer', 'checkpoints'])
-                ->where('registration_code', strtoupper(trim($code)))
-                ->first();
+        // Scan / ketik kode → langsung ke langkah yang sesuai
+        if ($code !== '') {
+            $registration = $this->findByCode($code);
+
+            if (! $registration) {
+                return redirect()->route('management.gate.index')
+                    ->with('error', "Kode [{$code}] tidak ditemukan. Periksa kembali tiket pendaki.");
+            }
+
+            return match ($registration->status) {
+                'paid' => redirect()->route('management.gate.ascent', $registration->id),
+                'checked_in' => redirect()->route('management.gate.descent', $registration->id),
+                default => redirect()->route('management.gate.index')
+                    ->with('error', "{$registration->registration_code} · {$registration->leader_name}: {$registration->statusLabel()}."),
+            };
         }
 
-        // Active climbers currently on the trail
-        $activeOnMountain = SimaksiRegistration::with('members')
-            ->where('status', 'checked_in')
-            ->latest('checked_in_at')
+        $today = Carbon::today();
+
+        $readyToAscend = SimaksiRegistration::with('members')
+            ->where('status', 'paid')
+            ->orderByRaw('CASE WHEN DATE(hiking_date) = ? THEN 0 ELSE 1 END', [$today->toDateString()])
+            ->orderBy('hiking_date')
+            ->take(30)
             ->get();
 
-        // Live Mountain Radar & Overdue Detection
+        $waitingDeskUp = SimaksiRegistration::where('status', 'gate_cleared')->orderBy('gate_up_at')->get();
+        $waitingDeskDown = SimaksiRegistration::where('status', 'returned')->orderBy('gate_down_at')->get();
+
         $radarData = $this->trackingService->getActiveMountainRadar();
+        $onTrail = collect($radarData['by_pos'])->flatten(1)
+            ->sortByDesc(fn ($row) => [$row['is_overdue'] ? 1 : 0, optional($row['registration']->last_seen_at)->timestamp])
+            ->values();
 
-        // Ready for check-in today
-        $readyForCheckIn = SimaksiRegistration::with('members')
-            ->whereIn('status', ['paid', 'approved'])
-            ->latest()
-            ->take(10)
-            ->get();
-
-        // Standby Ojek Drivers Queue (FIFO)
-        $standbyDrivers = OjekDriver::where('status', 'standby')
-            ->where('is_active', true)
-            ->orderBy('updated_at', 'asc')
-            ->get();
+        $stats = [
+            'ascend_today' => SimaksiRegistration::where('status', 'paid')->whereDate('hiking_date', $today)->count(),
+            'cleared_today' => SimaksiRegistration::whereDate('gate_up_at', $today)->count(),
+            'returned_today' => SimaksiRegistration::whereDate('gate_down_at', $today)->count(),
+            'on_trail' => $radarData['counts']['total_active_climbers'],
+            'overdue' => $radarData['counts']['overdue_count'],
+        ];
 
         return view('management.gate.index', compact(
-            'code',
-            'selectedRegistration',
-            'activeOnMountain',
+            'readyToAscend',
+            'waitingDeskUp',
+            'waitingDeskDown',
+            'onTrail',
             'radarData',
-            'readyForCheckIn',
-            'standbyDrivers'
+            'stats'
         ));
+    }
+
+    public function ascentForm(int $id)
+    {
+        $registration = SimaksiRegistration::with('members')->findOrFail($id);
+
+        if ($registration->status !== 'paid') {
+            return redirect()->route('management.gate.index')
+                ->with('error', "{$registration->registration_code}: {$registration->statusLabel()}. Pemeriksaan naik hanya untuk rombongan yang sudah lunas.");
+        }
+
+        return view('management.gate.ascent', [
+            'registration' => $registration,
+            'template' => InspectionTemplate::get(),
+        ]);
+    }
+
+    public function submitAscent(Request $request, int $id)
+    {
+        $request->validate([
+            'present_members' => 'required|array|min:1',
+            'present_members.*' => 'integer',
+            'team_photo' => 'nullable|file|mimes:jpg,jpeg,png,webp|max:15360',
+            'photo_verified' => 'nullable|boolean',
+            'gear' => 'nullable|array',
+            'gear.*.name' => 'nullable|string|max:100',
+            'gear.*.checked' => 'nullable|boolean',
+            'logistics' => 'nullable|array',
+            'logistics.*.name' => 'nullable|string|max:100',
+            'logistics.*.unit' => 'nullable|string|max:20',
+            'logistics.*.qty' => 'nullable|integer|min:0|max:9999',
+            'notes' => 'nullable|string|max:500',
+        ], [
+            'present_members.required' => 'Tandai minimal satu anggota yang hadir.',
+        ]);
+
+        $registration = SimaksiRegistration::findOrFail($id);
+
+        try {
+            $this->gateFlow->clearAscent(
+                registration: $registration,
+                officerId: Auth::id(),
+                presentMemberIds: array_map('intval', $request->input('present_members', [])),
+                photoVerified: $request->boolean('photo_verified'),
+                photo: $request->file('team_photo'),
+                gear: array_values((array) $request->input('gear', [])),
+                logistics: array_values((array) $request->input('logistics', [])),
+                notes: $request->input('notes'),
+            );
+        } catch (\RuntimeException $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('management.gate.index')
+            ->with('success', "{$registration->registration_code} · {$registration->leader_name} LOLOS GATE. Arahkan rombongan ke kasir untuk mengambil Surat Jalan".($registration->ojek_count > 0 ? ' & Voucher Ojek.' : '.'));
+    }
+
+    public function descentForm(int $id)
+    {
+        $registration = SimaksiRegistration::with(['members', 'inspectionItems', 'checkpoints'])->findOrFail($id);
+
+        if ($registration->status !== 'checked_in') {
+            return redirect()->route('management.gate.index')
+                ->with('error', "{$registration->registration_code}: {$registration->statusLabel()}. Pemeriksaan turun hanya untuk rombongan yang sedang mendaki.");
+        }
+
+        return view('management.gate.descent', [
+            'registration' => $registration,
+            'gearItems' => $registration->inspectionItems->where('type', SimaksiInspectionItem::TYPE_GEAR)->values(),
+            'logisticItems' => $registration->inspectionItems->where('type', SimaksiInspectionItem::TYPE_LOGISTIC)->values(),
+        ]);
+    }
+
+    public function submitDescent(Request $request, int $id)
+    {
+        $request->validate([
+            'qty_down' => 'nullable|array',
+            'qty_down.*' => 'nullable|integer|min:0|max:9999',
+            'gear_down' => 'nullable|array',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $registration = SimaksiRegistration::findOrFail($id);
+
+        try {
+            $result = $this->gateFlow->recordDescent(
+                registration: $registration,
+                officerId: Auth::id(),
+                qtyDown: array_map('intval', (array) $request->input('qty_down', [])),
+                gearDown: array_map('boolval', (array) $request->input('gear_down', [])),
+                notes: $request->input('notes'),
+            );
+        } catch (\RuntimeException $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+
+        $msg = $result->gate_down_clear
+            ? "{$registration->registration_code} CLEAR: logistik & alat lengkap. Arahkan ke kasir untuk penyelesaian & izin keluar parkir."
+            : "{$registration->registration_code} tercatat turun DENGAN SELISIH. Catatan diteruskan ke kasir.";
+
+        return redirect()->route('management.gate.index')->with($result->gate_down_clear ? 'success' : 'error', $msg);
     }
 
     /**
@@ -75,9 +196,7 @@ class GateCheckInController extends Controller
         ]);
 
         $code = strtoupper(trim($request->input('registration_code')));
-        $registration = SimaksiRegistration::where('registration_code', $code)
-            ->orWhere('registration_code', 'LIKE', '%-'.ltrim($code, '#').'%')
-            ->first();
+        $registration = $this->findByCode($code);
 
         if (! $registration) {
             return redirect()->route('management.gate.index')
@@ -85,7 +204,7 @@ class GateCheckInController extends Controller
         }
 
         try {
-            $notes = $request->input('notes') ?: 'Input Cepat Operator Basecamp via Radio HT (Frekuensi 149.250 MHz)';
+            $notes = $request->input('notes') ?: 'Input cepat operator basecamp via radio HT';
             $this->trackingService->recordCheckpoint(
                 registration: $registration,
                 posCode: $request->input('pos_code'),
@@ -100,80 +219,7 @@ class GateCheckInController extends Controller
         }
 
         return redirect()->route('management.gate.index')
-            ->with('success', "DISPATCH HT BERHASIL: Rombongan {$registration->leader_name} ({$registration->registration_code}) dicatat di {$request->input('pos_code')} arah {$request->input('direction')}.");
-    }
-
-    public function processCheckIn(Request $request, int $id)
-    {
-        $request->validate([
-            'trash_bag_code' => 'nullable|string',
-            'checked_members' => 'required|array|min:1',
-            'ojek_driver_ids' => 'nullable|array',
-        ]);
-
-        $registration = SimaksiRegistration::findOrFail($id);
-        $assignedDriverIds = array_values(array_filter(array_map('intval', (array) $request->input('ojek_driver_ids', []))));
-
-        try {
-            $this->checkInService->checkIn(
-                registration: $registration,
-                officerId: Auth::id(),
-                trashBagCode: $request->input('trash_bag_code'),
-                checkedMemberIds: array_map('intval', $request->input('checked_members')),
-                assignedDriverIds: $assignedDriverIds
-            );
-        } catch (\RuntimeException $e) {
-            return redirect()->route('management.gate.index', ['code' => $registration->registration_code])
-                ->with('error', $e->getMessage());
-        }
-
-        $msg = "CHECK-IN BERHASIL! Rombongan {$registration->leader_name} ({$registration->registration_code}) diizinkan masuk trek.";
-        if ($registration->ojek_count > 0 && count($assignedDriverIds) > 0) {
-            $msg .= ' '.count($assignedDriverIds).' Driver ojek pangkalan resmi berhasil ditugaskan.';
-        }
-
-        $redirect = redirect()->route('management.gate.index', ['code' => $registration->registration_code])
-            ->with('success', $msg)
-            ->with('checkin_completed_id', $registration->id);
-
-        if ($registration->ojek_count > 0) {
-            $redirect->with('checkin_has_ojek', true)
-                ->with('checkin_registration_id', $registration->id);
-        }
-
-        return $redirect;
-    }
-
-    public function processCheckOut(Request $request, int $id)
-    {
-        $registration = SimaksiRegistration::findOrFail($id);
-        $trashVerified = $request->boolean('trash_verified');
-        $notes = $request->input('notes');
-
-        try {
-            $this->checkInService->checkOut(
-                registration: $registration,
-                officerId: Auth::id(),
-                trashVerified: $trashVerified,
-                notes: $notes
-            );
-        } catch (\RuntimeException $e) {
-            return redirect()->route('management.gate.index', ['code' => $registration->registration_code])
-                ->with('error', $e->getMessage());
-        }
-
-        if ($registration->trash_deposit_amount > 0) {
-            $formattedDeposit = 'Rp '.number_format($registration->trash_deposit_amount, 0, ',', '.');
-            $msg = $trashVerified
-                ? "CHECK-OUT SELESAI: Sampah telah diverifikasi utuh. Uang jaminan sampah {$formattedDeposit} DIKEMBALIKAN kepada ketua rombongan."
-                : "CHECK-OUT SELESAI DENGAN CATATAN: Sampah tidak dibawa turun. Uang jaminan sampah {$formattedDeposit} HANGUS diserahkan untuk operasional pembersihan jalur.";
-        } else {
-            $msg = "CHECK-OUT SELESAI: Rombongan {$registration->leader_name} telah resmi turun dan selesai (Bebas deposit sampah).";
-        }
-
-        return redirect()->route('management.gate.index', ['code' => $registration->registration_code])
-            ->with('success', $msg)
-            ->with('checkout_completed_id', $registration->id);
+            ->with('success', "DISPATCH HT: {$registration->leader_name} ({$registration->registration_code}) dicatat di {$request->input('pos_code')} arah {$request->input('direction')}.");
     }
 
     /**
@@ -214,7 +260,7 @@ class GateCheckInController extends Controller
     }
 
     /**
-     * Download or Print Official SIMAKSI PDF from Gate
+     * Download or Print Official SIMAKSI PDF
      */
     public function downloadTicketPdf(int $id, TicketPdfService $pdfService)
     {
@@ -222,5 +268,14 @@ class GateCheckInController extends Controller
         $pdf = $pdfService->generate($registration);
 
         return $pdf->download('E-Tiket_SIMAKSI_'.$registration->registration_code.'.pdf');
+    }
+
+    protected function findByCode(string $code): ?SimaksiRegistration
+    {
+        $code = strtoupper(trim($code));
+
+        return SimaksiRegistration::where('registration_code', $code)
+            ->orWhere('registration_code', 'LIKE', '%-'.ltrim($code, '#').'%')
+            ->first();
     }
 }

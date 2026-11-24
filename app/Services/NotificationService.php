@@ -80,47 +80,12 @@ TEXT;
     }
 
     /**
-     * WhatsApp message for approved / paid ticket (Ready for Gate Check-in)
+     * Pesan WhatsApp saat SIMAKSI diverifikasi LUNAS oleh kasir:
+     * seluruh informasi pendakian + tautan e-SIMAKSI / e-tiket.
      */
     public static function paymentConfirmedMessage(SimaksiRegistration $reg): string
     {
-        $hikingDate = $reg->hiking_date ? $reg->hiking_date->format('d M Y') : '-';
-        $expedition = AppSetting::get('expedition_name', 'SAMSARA EXPEDITION');
-        $basecamp = AppSetting::get('basecamp_name', 'Basecamp SAMSARA');
-        $trashDepositEnabled = (bool) AppSetting::get('trash_deposit_enabled', true);
-        $trashDepositAmount = number_format((float) AppSetting::get('trash_deposit_amount', 50000), 0, ',', '.');
-        $portalUrl = url('/?code='.$reg->registration_code);
-
-        $trashNote = $trashDepositEnabled
-            ? "3. Siapkan uang jaminan sampah *Rp {$trashDepositAmount}* tunai saat pengambilan nomor seri kantong sampah resmi (dikembalikan 100% setelah sampah dibawa turun)."
-            : '3. Jaga kelestarian alam dan bawa kembali seluruh sampah kemasan Anda ke basecamp.';
-
-        return <<<TEXT
-*{$expedition} — TIKET RESMI TERBIT*
-// STATUS: PAID / SIAP CHECK-IN //
-
-Halo *{$reg->leader_name}*,
-Pembayaran dan berkas pendaftaran SIMAKSI rombongan Anda telah diverifikasi *LUNAS*.
-
-[KODE REGISTRASI RESMI]
-*{$reg->registration_code}*
-
-[INFORMASI CHECK-IN BASECAMP]
-- Tanggal Pendakian: *{$hikingDate}*
-- Rombongan: *{$reg->total_climbers} Orang*
-- Lokasi: *{$basecamp}, Garut*
-- Jam Operasional Gate: *06.00 - 15.00 WIB*
-
-[PANDUAN CHECK-IN DI GERBANG]
-1. Tunjukkan kode tiket ini atau scan QR Code di loket gerbang basecamp.
-2. Seluruh anggota wajib membawa identitas fisik asli dan mematuhi SOP perlengkapan keselamatan.
-{$trashNote}
-
-Pantau status tiket digital Anda:
-{$portalUrl}
-
-Semoga perjalanan menyenangkan dan selamat sampai puncak!
-TEXT;
+        return app(\App\Services\WhatsApp\WhatsAppNotifier::class)->paymentConfirmedMessage($reg);
     }
 
     /**

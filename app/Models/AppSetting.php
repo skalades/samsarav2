@@ -69,7 +69,7 @@ class AppSetting extends Model
             'porter_fee_per_trip' => (float) static::get('porter_fee_per_trip', 350000),
             'parking_motor_fee' => (float) static::get('parking_motor_fee', 10000),
             'parking_car_fee' => (float) static::get('parking_car_fee', 25000),
-            'trash_deposit_enabled' => (bool) static::get('trash_deposit_enabled', true),
+            'trash_deposit_enabled' => (bool) static::get('trash_deposit_enabled', false),
             'trash_deposit_amount' => (float) static::get('trash_deposit_amount', 50000),
         ];
     }

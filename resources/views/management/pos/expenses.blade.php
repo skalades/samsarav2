@@ -8,7 +8,7 @@
   <!-- ======================================================== -->
   <!-- HEADER & QUICK ACTIONS                                   -->
   <!-- ======================================================== -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-[#1E2229]">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-line">
     <div>
       <div class="flex items-center gap-2">
         <span class="w-2.5 h-2.5 rounded-sm bg-rose-500"></span>
@@ -18,7 +18,7 @@
     </div>
 
     <div class="flex items-center gap-3">
-      <a href="{{ route('management.pos.index') }}" class="px-3.5 py-2 rounded-lg bg-[#16191F] border border-[#262B35] text-stone-300 hover:text-white font-mono-tech text-xs font-bold transition flex items-center gap-2">
+      <a href="{{ route('management.pos.index') }}" class="px-3.5 py-2 rounded-lg bg-raised border border-line-strong text-stone-300 hover:text-white font-mono-tech text-xs font-bold transition flex items-center gap-2">
         <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
         <span>Ke Mesin POS</span>
       </a>
@@ -52,7 +52,7 @@
   <!-- STATS CARDS: REKAP KAS KELUAR HARI INI                   -->
   <!-- ======================================================== -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-4 space-y-1">
+    <div class="bg-surface border border-line rounded-xl p-4 space-y-1">
       <div class="flex items-center justify-between">
         <span class="font-mono-tech text-[10px] text-stone-400 uppercase tracking-wider">TOTAL KAS KELUAR HARI INI</span>
         <span class="w-2 h-2 rounded-full bg-rose-500"></span>
@@ -63,7 +63,7 @@
       <p class="font-mono-tech text-[10px] text-stone-500">{{ $todayCount }} pengeluaran operasional tercatat hari ini</p>
     </div>
 
-    <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-4 space-y-1">
+    <div class="bg-surface border border-line rounded-xl p-4 space-y-1">
       <div class="flex items-center justify-between">
         <span class="font-mono-tech text-[10px] text-stone-400 uppercase tracking-wider">PENGELUARAN TUNAI (KURANGI LACI)</span>
         <span class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono-tech text-[9px] font-bold">CASH OUT</span>
@@ -74,7 +74,7 @@
       <p class="font-mono-tech text-[10px] text-stone-500">Mengurangi saldo kas fisik kasir secara otomatis</p>
     </div>
 
-    <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-4 space-y-1">
+    <div class="bg-surface border border-line rounded-xl p-4 space-y-1">
       <div class="flex items-center justify-between">
         <span class="font-mono-tech text-[10px] text-stone-400 uppercase tracking-wider">AKUNTABILITAS & AUDIT</span>
         <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -89,28 +89,28 @@
   <!-- ======================================================== -->
   <!-- FILTER & SEARCH                                          -->
   <!-- ======================================================== -->
-  <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-4 flex flex-col md:flex-row gap-3 items-center justify-between">
+  <div class="bg-surface border border-line rounded-xl p-4 flex flex-col md:flex-row gap-3 items-center justify-between">
     <div class="flex flex-wrap items-center gap-2 text-xs font-mono-tech w-full md:w-auto">
-      <a href="{{ route('management.pos.expenses.index') }}" class="px-3 py-1.5 rounded-lg border transition {{ empty($category) ? 'bg-[#FF5722] text-black font-bold border-[#FF5722]' : 'bg-[#16191F] text-stone-300 border-[#242934] hover:bg-[#1E232D]' }}">
+      <a href="{{ route('management.pos.expenses.index') }}" class="px-3 py-1.5 rounded-lg border transition {{ empty($category) ? 'bg-brand text-black font-bold border-brand' : 'bg-raised text-stone-300 border-line-strong hover:bg-hover' }}">
         Semua Kategori
       </a>
-      <a href="{{ route('management.pos.expenses.index', ['category' => 'bbm_genset']) }}" class="px-3 py-1.5 rounded-lg border transition {{ $category === 'bbm_genset' ? 'bg-[#FF5722] text-black font-bold border-[#FF5722]' : 'bg-[#16191F] text-stone-300 border-[#242934] hover:bg-[#1E232D]' }}">
+      <a href="{{ route('management.pos.expenses.index', ['category' => 'bbm_genset']) }}" class="px-3 py-1.5 rounded-lg border transition {{ $category === 'bbm_genset' ? 'bg-brand text-black font-bold border-brand' : 'bg-raised text-stone-300 border-line-strong hover:bg-hover' }}">
         BBM Genset
       </a>
-      <a href="{{ route('management.pos.expenses.index', ['category' => 'logistik_sar']) }}" class="px-3 py-1.5 rounded-lg border transition {{ $category === 'logistik_sar' ? 'bg-[#FF5722] text-black font-bold border-[#FF5722]' : 'bg-[#16191F] text-stone-300 border-[#242934] hover:bg-[#1E232D]' }}">
+      <a href="{{ route('management.pos.expenses.index', ['category' => 'logistik_sar']) }}" class="px-3 py-1.5 rounded-lg border transition {{ $category === 'logistik_sar' ? 'bg-brand text-black font-bold border-brand' : 'bg-raised text-stone-300 border-line-strong hover:bg-hover' }}">
         Logistik SAR / P3K
       </a>
-      <a href="{{ route('management.pos.expenses.index', ['category' => 'operasional_pos']) }}" class="px-3 py-1.5 rounded-lg border transition {{ $category === 'operasional_pos' ? 'bg-[#FF5722] text-black font-bold border-[#FF5722]' : 'bg-[#16191F] text-stone-300 border-[#242934] hover:bg-[#1E232D]' }}">
+      <a href="{{ route('management.pos.expenses.index', ['category' => 'operasional_pos']) }}" class="px-3 py-1.5 rounded-lg border transition {{ $category === 'operasional_pos' ? 'bg-brand text-black font-bold border-brand' : 'bg-raised text-stone-300 border-line-strong hover:bg-hover' }}">
         Operasional Pos
       </a>
-      <a href="{{ route('management.pos.expenses.index', ['category' => 'kebersihan_sampah']) }}" class="px-3 py-1.5 rounded-lg border transition {{ $category === 'kebersihan_sampah' ? 'bg-[#FF5722] text-black font-bold border-[#FF5722]' : 'bg-[#16191F] text-stone-300 border-[#242934] hover:bg-[#1E232D]' }}">
+      <a href="{{ route('management.pos.expenses.index', ['category' => 'kebersihan_sampah']) }}" class="px-3 py-1.5 rounded-lg border transition {{ $category === 'kebersihan_sampah' ? 'bg-brand text-black font-bold border-brand' : 'bg-raised text-stone-300 border-line-strong hover:bg-hover' }}">
         Sampah & Karung
       </a>
     </div>
 
     <form method="GET" action="{{ route('management.pos.expenses.index') }}" class="w-full md:w-72 relative">
       @if($category)<input type="hidden" name="category" value="{{ $category }}">@endif
-      <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari kode / toko / catatan..." class="w-full bg-[#181B22] border border-[#282E3A] rounded-lg pl-9 pr-3 py-1.5 text-xs text-white placeholder-stone-500 font-mono-tech focus:outline-none focus:border-[#FF5722]">
+      <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari kode / toko / catatan..." class="w-full bg-raised border border-line-strong rounded-lg pl-9 pr-3 py-1.5 text-xs text-white placeholder-stone-500 font-mono-tech focus:outline-none focus:border-brand">
       <svg class="w-4 h-4 text-stone-500 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
     </form>
   </div>
@@ -118,10 +118,10 @@
   <!-- ======================================================== -->
   <!-- TABEL PENGELUARAN KAS KELUAR                             -->
   <!-- ======================================================== -->
-  <div class="bg-[#121418] border border-[#1E2229] rounded-xl overflow-hidden shadow-xl">
+  <div class="bg-surface border border-line rounded-xl overflow-hidden shadow-xl">
     <div class="overflow-x-auto">
       <table class="w-full text-left font-mono-tech text-xs">
-        <thead class="bg-[#0E1013] border-b border-[#1E2229] text-[10px] text-stone-400 uppercase tracking-wider">
+        <thead class="bg-canvas border-b border-line text-[10px] text-stone-400 uppercase tracking-wider">
           <tr>
             <th class="py-3 px-4">Kode Kas Keluar</th>
             <th class="py-3 px-4">Waktu</th>
@@ -134,9 +134,9 @@
             <th class="py-3 px-4 text-center">Aksi</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-[#1A1E26]">
+        <tbody class="divide-y divide-line">
           @forelse($expenses as $exp)
-            <tr class="hover:bg-[#16191F]/70 transition {{ $exp->status === 'voided' ? 'opacity-40 line-through' : '' }}">
+            <tr class="hover:bg-raised/70 transition {{ $exp->status === 'voided' ? 'opacity-40 line-through' : '' }}">
               <td class="py-3.5 px-4 font-bold text-white">
                 <span class="text-rose-400">{{ $exp->expense_code }}</span>
               </td>
@@ -144,7 +144,7 @@
                 {{ $exp->created_at->format('d/m/Y H:i') }}
               </td>
               <td class="py-3.5 px-4">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#1A1F29] border border-[#282F3E] text-stone-200">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#1A1F29] border border-line-strong text-stone-200">
                   {{ $exp->category_label }}
                 </span>
                 <div class="text-[10px] text-stone-400 mt-1 max-w-xs truncate" title="{{ $exp->notes }}">
@@ -178,12 +178,12 @@
               </td>
               <td class="py-3.5 px-4 text-center">
                 <div class="flex items-center justify-center gap-1.5">
-                  <a href="{{ route('management.pos.expenses.print', $exp->id) }}" target="_blank" class="p-1.5 rounded bg-[#181B22] border border-[#282E3A] text-stone-300 hover:text-white hover:bg-[#222733] transition" title="Cetak Bukti Pengeluaran Kas">
+                  <a href="{{ route('management.pos.expenses.print', $exp->id) }}" target="_blank" class="p-1.5 rounded bg-raised border border-line-strong text-stone-300 hover:text-white hover:bg-hover transition" title="Cetak Bukti Pengeluaran Kas">
                     <svg class="w-3.5 h-3.5 text-stone-400 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                   </a>
 
                   @if($exp->status === 'active')
-                    <button type="button" onclick="openVoidModal({{ $exp->id }}, '{{ $exp->expense_code }}', {{ $exp->amount }})" class="p-1.5 rounded bg-[#181B22] border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 transition" title="Batalkan (Void)">
+                    <button type="button" onclick="openVoidModal({{ $exp->id }}, '{{ $exp->expense_code }}', {{ $exp->amount }})" class="p-1.5 rounded bg-raised border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 transition" title="Batalkan (Void)">
                       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                   @endif
@@ -206,7 +206,7 @@
     </div>
 
     @if($expenses->hasPages())
-      <div class="p-4 border-t border-[#1E2229] bg-[#0E1013]">
+      <div class="p-4 border-t border-line bg-canvas">
         {{ $expenses->links() }}
       </div>
     @endif
@@ -218,9 +218,9 @@
 <!-- MODAL: CATAT PENGELUARAN MENDADAK (PETTY CASH)            -->
 <!-- ======================================================== -->
 <div id="expenseModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-  <div class="bg-[#121418] border border-[#222731] rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl space-y-4">
+  <div class="bg-surface border border-line-strong rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl space-y-4">
     
-    <div class="p-4 border-b border-[#1E2229] flex items-center justify-between bg-[#0E1013]">
+    <div class="p-4 border-b border-line flex items-center justify-between bg-canvas">
       <div class="flex items-center gap-2">
         <div class="w-3 h-3 rounded-full bg-rose-500"></div>
         <h3 class="font-display font-black text-sm uppercase text-white tracking-wider">FORM KAS KELUAR OPERASIONAL (MENDADAK)</h3>
@@ -235,7 +235,7 @@
         <!-- Kategori -->
         <div>
           <label class="block text-[10px] text-stone-400 uppercase font-bold mb-1">Kategori Pengeluaran *</label>
-          <select name="category" required class="w-full bg-[#181B22] border border-[#282E3A] rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-rose-500">
+          <select name="category" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-rose-500">
             <option value="bbm_genset">BBM Genset & Listrik</option>
             <option value="operasional_pos">Operasional Pos & ATK</option>
             <option value="logistik_sar">P3K & Logistik Darurat SAR</option>
@@ -249,7 +249,7 @@
         <!-- Metode Pembayaran -->
         <div>
           <label class="block text-[10px] text-stone-400 uppercase font-bold mb-1">Metode Pengeluaran *</label>
-          <select name="payment_method" required class="w-full bg-[#181B22] border border-[#282E3A] rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-rose-500">
+          <select name="payment_method" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-rose-500">
             <option value="cash">Tunai (Kurangi Laci Kasir)</option>
             <option value="transfer">Transfer Bank</option>
           </select>
@@ -261,30 +261,30 @@
         <label class="block text-[10px] text-stone-400 uppercase font-bold mb-1">Nominal Pengeluaran (Rp) *</label>
         <div class="relative">
           <span class="absolute left-3 top-2 text-stone-500 font-bold">Rp</span>
-          <input type="number" name="amount" min="1000" step="500" required placeholder="Contoh: 50000" class="w-full bg-[#181B22] border border-[#282E3A] rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-rose-500">
+          <input type="number" name="amount" min="1000" step="500" required placeholder="Contoh: 50000" class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-rose-500">
         </div>
       </div>
 
       <!-- Penerima Dana / Toko -->
       <div>
         <label class="block text-[10px] text-stone-400 uppercase font-bold mb-1">Nama Toko / Penerima Dana *</label>
-        <input type="text" name="recipient_name" required placeholder="Contoh: SPBU Simpang / Toko Barokah / Tim SAR" class="w-full bg-[#181B22] border border-[#282E3A] rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-rose-500">
+        <input type="text" name="recipient_name" required placeholder="Contoh: SPBU Simpang / Toko Barokah / Tim SAR" class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-rose-500">
       </div>
 
       <!-- Keterangan -->
       <div>
         <label class="block text-[10px] text-stone-400 uppercase font-bold mb-1">Keperluan / Keterangan Mendadak *</label>
-        <textarea name="notes" rows="3" required placeholder="Tulis rincian barang yang dibeli atau alasan pengeluaran mendadak..." class="w-full bg-[#181B22] border border-[#282E3A] rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-rose-500"></textarea>
+        <textarea name="notes" rows="3" required placeholder="Tulis rincian barang yang dibeli atau alasan pengeluaran mendadak..." class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-rose-500"></textarea>
       </div>
 
       <!-- Lampiran Nota / Foto Struk -->
       <div>
         <label class="block text-[10px] text-stone-400 uppercase font-bold mb-1">Foto Nota / Bukti Kasbon (Opsional)</label>
-        <input type="file" name="receipt_photo" accept="image/*,application/pdf" class="w-full bg-[#181B22] border border-[#282E3A] rounded-lg px-3 py-1.5 text-stone-300 text-[11px] file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:bg-[#252B37] file:text-stone-300 file:font-mono-tech file:text-xs hover:file:bg-[#303847]">
+        <input type="file" name="receipt_photo" accept="image/*,application/pdf" class="w-full bg-raised border border-line-strong rounded-lg px-3 py-1.5 text-stone-300 text-[11px] file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:bg-hover file:text-stone-300 file:font-mono-tech file:text-xs hover:file:bg-hover">
       </div>
 
-      <div class="pt-3 border-t border-[#1E2229] flex items-center justify-end gap-3">
-        <button type="button" onclick="closeExpenseModal()" class="px-4 py-2 rounded-lg bg-[#181B22] border border-[#282E3A] text-stone-300 hover:text-white font-bold text-xs uppercase">
+      <div class="pt-3 border-t border-line flex items-center justify-end gap-3">
+        <button type="button" onclick="closeExpenseModal()" class="px-4 py-2 rounded-lg bg-raised border border-line-strong text-stone-300 hover:text-white font-bold text-xs uppercase">
           Batal
         </button>
         <button type="submit" class="tap-active px-5 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-rose-600/20">
@@ -299,8 +299,8 @@
 <!-- MODAL: VOID / BATALKAN PENGELUARAN                       -->
 <!-- ======================================================== -->
 <div id="voidModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-  <div class="bg-[#121418] border border-rose-500/30 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl space-y-4">
-    <div class="p-4 border-b border-[#1E2229] bg-[#0E1013] flex items-center justify-between">
+  <div class="bg-surface border border-rose-500/30 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl space-y-4">
+    <div class="p-4 border-b border-line bg-canvas flex items-center justify-between">
       <div class="flex items-center gap-2">
         <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
         <h3 class="font-display font-black text-sm uppercase text-white tracking-wider">BATALKAN (VOID) KAS KELUAR</h3>
@@ -316,11 +316,11 @@
 
       <div>
         <label class="block text-[10px] text-stone-400 uppercase font-bold mb-1">Alasan Pembatalan (VOID) *</label>
-        <input type="text" name="void_reason" required minlength="5" placeholder="Contoh: Salah input nominal / Nota dibatalkan supplier" class="w-full bg-[#181B22] border border-[#282E3A] rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-rose-500">
+        <input type="text" name="void_reason" required minlength="5" placeholder="Contoh: Salah input nominal / Nota dibatalkan supplier" class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-rose-500">
       </div>
 
-      <div class="pt-3 border-t border-[#1E2229] flex items-center justify-end gap-3">
-        <button type="button" onclick="closeVoidModal()" class="px-4 py-2 rounded-lg bg-[#181B22] border border-[#282E3A] text-stone-300 hover:text-white font-bold text-xs uppercase">
+      <div class="pt-3 border-t border-line flex items-center justify-end gap-3">
+        <button type="button" onclick="closeVoidModal()" class="px-4 py-2 rounded-lg bg-raised border border-line-strong text-stone-300 hover:text-white font-bold text-xs uppercase">
           Tutup
         </button>
         <button type="submit" class="tap-active px-5 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase tracking-wider transition">

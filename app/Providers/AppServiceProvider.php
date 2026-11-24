@@ -19,6 +19,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Tanggal & waktu relatif selalu berbahasa Indonesia ("3 hari yang lalu", "Sabtu, 21 Nov")
+        \Carbon\Carbon::setLocale('id');
+
+        // Paginasi bergaya gelap sesuai design system SAMSARA OPS
+        \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.samsara');
     }
 }

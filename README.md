@@ -22,27 +22,35 @@ Aplikasi dapat langsung diakses melalui peramban:
 
 ---
 
-## 🔑 Akun & Kredensial Pengujian (Merged Kasir Level)
+## 🔑 4 Level Akses & Akun Pengujian
 
-Kredensial default untuk seluruh akun:
-- **Kata Sandi (Semua Akun)**: `samsara2026`
-- Fitur **One-Click Quick Login** di halaman login memungkinkan login langsung sebagai **Kasir Operasional Loket (All-in-One)**.
+Kata sandi semua akun demo: `samsara2026`. Superadmin dapat menambah, mengubah level, dan menonaktifkan akun di **Pengaturan → Petugas & Akses**. Peran lama otomatis dipetakan (admin/auditor → superadmin, verifikator/inventori → kasir, gate_officer/petugas_lapangan → gatekeeper).
 
-| Peran (Role) | Akun Email | Kewenangan & Modul Utama (Merged di Level Kasir) |
+| Level | Akun demo | Beranda & modul |
 |---|---|---|
-| **Kasir Operasional Loket (All-in-One)** | `kasir@samsara.id` | **Penggabungan 4 Peran Lapangan:**<br>1. **Verifikasi SIMAKSI**: Review antrean, verifikasi data/manifest, konfirmasi bayar langsung (*Set PAID*).<br>2. **Kasir POS**: Penjualan tiket, ojek trail, sewa tenda/alat, cetak struk termal 80mm.<br>3. **Petugas Gate**: Pemindai tiket, checklist kehadiran manifest, kontrol deposit sampah Rp 50.000 & check-out.<br>4. **Petugas Inventori**: Cek stok tenda/alat, serah-terima sewa, denda kerusakan saat alat kembali. |
-| **Superadmin** | `admin@samsara.id` | Akses penuh pengaturan kuota, telemetri, konfigurasi integrasi, dan laporan lintas fungsi. |
-| **Auditor** | `auditor@samsara.id` | Akses read-only audit trail tak terhapuskan untuk seluruh aksi operasional petugas. |
+| **Superadmin** | `admin@samsara.id` | Ringkasan operasional, laporan, audit, kuota, tarif, checklist Gate, WhatsApp Gateway, petugas & akses — plus seluruh modul level lain. |
+| **Kasir Basecamp** | `kasir@samsara.id` | Meja kasir: verifikasi bayar (konfirmasi LUNAS → WhatsApp otomatis), antrean kiriman Gate, cetak surat jalan / voucher ojek / izin parkir, POS, kas keluar, sewa alat, ojek. |
+| **Gatekeeper** | `gate@samsara.id` | Layar Gate mobile: scan tiket, pemeriksaan naik (anggota, foto tim, alat wajib, hitung logistik), pemeriksaan turun (hitung ulang logistik), laporan radio HT. |
+| **Ranger Pos** | `ranger@samsara.id` | Scanner Pos 1–3 & puncak: catat naik / turun / buka tenda, daftar rombongan di jalur. |
+
+Tombol **Mode Mobile / Mode Desktop** di header mengubah tampilan seketika; di ponsel tampilan otomatis mobile.
 
 ---
 
-## 📌 Alur Status SIMAKSI (Disederhanakan: Pending & Paid)
+## 📌 Alur Status Rombongan (Gate ↔ Kasir)
 
-Status permohonan SIMAKSI kini disederhanakan agar tidak membingungkan kasir/petugas loket:
-1. **`PENDING`** (Kuning/Amber): Permohonan telah dikirim, menunggu verifikasi berkas atau pembayaran di kasir/transfer.
-2. **`PAID`** (Hijau/Emerald): Pembayaran telah lunas dikonfirmasi kasir/sistem (izin resmi terbit & kuota terkunci otomatis). Siap untuk *Gate Check-in*.
-3. **`CHECKED-IN`** (Alpine Orange): Rombongan telah hadir di gerbang basecamp, diverifikasi manifest-nya, kantong sampah diserahkan, dan sedang mendaki di jalur.
-4. **`SELESAI`** (Abu-abu): Rombongan selesai turun gunung, verifikasi sampah selesai, deposit dikembalikan.
+1. **Menunggu bayar** — permohonan masuk, menunggu verifikasi pembayaran.
+2. **Lunas** (`paid`) — kasir mengonfirmasi lunas; info pendakian lengkap + tautan e-SIMAKSI dikirim otomatis ke WhatsApp ketua.
+3. **Lolos Gate** (`gate_cleared`) — gatekeeper memeriksa anggota, foto tim, alat wajib (centang) dan menghitung logistik berpotensi sampah (jumlah).
+4. **Sedang mendaki** (`checked_in`) — kasir mencetak Surat Jalan & Voucher Ojek lalu memberangkatkan rombongan; ranger mencatat di tiap pos.
+5. **Sudah turun** (`returned`) — gatekeeper menghitung ulang logistik & alat; selisih tercatat sebagai catatan untuk kasir.
+6. **Selesai** (`completed`) — kasir menyelesaikan, mencetak Izin Keluar Parkir; KTP ketua otomatis dimusnahkan (UU PDP).
+
+Deposit sampah dinonaktifkan sementara (bisa diaktifkan lagi di Tarif & Kebijakan).
+
+### WhatsApp Gateway
+
+Atur di `.env`: `WA_GATEWAY_DRIVER` (`log` | `fonnte` | `wablas` | `webhook`), `WA_GATEWAY_TOKEN`, `WA_GATEWAY_ENDPOINT`, `WA_GATEWAY_SECRET`, `WA_AUTO_SEND_ON_PAID`. Selama driver `log`, pesan hanya dicatat. Pesan dikirim lewat antrean (`php artisan queue:work`), tercatat di **Pengaturan → WhatsApp Gateway**, dan bisa dikirim ulang.
 
 ---
 

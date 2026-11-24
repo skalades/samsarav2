@@ -65,7 +65,8 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    // Basecamp beroperasi di WIB: jam check-in, batas "hari ini", dan jam pada dokumen mengikuti zona ini
+    'timezone' => env('APP_TIMEZONE', 'Asia/Jakarta'),
 
     /*
     |--------------------------------------------------------------------------

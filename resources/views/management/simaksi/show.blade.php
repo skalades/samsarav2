@@ -8,13 +8,13 @@
 <div class="space-y-6">
 
   <!-- Top Breadcrumb & Status Header -->
-  <div class="flex items-center justify-between bg-[#121418] border border-[#1E2229] rounded-xl p-4">
-    <div class="flex items-center gap-3">
-      <a href="{{ route('management.simaksi.index') }}" class="p-2 rounded bg-[#16191F] hover:bg-[#202530] text-stone-400 hover:text-white transition">
+  <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-surface border border-line rounded-2xl p-4">
+    <div class="flex items-center gap-3 min-w-0">
+      <a href="{{ route('management.simaksi.index') }}" class="p-2 rounded bg-raised hover:bg-hover text-stone-400 hover:text-white transition">
         ← Kembali
       </a>
       <div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <h2 class="font-display font-black text-xl text-white">{{ $registration->registration_code }}</h2>
           <span class="px-2.5 py-0.5 rounded text-xs font-mono-tech font-bold border {{ $registration->status_badge['bg'] }}">
             {{ $registration->status_badge['label'] }}
@@ -27,8 +27,8 @@
     </div>
 
     <!-- Quick Payment & Check-in info & PDF Download -->
-    <div class="flex items-center gap-4">
-      <div class="text-right font-mono-tech text-xs">
+    <div class="flex flex-wrap items-center justify-between lg:justify-end gap-3 lg:gap-4">
+      <div class="text-left lg:text-right font-mono-tech text-xs">
         <span class="text-stone-400 block text-[10px]">TOTAL BIAYA:</span>
         <span class="font-bold text-white text-base">Rp {{ number_format($registration->total_amount, 0, ',', '.') }}</span>
         <span class="block text-[10px] {{ $registration->payment_status === 'paid' ? 'text-emerald-400' : 'text-amber-400' }}">
@@ -41,7 +41,7 @@
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           <span>Unduh PDF</span>
         </a>
-        <a href="{{ route('portal.simaksi.ticket', $registration->registration_code) }}" target="_blank" class="px-3 py-2 rounded-lg bg-[#181B22] hover:bg-[#202530] border border-[#2A303C] text-stone-200 font-bold font-mono-tech text-xs flex items-center gap-1 transition">
+        <a href="{{ route('portal.simaksi.ticket', $registration->registration_code) }}" target="_blank" class="px-3 py-2 rounded-lg bg-raised hover:bg-hover border border-line-strong text-stone-200 font-bold font-mono-tech text-xs flex items-center gap-1 transition">
           <span>E-Tiket ↗</span>
         </a>
       </div>
@@ -78,10 +78,10 @@
     <div class="lg:col-span-2 space-y-6">
       
       <!-- Leader & Schedule Card -->
-      <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-[#1E2229]">
+      <div class="bg-surface border border-line rounded-xl p-5 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-line">
           <div class="flex items-center gap-2">
-            <div class="w-2.5 h-2.5 rounded-sm bg-[#FF5722]"></div>
+            <div class="w-2.5 h-2.5 rounded-sm bg-brand"></div>
             <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-white">
               DATA KETUA ROMBONGAN & JADWAL
             </h3>
@@ -100,7 +100,7 @@
           </div>
           <div>
             <span class="text-[10px] text-stone-400 block uppercase">NO. WHATSAPP</span>
-            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $registration->leader_phone) }}" target="_blank" class="font-bold text-[#FF5722] hover:underline block mt-0.5">
+            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $registration->leader_phone) }}" target="_blank" class="font-bold text-brand hover:underline block mt-0.5">
               {{ $registration->leader_phone }}
             </a>
           </div>
@@ -116,7 +116,7 @@
             <span class="text-[10px] text-stone-400 block uppercase">ESTIMASI TURUN</span>
             <span class="text-stone-300 block mt-0.5">{{ $registration->return_date ? $registration->return_date->format('d M Y') : '-' }}</span>
           </div>
-          <div class="col-span-2 sm:col-span-3 pt-2 border-t border-[#1E2229]">
+          <div class="col-span-2 sm:col-span-3 pt-2 border-t border-line">
             <span class="text-[10px] text-stone-400 block uppercase">RIWAYAT PENYAKIT BAWAAN / KONDISI MEDIS KETUA</span>
             <span class="font-bold {{ $registration->medical_conditions && $registration->medical_conditions !== 'Tidak Ada' ? 'text-amber-400' : 'text-stone-300' }} block mt-0.5">
               {{ $registration->medical_conditions ?? 'Tidak Ada' }}
@@ -125,19 +125,19 @@
         </div>
 
         <!-- Emergency Contact -->
-        <div class="p-3 bg-[#16191F] border border-[#20242C] rounded-lg font-mono-tech text-xs space-y-1">
-          <span class="text-[10px] text-[#FF5722] font-bold uppercase tracking-wider block">KONTAK DARURAT (KELUARGA TIDAK IKUT MENDAKI)</span>
+        <div class="p-3 bg-raised border border-line rounded-lg font-mono-tech text-xs space-y-1">
+          <span class="text-[10px] text-brand font-bold uppercase tracking-wider block">KONTAK DARURAT (KELUARGA TIDAK IKUT MENDAKI)</span>
           <div class="flex justify-between items-center text-stone-300 pt-1">
             <span>Nama: <strong class="text-white">{{ $registration->emergency_contact_name }}</strong> ({{ $registration->emergency_relationship }})</span>
-            <span>Telp: <a href="tel:{{ $registration->emergency_contact_phone }}" class="text-[#FF5722] font-bold hover:underline">{{ $registration->emergency_contact_phone }}</a></span>
+            <span>Telp: <a href="tel:{{ $registration->emergency_contact_phone }}" class="text-brand font-bold hover:underline">{{ $registration->emergency_contact_phone }}</a></span>
           </div>
         </div>
 
         <!-- Foto Dokumen KTP Asli Ketua -->
-        <div class="p-3.5 bg-[#16191F] border border-[#20242C] rounded-xl font-mono-tech text-xs space-y-2.5">
+        <div class="p-3.5 bg-raised border border-line rounded-xl font-mono-tech text-xs space-y-2.5">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-1.5 text-stone-200">
-              <svg class="w-4 h-4 text-[#FF5722]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg>
+              <svg class="w-4 h-4 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg>
               <span class="text-[10px] font-bold uppercase tracking-wider">FOTO / SCAN KTP ASLI KETUA:</span>
             </div>
             @if($registration->leader_ktp_path)
@@ -157,7 +157,7 @@
 
           @if($registration->leader_ktp_path)
             <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-1">
-              <a href="{{ route('management.simaksi.ktp', $registration->id) }}" target="_blank" class="group relative block overflow-hidden rounded-lg border border-[#2A303C] hover:border-[#FF5722] bg-black transition flex-shrink-0">
+              <a href="{{ route('management.simaksi.ktp', $registration->id) }}" target="_blank" class="group relative block overflow-hidden rounded-lg border border-line-strong hover:border-brand bg-black transition flex-shrink-0">
                 <img src="{{ route('management.simaksi.ktp', $registration->id) }}" alt="KTP {{ $registration->leader_name }}" class="h-28 w-44 object-cover group-hover:opacity-90 transition">
                 <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] text-white font-bold transition">
                   [KLIK PERBESAR KTP]
@@ -174,12 +174,12 @@
               </div>
             </div>
           @elseif($registration->status === 'completed')
-            <div class="p-2.5 bg-[#0D0F12] border border-emerald-500/20 rounded-lg text-[10px] text-stone-400 flex items-center gap-2">
+            <div class="p-2.5 bg-canvas border border-emerald-500/20 rounded-lg text-[10px] text-stone-400 flex items-center gap-2">
               <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               <span>Sesuai SOP Perlindungan Data Pribadi (PDP), berkas fisik KTP ketua rombongan telah dimusnahkan secara otomatis saat pendaki check-out selesai turun gunung.</span>
             </div>
           @else
-            <div class="p-2.5 bg-[#0D0F12] border border-[#222731] rounded-lg text-[10px] text-stone-400">
+            <div class="p-2.5 bg-canvas border border-line-strong rounded-lg text-[10px] text-stone-400">
               Pemohon belum melampirkan foto KTP fisik. Jika diperlukan untuk SOP verifikasi, gunakan formulir <strong>Minta Perbaikan Berkas</strong> di samping.
             </div>
           @endif
@@ -187,10 +187,10 @@
       </div>
 
       <!-- Climber Members Manifest Table -->
-      <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-[#1E2229]">
+      <div class="bg-surface border border-line rounded-xl p-5 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-line">
           <div class="flex items-center gap-2">
-            <div class="w-2.5 h-2.5 rounded-sm bg-[#FF5722]"></div>
+            <div class="w-2.5 h-2.5 rounded-sm bg-brand"></div>
             <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-white">
               MANIFEST SELURUH ANGGOTA ROMBONGAN ({{ $registration->members->count() }} ORANG)
             </h3>
@@ -201,7 +201,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-left font-mono-tech text-xs">
             <thead>
-              <tr class="text-[10px] text-stone-400 uppercase border-b border-[#1E2229]">
+              <tr class="text-[10px] text-stone-400 uppercase border-b border-line">
                 <th class="pb-2">NO</th>
                 <th class="pb-2">NAMA LENGKAP</th>
                 <th class="pb-2">NIK</th>
@@ -212,9 +212,9 @@
                 <th class="pb-2">GATE CHECK-IN</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-[#1A1E26]">
+            <tbody class="divide-y divide-line">
               @foreach($registration->members as $idx => $m)
-                <tr class="hover:bg-[#16191F]">
+                <tr class="hover:bg-raised">
                   <td class="py-2.5 text-stone-400">{{ $idx + 1 }}</td>
                   <td class="py-2.5 font-bold text-white">{{ $m->full_name }}</td>
                   <td class="py-2.5 text-stone-300">{{ $m->nik ?? '-' }}</td>
@@ -231,7 +231,7 @@
                   </td>
                   <td class="py-2.5">
                     @if($m->is_leader)
-                      <span class="px-2 py-0.5 rounded bg-[#FF5722]/10 border border-[#FF5722]/30 text-[#FF5722] text-[10px] font-bold">
+                      <span class="px-2 py-0.5 rounded bg-brand/10 border border-brand/30 text-brand text-[10px] font-bold">
                         KETUA TIM
                       </span>
                     @else
@@ -253,9 +253,9 @@
       </div>
 
       <!-- Audit Trail for this registration -->
-      <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4">
-        <div class="flex items-center gap-2 pb-3 border-b border-[#1E2229]">
-          <div class="w-2.5 h-2.5 rounded-sm bg-[#FF5722]"></div>
+      <div class="bg-surface border border-line rounded-xl p-5 space-y-4">
+        <div class="flex items-center gap-2 pb-3 border-b border-line">
+          <div class="w-2.5 h-2.5 rounded-sm bg-brand"></div>
           <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-white">
             JEJAK AUDIT & RIWAYAT KEPUTUSAN PETUGAS
           </h3>
@@ -263,9 +263,9 @@
 
         <div class="space-y-3 font-mono-tech text-xs">
           @forelse($auditLogs as $log)
-            <div class="p-3 bg-[#16191F] border border-[#20242C] rounded-lg space-y-1">
+            <div class="p-3 bg-raised border border-line rounded-lg space-y-1">
               <div class="flex justify-between items-center text-[10px]">
-                <span class="font-bold text-[#FF5722]">{{ $log->action }}</span>
+                <span class="font-bold text-brand">{{ $log->action }}</span>
                 <span class="text-stone-400">{{ $log->created_at->format('d M Y H:i:s') }}</span>
               </div>
               <p class="text-stone-200 text-xs">{{ $log->description }}</p>
@@ -274,7 +274,7 @@
                   Alasan: {{ $log->reason }}
                 </div>
               @endif
-              <div class="pt-1 border-t border-[#1E2229] text-[9px] text-stone-400 flex justify-between">
+              <div class="pt-1 border-t border-line text-[9px] text-stone-400 flex justify-between">
                 <span>Oleh: {{ $log->actor_name }} ({{ $log->actor_role }})</span>
                 <span>IP: {{ $log->ip_address }}</span>
               </div>
@@ -291,8 +291,8 @@
     <div class="space-y-6">
       
       <!-- Fee Breakdown Card -->
-      <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-[#1E2229]">
+      <div class="bg-surface border border-line rounded-xl p-5 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-line">
           <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-white">
             RINCIAN TARIF & LAYANAN
           </h3>
@@ -320,14 +320,14 @@
               <span class="font-bold">+Rp {{ $registration->unique_code }}</span>
             </div>
           @endif
-          <div class="pt-2 border-t border-[#1E2229] flex justify-between items-center text-sm font-bold text-white">
+          <div class="pt-2 border-t border-line flex justify-between items-center text-sm font-bold text-white">
             <span>TOTAL TAGIHAN:</span>
-            <span class="text-[#FF5722] text-base">Rp {{ number_format($registration->total_amount, 0, ',', '.') }}</span>
+            <span class="text-brand text-base">Rp {{ number_format($registration->total_amount, 0, ',', '.') }}</span>
           </div>
           
-          <div class="p-2.5 bg-[#0A0B0D] border border-[#1E2229] rounded-lg text-[10px] text-stone-400 mt-2 space-y-1">
+          <div class="p-2.5 bg-canvas border border-line rounded-lg text-[10px] text-stone-400 mt-2 space-y-1">
             @if($registration->unique_code > 0)
-              <div class="text-amber-300 font-bold pb-1 border-b border-[#1E2229]">
+              <div class="text-amber-300 font-bold pb-1 border-b border-line">
                 // Verifikasi Mutasi Bank: Nominal transfer persis <strong class="text-white">Rp {{ number_format($registration->total_amount, 0, ',', '.') }}</strong> (Kode unik: {{ $registration->unique_code }}).
               </div>
             @endif
@@ -343,14 +343,14 @@
 
         <!-- Bukti Pembayaran yang Diunggah Pendaki -->
         @if($registration->payment_proof_path)
-          <div class="p-3 bg-[#16191F] border border-blue-500/40 rounded-xl space-y-2 font-mono-tech">
+          <div class="p-3 bg-raised border border-blue-500/40 rounded-xl space-y-2 font-mono-tech">
             <div class="flex items-center justify-between text-[10px]">
               <span class="text-blue-400 font-bold uppercase">BUKTI BAYAR DIUNGGAH PENDAKI:</span>
               <span class="text-stone-400">Metode: {{ strtoupper($registration->payment_method) }}</span>
             </div>
-            <button type="button" onclick="showProofModal('{{ asset('storage/' . $registration->payment_proof_path) }}', '{{ $registration->registration_code }}', '{{ addslashes($registration->leader_name) }}', '{{ number_format($registration->total_amount, 0, ',', '.') }}', '{{ strtoupper($registration->payment_method ?? 'QRIS') }}')" class="block w-full text-left group relative overflow-hidden rounded-lg border border-[#2A303C] bg-black cursor-pointer">
+            <button type="button" onclick="showProofModal('{{ asset('storage/' . $registration->payment_proof_path) }}', '{{ $registration->registration_code }}', '{{ addslashes($registration->leader_name) }}', '{{ number_format($registration->total_amount, 0, ',', '.') }}', '{{ strtoupper($registration->payment_method ?? 'QRIS') }}')" class="block w-full text-left group relative overflow-hidden rounded-lg border border-line-strong bg-black cursor-pointer">
               <img src="{{ asset('storage/' . $registration->payment_proof_path) }}" alt="Bukti Transfer" class="w-full max-h-48 object-contain group-hover:opacity-90 transition">
-              <div class="p-1.5 text-center bg-[#1A1D24] text-[9px] text-stone-300 group-hover:text-cyan-300 transition flex items-center justify-center gap-1.5">
+              <div class="p-1.5 text-center bg-raised text-[9px] text-stone-300 group-hover:text-cyan-300 transition flex items-center justify-center gap-1.5">
                 <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                 <span>[KLIK UNTUK MEMPERBESAR BUKTI BAYAR]</span>
               </div>
@@ -360,7 +360,7 @@
 
         <!-- Payment action if pending -->
         @if($registration->status === 'pending' || $registration->payment_status !== 'paid')
-          <form action="{{ route('management.simaksi.paid', $registration->id) }}" method="POST" class="pt-3 border-t border-[#1E2229] space-y-3">
+          <form action="{{ route('management.simaksi.paid', $registration->id) }}" method="POST" class="pt-3 border-t border-line space-y-3">
             @csrf
             <div>
               <label for="payment_method" class="block text-[10px] font-mono-tech font-bold text-stone-300 uppercase mb-1.5 flex items-center justify-between">
@@ -370,48 +370,66 @@
               @php
                 $defaultMethod = old('payment_method', $registration->payment_method ?? ($registration->payment_proof_path ? 'transfer' : 'cash_pos'));
               @endphp
-              <select id="payment_method" name="payment_method" class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg px-3 py-2 text-white font-mono-tech font-bold text-xs focus:outline-none focus:border-emerald-500">
+              <select id="payment_method" name="payment_method" class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-mono-tech font-bold text-xs focus:outline-none focus:border-emerald-500">
                 <option value="qris" {{ $defaultMethod === 'qris' ? 'selected' : '' }}>QRIS Resmi Basecamp</option>
                 <option value="transfer" {{ in_array($defaultMethod, ['transfer', 'bank_transfer']) ? 'selected' : '' }}>Transfer Bank (BCA)</option>
                 <option value="cash_pos" {{ in_array($defaultMethod, ['cash', 'cash_pos']) ? 'selected' : '' }}>Uang Tunai (Cash Fisik Posko)</option>
               </select>
               <p class="text-[9px] text-stone-400 mt-1">Uang non-tunai (QRIS & Transfer) tidak membebani laci fisik kasir posko.</p>
             </div>
-            <button type="submit" onclick="return confirm('Konfirmasi terima pembayaran dan set status ke PAID?')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-mono-tech font-bold text-xs uppercase tracking-wider rounded-lg transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
+            <button type="submit" onclick="return confirm('Konfirmasi pembayaran LUNAS? Info pendakian & e-SIMAKSI akan dikirim otomatis ke WhatsApp ketua.')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-mono-tech font-bold text-xs uppercase tracking-wider rounded-lg transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-              <span>TERIMA PEMBAYARAN & SET STATUS PAID</span>
+              <span>Konfirmasi lunas &amp; kirim WhatsApp</span>
             </button>
           </form>
         @else
-          <div class="pt-3 border-t border-[#1E2229] space-y-2">
-            <div class="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg font-mono-tech text-xs text-emerald-300 text-center font-bold">
-              [✓] STATUS: PAID / LUNAS (IZIN TERBIT)
-            </div>
-            @if($registration->status === 'paid')
-              <a href="{{ route('management.gate.index', ['code' => $registration->registration_code]) }}" class="block w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-center font-mono-tech font-bold text-xs uppercase rounded-lg transition">
-                BUKA GATE CHECK-IN UNTUK ROMBONGAN INI →
-              </a>
+          @php
+            $flow = [
+              'paid' => ['Lunas', 'paid'],
+              'gate_cleared' => ['Lolos Gate', 'gate_cleared'],
+              'checked_in' => ['Berangkat', 'checked_in'],
+              'returned' => ['Turun', 'returned'],
+              'completed' => ['Selesai', 'completed'],
+            ];
+            $order = array_keys($flow);
+            $pos = array_search($registration->status, $order, true);
+          @endphp
+          <div class="pt-3 border-t border-line space-y-3">
+            <ol class="grid grid-cols-5 gap-1">
+              @foreach($flow as $key => [$label])
+                @php $i = array_search($key, $order, true); @endphp
+                <li class="text-center">
+                  <span class="block h-1.5 rounded-full {{ $pos !== false && $i <= $pos ? 'bg-emerald-400' : 'bg-raised' }}"></span>
+                  <span class="block mt-1 text-[10px] {{ $pos !== false && $i === $pos ? 'text-ink font-semibold' : 'text-subtle' }}">{{ $label }}</span>
+                </li>
+              @endforeach
+            </ol>
+            <p class="text-sm text-muted">Status: <strong class="text-ink">{{ $registration->statusLabel() }}</strong></p>
+            @if(in_array($registration->status, ['gate_cleared', 'returned', 'checked_in', 'completed']))
+              <x-ui.button :href="route('management.desk.show', $registration->id)" icon="inbox" block>Buka di meja kasir</x-ui.button>
+            @elseif($registration->status === 'paid')
+              <p class="text-xs text-muted">Menunggu pemeriksaan naik oleh Gatekeeper (alat, logistik, foto tim).</p>
             @endif
           </div>
         @endif
       </div>
 
       <!-- Decision Box (Revision & Rejection if pending) -->
-      <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4">
-        <div class="flex items-center gap-2 pb-3 border-b border-[#1E2229]">
-          <div class="w-2.5 h-2.5 rounded-sm bg-[#FF5722]"></div>
+      <div class="bg-surface border border-line rounded-xl p-5 space-y-4">
+        <div class="flex items-center gap-2 pb-3 border-b border-line">
+          <div class="w-2.5 h-2.5 rounded-sm bg-brand"></div>
           <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-white">
             KONTROL STATUS KASIR
           </h3>
         </div>
 
         <!-- 2. REQUEST REVISION FORM -->
-        @if(!in_array($registration->status, ['checked_in', 'completed', 'rejected']))
-          <div class="pt-3 border-t border-[#1E2229] space-y-2">
+        @if(!in_array($registration->status, array_merge(\App\Models\SimaksiRegistration::POST_PAYMENT_STATUSES, ['rejected'])))
+          <div class="pt-3 border-t border-line space-y-2">
             <span class="block font-mono-tech text-[10px] text-amber-400 font-bold uppercase">MINTA PERBAIKAN BERKAS / DATA:</span>
             <form action="{{ route('management.simaksi.revision', $registration->id) }}" method="POST" class="space-y-2">
               @csrf
-              <textarea name="revision_notes" required rows="2" placeholder="Tuliskan instruksi perbaikan untuk ketua tim..." class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg p-2.5 text-xs font-mono-tech text-white focus:outline-none focus:border-amber-500">{{ $registration->revision_notes }}</textarea>
+              <textarea name="revision_notes" required rows="2" placeholder="Tuliskan instruksi perbaikan untuk ketua tim..." class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-xs font-mono-tech text-white focus:outline-none focus:border-amber-500">{{ $registration->revision_notes }}</textarea>
               <button type="submit" class="w-full py-2 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 font-mono-tech font-bold text-xs rounded-lg transition">
                 KIRIM PERMINTAAN REVISI
               </button>
@@ -420,12 +438,12 @@
         @endif
 
         <!-- 3. REJECT FORM -->
-        @if(!in_array($registration->status, ['checked_in', 'completed', 'rejected']))
-          <div class="pt-3 border-t border-[#1E2229] space-y-2">
+        @if(!in_array($registration->status, array_merge(\App\Models\SimaksiRegistration::POST_PAYMENT_STATUSES, ['rejected'])))
+          <div class="pt-3 border-t border-line space-y-2">
             <span class="block font-mono-tech text-[10px] text-rose-400 font-bold uppercase">TOLAK PERMOHONAN:</span>
             <form action="{{ route('management.simaksi.reject', $registration->id) }}" method="POST" class="space-y-2">
               @csrf
-              <textarea name="rejection_reason" required rows="2" placeholder="Tuliskan alasan penolakan resmi (wajib)..." class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg p-2.5 text-xs font-mono-tech text-white focus:outline-none focus:border-rose-500"></textarea>
+              <textarea name="rejection_reason" required rows="2" placeholder="Tuliskan alasan penolakan resmi (wajib)..." class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-xs font-mono-tech text-white focus:outline-none focus:border-rose-500"></textarea>
               <button type="submit" onclick="return confirm('Yakin ingin MENOLAK permohonan SIMAKSI ini? Tindakan akan diaudit.')" class="w-full py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 font-mono-tech font-bold text-xs rounded-lg transition">
                 TOLAK PERMOHONAN RESMI
               </button>
@@ -435,42 +453,35 @@
 
       </div>
 
-      <!-- WhatsApp Gateway Action Card -->
-      <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-3">
-        <div class="flex items-center justify-between pb-2 border-b border-[#1E2229]">
-          <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-            <span>[WA] DISPATCH WHATSAPP RESMI</span>
-          </h3>
-          <span class="font-mono-tech text-[9px] text-stone-400">NOTIFIKASI</span>
-        </div>
-
-        <p class="font-mono-tech text-[10px] text-stone-300">
-          Kirim pesan notifikasi resmi langsung ke nomor WhatsApp Ketua (<strong>{{ $registration->leader_phone }}</strong>):
-        </p>
-
-        <div class="space-y-1.5 font-mono-tech text-xs">
-          @if($registration->status === 'pending')
-            <a href="{{ \App\Services\NotificationService::getWhatsAppUrl($registration->leader_phone, \App\Services\NotificationService::bookingCreatedMessage($registration)) }}" target="_blank" class="flex items-center justify-between w-full p-2.5 bg-[#16191F] hover:bg-emerald-950/40 text-emerald-300 border border-emerald-500/30 font-bold text-[10px] rounded-lg transition">
-              <span>Kirim Tagihan & Rekening Transfer</span>
-              <span>→</span>
-            </a>
-          @endif
-
-          @if(in_array($registration->status, ['paid', 'approved']))
-            <a href="{{ \App\Services\NotificationService::getWhatsAppUrl($registration->leader_phone, \App\Services\NotificationService::paymentConfirmedMessage($registration)) }}" target="_blank" class="flex items-center justify-between w-full p-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold text-[10px] rounded-lg transition">
-              <span>Kirim Tiket Lunas & SOP Check-in</span>
-              <span>→</span>
-            </a>
-          @endif
-
-          @if($registration->status === 'needs_revision')
-            <a href="{{ \App\Services\NotificationService::getWhatsAppUrl($registration->leader_phone, \App\Services\NotificationService::revisionRequestedMessage($registration, $registration->revision_notes ?? 'Harap upload ulang foto KTP')) }}" target="_blank" class="flex items-center justify-between w-full p-2.5 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 font-bold text-[10px] rounded-lg transition">
-              <span>Kirim Instruksi Perbaikan Berkas</span>
-              <span>→</span>
-            </a>
-          @endif
-        </div>
-      </div>
+      <!-- WhatsApp Gateway -->
+      @php $waMessages = $registration->whatsappMessages()->take(4)->get(); @endphp
+      <x-ui.card title="WhatsApp ke ketua" :subtitle="$registration->leader_phone" icon="whatsapp">
+        @if(in_array($registration->status, \App\Models\SimaksiRegistration::POST_PAYMENT_STATUSES))
+          <p class="text-xs text-muted mb-3">Info pendakian & tautan e-SIMAKSI dikirim otomatis saat pembayaran dikonfirmasi.</p>
+          <ul class="space-y-2 mb-3">
+            @forelse($waMessages as $msg)
+              <li class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-raised/60 ring-1 ring-line text-xs">
+                <span class="text-muted truncate">{{ \App\Models\WhatsappMessage::EVENT_LABELS[$msg->event] ?? $msg->event }} · {{ $msg->created_at->diffForHumans() }}</span>
+                <x-ui.badge :tone="$msg->statusTone()" size="xs" dot>{{ $msg->statusLabel() }}</x-ui.badge>
+              </li>
+            @empty
+              <li class="text-xs text-subtle">Belum ada pesan tercatat.</li>
+            @endforelse
+          </ul>
+          <form method="POST" action="{{ route('management.simaksi.whatsapp', $registration->id) }}">
+            @csrf
+            <x-ui.button type="submit" variant="secondary" icon="refresh" block>Kirim ulang info & e-SIMAKSI</x-ui.button>
+          </form>
+          <a href="{{ \App\Services\NotificationService::getWhatsAppUrl($registration->leader_phone, \App\Services\NotificationService::paymentConfirmedMessage($registration)) }}" target="_blank" class="mt-2 flex items-center justify-center gap-1.5 text-xs text-muted hover:text-ink h-9">
+            <x-ui.icon name="external" class="w-3.5 h-3.5" /> Kirim manual lewat WhatsApp di perangkat ini
+          </a>
+        @elseif($registration->status === 'needs_revision')
+          <x-ui.button variant="secondary" icon="whatsapp" target="_blank" :href="\App\Services\NotificationService::getWhatsAppUrl($registration->leader_phone, \App\Services\NotificationService::revisionRequestedMessage($registration, $registration->revision_notes ?? 'Harap unggah ulang foto KTP'))" block>Kirim instruksi perbaikan</x-ui.button>
+        @else
+          <x-ui.button variant="secondary" icon="whatsapp" target="_blank" :href="\App\Services\NotificationService::getWhatsAppUrl($registration->leader_phone, \App\Services\NotificationService::bookingCreatedMessage($registration))" block>Kirim tagihan & rekening</x-ui.button>
+          <p class="text-[11px] text-subtle mt-2">Setelah LUNAS dikonfirmasi, info pendakian lengkap terkirim otomatis.</p>
+        @endif
+      </x-ui.card>
 
     </div>
 

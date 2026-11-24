@@ -149,7 +149,19 @@ class DigitalTicketAndPdfDownloadTest extends TestCase
      */
     public function test_gate_officer_can_download_simaksi_pdf_ticket(): void
     {
-        $response = $this->actingAs($this->gateOfficer)
+        // Gatekeeper tidak mencetak dokumen: dialihkan ke layar Gate
+        $this->actingAs($this->gateOfficer)
+            ->get(route('management.gate.ticket_pdf', $this->registration->id))
+            ->assertRedirect(route('management.gate.index'));
+
+        $kasir = User::create([
+            'name' => 'Kasir Tiket',
+            'email' => 'kasir-ticket@samsara.id',
+            'password' => bcrypt('password'),
+            'role' => 'kasir',
+        ]);
+
+        $response = $this->actingAs($kasir)
             ->get(route('management.gate.ticket_pdf', $this->registration->id));
 
         $response->assertStatus(200);

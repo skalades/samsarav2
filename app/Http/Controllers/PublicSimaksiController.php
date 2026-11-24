@@ -365,7 +365,9 @@ class PublicSimaksiController extends Controller
             'revision_needed' => 'PERLU PERBAIKAN BERKAS',
             'approved' => 'DISETUJUI / SIAP CHECK-IN',
             'paid' => 'LUNAS / SIAP CHECK-IN',
+            'gate_cleared' => 'LOLOS PEMERIKSAAN GATE (AMBIL SURAT JALAN DI KASIR)',
             'checked_in' => 'SEDANG MENDAKI (DI JALUR)',
+            'returned' => 'SUDAH TURUN (PENYELESAIAN DI KASIR)',
             'active_hiking' => 'SEDANG MENDAKI (DI JALUR)',
             'completed' => 'PENDAKIAN SELESAI',
             'rejected' => 'DITOLAK',
@@ -432,7 +434,7 @@ class PublicSimaksiController extends Controller
                 'trash_deposit_amount' => $reg->trash_deposit_amount,
                 'ticket_url' => route('portal.simaksi.ticket', $reg->registration_code),
                 'pdf_download_url' => route('portal.simaksi.ticket_pdf', $reg->registration_code),
-                'can_download_ticket' => in_array($reg->status, ['approved', 'paid', 'checked_in', 'completed']),
+                'can_download_ticket' => in_array($reg->status, \App\Models\SimaksiRegistration::REVENUE_STATUSES),
                 'created_at' => $reg->created_at->format('d M Y H:i WIB'),
                 'members' => $reg->members->map(function ($m) use ($maskNik) {
                     return [
@@ -628,7 +630,9 @@ class PublicSimaksiController extends Controller
             'needs_revision' => 'PERLU PERBAIKAN BERKAS',
             'approved' => 'DISETUJUI / SIAP CHECK-IN',
             'paid' => 'LUNAS / SIAP CHECK-IN',
+            'gate_cleared' => 'LOLOS PEMERIKSAAN GATE (AMBIL SURAT JALAN DI KASIR)',
             'checked_in' => 'SEDANG MENDAKI (AKTIF DI JALUR)',
+            'returned' => 'SUDAH TURUN (PENYELESAIAN DI KASIR)',
             'completed' => 'PENDAKIAN SELESAI',
             'rejected' => 'DITOLAK',
         ];

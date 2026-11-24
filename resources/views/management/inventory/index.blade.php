@@ -10,10 +10,10 @@
   <!-- ======================================================== -->
   <!-- 1. ACTIVE EQUIPMENT RENTALS TABLE                        -->
   <!-- ======================================================== -->
-  <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-[#1E2229]">
+  <div class="bg-surface border border-line rounded-xl p-5 space-y-4 font-mono-tech text-xs">
+    <div class="flex items-center justify-between pb-3 border-b border-line">
       <div class="flex items-center gap-2">
-        <span class="w-2.5 h-2.5 rounded-sm bg-[#FF5722]"></span>
+        <span class="w-2.5 h-2.5 rounded-sm bg-brand"></span>
         <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-white">
           ALAT YANG SEDANG DISEWA / DI PINJAM ({{ $activeRentals->count() }} DATA)
         </h3>
@@ -24,7 +24,7 @@
     <div class="overflow-x-auto">
       <table class="w-full text-left font-mono-tech text-xs">
         <thead>
-          <tr class="text-[10px] text-stone-400 uppercase border-b border-[#1E2229]">
+          <tr class="text-[10px] text-stone-400 uppercase border-b border-line">
             <th class="pb-2">NAMA ALAT</th>
             <th class="pb-2">JUMLAH</th>
             <th class="pb-2">PEMINJAM / KETUA</th>
@@ -34,11 +34,11 @@
             <th class="pb-2 text-right">AKSI</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-[#1A1E26]">
+        <tbody class="divide-y divide-line">
           @forelse($activeRentals as $rental)
-            <tr class="hover:bg-[#16191F]">
+            <tr class="hover:bg-raised">
               <td class="py-3 font-bold text-white">{{ $rental->item_name }}</td>
-              <td class="py-3 font-bold text-[#FF5722]">{{ $rental->quantity }} Unit</td>
+              <td class="py-3 font-bold text-brand">{{ $rental->quantity }} Unit</td>
               <td class="py-3 text-stone-200">
                 <div>{{ $rental->customer_name }}</div>
                 @if($rental->simaksi)
@@ -67,10 +67,10 @@
   <!-- ======================================================== -->
   <!-- 2. INVENTORY CATALOG & STOCK TABLE                       -->
   <!-- ======================================================== -->
-  <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-[#1E2229]">
+  <div class="bg-surface border border-line rounded-xl p-5 space-y-4 font-mono-tech text-xs">
+    <div class="flex items-center justify-between pb-3 border-b border-line">
       <div class="flex items-center gap-2">
-        <span class="w-2.5 h-2.5 rounded-sm bg-[#FF5722]"></span>
+        <span class="w-2.5 h-2.5 rounded-sm bg-brand"></span>
         <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-white">
           KATALOG ALAT & LOGISTIK OPERASIONAL BASECAMP
         </h3>
@@ -81,7 +81,7 @@
     <div class="overflow-x-auto">
       <table class="w-full text-left font-mono-tech text-xs">
         <thead>
-          <tr class="text-[10px] text-stone-400 uppercase border-b border-[#1E2229]">
+          <tr class="text-[10px] text-stone-400 uppercase border-b border-line">
             <th class="pb-2">SKU</th>
             <th class="pb-2">NAMA BARANG / LAYANAN</th>
             <th class="pb-2">KATEGORI</th>
@@ -92,10 +92,10 @@
             <th class="pb-2 text-right">AKSI</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-[#1A1E26]">
+        <tbody class="divide-y divide-line">
           @foreach($items as $item)
-            <tr class="hover:bg-[#16191F]">
-              <td class="py-2.5 font-bold text-[#FF5722]">{{ $item->sku }}</td>
+            <tr class="hover:bg-raised">
+              <td class="py-2.5 font-bold text-brand">{{ $item->sku }}</td>
               <td class="py-2.5 font-bold text-white">{{ $item->name }}</td>
               <td class="py-2.5 text-stone-400 uppercase text-[10px]">{{ $item->category }}</td>
               <td class="py-2.5">
@@ -111,7 +111,7 @@
                 {{ $item->type === 'service' ? '∞' : $item->stock_total }}
               </td>
               <td class="py-2.5 text-right">
-                <button type="button" onclick="openStockModal({{ $item->id }}, '{{ addslashes($item->name) }}', {{ $item->stock_available }}, {{ $item->price }}, {{ $item->is_active ? 'true' : 'false' }})" class="px-2 py-1 bg-[#1A1E26] hover:bg-[#252A36] text-stone-300 rounded text-[10px]">
+                <button type="button" onclick="openStockModal({{ $item->id }}, '{{ addslashes($item->name) }}', {{ $item->stock_available }}, {{ $item->price }}, {{ $item->is_active ? 'true' : 'false' }})" class="px-2 py-1 bg-raised hover:bg-hover text-stone-300 rounded text-[10px]">
                   Ubah Stok
                 </button>
               </td>
@@ -126,8 +126,8 @@
 
 <!-- Modal Terima Pengembalian Alat -->
 <div id="returnModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-[#121418] border border-[#262B35] rounded-xl max-w-md w-full p-5 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-[#1E2229]">
+  <div class="bg-surface border border-line-strong rounded-xl max-w-md w-full p-5 space-y-4 font-mono-tech text-xs">
+    <div class="flex items-center justify-between pb-3 border-b border-line">
       <h3 class="font-display font-bold text-sm text-white uppercase" id="returnModalTitle">TERIMA PENGEMBALIAN ALAT</h3>
       <button onclick="closeReturnModal()" class="text-stone-400 hover:text-white font-bold">✕</button>
     </div>
@@ -136,7 +136,7 @@
       @csrf
       <div>
         <label class="block text-[10px] text-stone-400 uppercase mb-1">KONDISI ALAT SAAT KEMBALI:</label>
-        <select name="status" id="retStatus" onchange="checkDamagePenalty(this.value)" class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg p-2 text-white">
+        <select name="status" id="retStatus" onchange="checkDamagePenalty(this.value)" class="w-full bg-raised border border-line-strong rounded-lg p-2 text-white">
           <option value="returned_good">Bagus / Utuh & Bersih (Stok dikembalikan)</option>
           <option value="damaged">Rusak Ringan / Robek / Frame Patah (Kena Denda)</option>
           <option value="lost">Hilang (Wajib Ganti Unit)</option>
@@ -145,16 +145,16 @@
 
       <div>
         <label class="block text-[10px] text-stone-400 uppercase mb-1">CATATAN FISIK ALAT:</label>
-        <input type="text" name="condition_in" value="Lengkap & bersih tanpa cacat" required class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg p-2 text-white text-xs">
+        <input type="text" name="condition_in" value="Lengkap & bersih tanpa cacat" required class="w-full bg-raised border border-line-strong rounded-lg p-2 text-white text-xs">
       </div>
 
       <div id="penaltyBox" class="hidden">
         <label class="block text-[10px] text-rose-400 uppercase mb-1 font-bold">DENDA KERUSAKAN / GANTI RUGI (RP):</label>
-        <input type="number" name="damage_penalty" value="0" min="0" class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg p-2 text-white font-bold">
+        <input type="number" name="damage_penalty" value="0" min="0" class="w-full bg-raised border border-line-strong rounded-lg p-2 text-white font-bold">
       </div>
 
       <div class="flex justify-end gap-2 pt-2">
-        <button type="button" onclick="closeReturnModal()" class="px-4 py-2 bg-[#1A1D24] text-stone-300 rounded-lg">BATAL</button>
+        <button type="button" onclick="closeReturnModal()" class="px-4 py-2 bg-raised text-stone-300 rounded-lg">BATAL</button>
         <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg">SIMPAN PENGEMBALIAN</button>
       </div>
     </form>
@@ -163,8 +163,8 @@
 
 <!-- Modal Update Stok Item -->
 <div id="stockModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-[#121418] border border-[#262B35] rounded-xl max-w-md w-full p-5 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-[#1E2229]">
+  <div class="bg-surface border border-line-strong rounded-xl max-w-md w-full p-5 space-y-4 font-mono-tech text-xs">
+    <div class="flex items-center justify-between pb-3 border-b border-line">
       <h3 class="font-display font-bold text-sm text-white uppercase" id="stockModalTitle">UBAH STOK & HARGA</h3>
       <button onclick="closeStockModal()" class="text-stone-400 hover:text-white font-bold">✕</button>
     </div>
@@ -173,22 +173,22 @@
       @csrf
       <div>
         <label class="block text-[10px] text-stone-400 uppercase mb-1">STOK TERSEDIA SAAT INI:</label>
-        <input type="number" name="stock_available" id="stockAvailInput" min="0" required class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg p-2 text-white font-bold">
+        <input type="number" name="stock_available" id="stockAvailInput" min="0" required class="w-full bg-raised border border-line-strong rounded-lg p-2 text-white font-bold">
       </div>
 
       <div>
         <label class="block text-[10px] text-stone-400 uppercase mb-1">TARIF RESMI (RP):</label>
-        <input type="number" name="price" id="stockPriceInput" min="0" required class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg p-2 text-white font-bold">
+        <input type="number" name="price" id="stockPriceInput" min="0" required class="w-full bg-raised border border-line-strong rounded-lg p-2 text-white font-bold">
       </div>
 
       <label class="flex items-center gap-2 pt-1 cursor-pointer">
-        <input type="checkbox" name="is_active" id="stockIsActive" value="1" class="rounded bg-black text-[#FF5722]">
+        <input type="checkbox" name="is_active" id="stockIsActive" value="1" class="rounded bg-black text-brand">
         <span class="text-stone-200">Item Aktif di Katalog POS</span>
       </label>
 
       <div class="flex justify-end gap-2 pt-2">
-        <button type="button" onclick="closeStockModal()" class="px-4 py-2 bg-[#1A1D24] text-stone-300 rounded-lg">BATAL</button>
-        <button type="submit" class="px-4 py-2 bg-[#FF5722] text-black font-bold rounded-lg">SIMPAN</button>
+        <button type="button" onclick="closeStockModal()" class="px-4 py-2 bg-raised text-stone-300 rounded-lg">BATAL</button>
+        <button type="submit" class="px-4 py-2 bg-brand text-black font-bold rounded-lg">SIMPAN</button>
       </div>
     </form>
   </div>

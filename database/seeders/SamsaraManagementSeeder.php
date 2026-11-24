@@ -25,51 +25,35 @@ class SamsaraManagementSeeder extends Seeder
         // 1. Multi-role Users
         $users = [
             [
-                'name' => 'Bayu Pratama (Superadmin)',
+                'name' => 'Bayu Pratama',
                 'email' => 'admin@samsara.id',
                 'password' => $password,
-                'role' => 'superadmin',
+                'role' => User::ROLE_SUPERADMIN,
                 'phone' => '081211112222',
                 'status' => 'active',
             ],
             [
-                'name' => 'Rian Hidayat (Verifikator)',
-                'email' => 'verifikator@samsara.id',
-                'password' => $password,
-                'role' => 'verifikator',
-                'phone' => '081233334444',
-                'status' => 'active',
-            ],
-            [
-                'name' => 'Siti Aminah (Kasir Operasional Loket)',
+                'name' => 'Siti Aminah',
                 'email' => 'kasir@samsara.id',
                 'password' => $password,
-                'role' => 'kasir',
+                'role' => User::ROLE_KASIR,
                 'phone' => '081255556666',
                 'status' => 'active',
             ],
             [
-                'name' => 'Danu Ranger (Petugas Gate)',
+                'name' => 'Danu Saputra',
                 'email' => 'gate@samsara.id',
                 'password' => $password,
-                'role' => 'petugas_lapangan',
+                'role' => User::ROLE_GATEKEEPER,
                 'phone' => '081277778888',
                 'status' => 'active',
             ],
             [
-                'name' => 'Hendra Logistik (Inventori)',
-                'email' => 'inventori@samsara.id',
+                'name' => 'Asep Ranger',
+                'email' => 'ranger@samsara.id',
                 'password' => $password,
-                'role' => 'inventori',
+                'role' => User::ROLE_RANGER,
                 'phone' => '081299990000',
-                'status' => 'active',
-            ],
-            [
-                'name' => 'Maya Sari (Auditor)',
-                'email' => 'auditor@samsara.id',
-                'password' => $password,
-                'role' => 'auditor',
-                'phone' => '081288881111',
                 'status' => 'active',
             ],
         ];
@@ -79,7 +63,7 @@ class SamsaraManagementSeeder extends Seeder
         }
 
         $adminUser = User::where('email', 'admin@samsara.id')->first();
-        $verifUser = User::where('email', 'verifikator@samsara.id')->first();
+        $verifUser = User::where('email', 'kasir@samsara.id')->first();
         $gateUser = User::where('email', 'gate@samsara.id')->first();
         $cashierUser = User::where('email', 'kasir@samsara.id')->first();
 

@@ -55,13 +55,21 @@ class RangerCheckpointController extends Controller
 
         $trailConfig = AppSetting::getTrailConfig();
 
+        // Rombongan aktif di jalur: ketuk untuk mencatat tanpa scan
+        $activeGroups = SimaksiRegistration::where('status', 'checked_in')
+            ->orderByRaw('CASE WHEN last_seen_pos = ? THEN 1 ELSE 0 END', [$activePos])
+            ->orderBy('last_seen_at', 'desc')
+            ->take(40)
+            ->get();
+
         return view('management.ranger.scanner', compact(
             'activePos',
             'code',
             'selectedRegistration',
             'suggestedDirection',
             'todayLogs',
-            'trailConfig'
+            'trailConfig',
+            'activeGroups'
         ));
     }
 

@@ -100,7 +100,12 @@ class CheckInService
                 throw new \RuntimeException("Rombongan SIMAKSI {$lockedReg->registration_code} sudah berstatus Check-Out sebelumnya.");
             }
 
-            $depositStatus = $trashVerified ? 'refunded' : 'forfeited';
+            // Deposit sampah hanya diproses bila memang ada jaminan yang dibayar
+            $hasDeposit = (float) $lockedReg->trash_deposit_amount > 0;
+            $depositStatus = $hasDeposit
+                ? ($trashVerified ? 'refunded' : 'forfeited')
+                : ($lockedReg->trash_deposit_status ?: 'waived');
+            $alreadyAtGate = $lockedReg->status === 'returned';
 
             // Perlindungan Data Pribadi: Hapus file fisik KTP secara otomatis setelah pendakian selesai
             $ktpDeleted = false;
@@ -124,15 +129,18 @@ class CheckInService
                 'leader_ktp_path' => null, // Hapus referensi path KTP permanen
             ]);
 
-            \App\Models\SimaksiCheckpoint::create([
-                'simaksi_registration_id' => $lockedReg->id,
-                'pos_code' => 'BASECAMP',
-                'direction' => 'descending',
-                'ranger_id' => $officerId,
-                'entry_source' => 'scanner',
-                'notes' => 'Check-out selesai. Pendakian selesai & sampah diverifikasi: '.($trashVerified ? 'Lengkap (Refund)' : 'Tidak Lengkap (Hangus)'),
-                'scanned_at' => $now,
-            ]);
+            // Kedatangan di gerbang sudah dicatat Gatekeeper saat pemeriksaan turun
+            if (! $alreadyAtGate) {
+                \App\Models\SimaksiCheckpoint::create([
+                    'simaksi_registration_id' => $lockedReg->id,
+                    'pos_code' => 'BASECAMP',
+                    'direction' => 'descending',
+                    'ranger_id' => $officerId,
+                    'entry_source' => 'scanner',
+                    'notes' => 'Check-out selesai. Sampah diverifikasi: '.($trashVerified ? 'Lengkap' : 'Tidak lengkap'),
+                    'scanned_at' => $now,
+                ]);
+            }
 
             AuditService::log(
                 action: 'GATE_CHECKOUT',

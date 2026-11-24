@@ -208,6 +208,7 @@ class OjekManagementAndVoucherTest extends TestCase
             'total_amount' => 110000,
             'status' => 'paid',
             'payment_status' => 'paid',
+            'group_photo_path' => 'group_photos/rahmat.jpg',
             'emergency_contact_name' => 'Ibu Rahmat',
             'emergency_contact_phone' => '081299991111',
             'emergency_relationship' => 'Orang Tua',
@@ -231,14 +232,22 @@ class OjekManagementAndVoucherTest extends TestCase
             ['name' => 'Kang Enjang Ojek', 'plate_number' => 'Z 1212 EE', 'status' => 'standby']
         );
 
-        // Checkin gate with assigned ojek drivers
-        $checkinResponse = $this->post(route('management.gate.checkin', $registration->id), [
-            'trash_bag_code' => 'TB-2026-991',
-            'checked_members' => [$member->id],
+        // Gatekeeper: pemeriksaan naik
+        $this->post(route('management.gate.ascent.submit', $registration->id), [
+            'present_members' => [$member->id],
+            'photo_verified' => 1,
+            'gear' => [['name' => 'Tenda', 'checked' => 1]],
+            'logistics' => [['name' => 'Botol plastik', 'unit' => 'botol', 'qty' => 4]],
+        ])->assertRedirect(route('management.gate.index'));
+        $this->assertEquals('gate_cleared', $registration->fresh()->status);
+
+        // Kasir: berangkatkan + tugaskan driver ojek
+        $releaseResponse = $this->post(route('management.desk.release', $registration->id), [
             'ojek_driver_ids' => [$driver1->id, $driver2->id],
         ]);
 
-        $checkinResponse->assertRedirect();
+        $releaseResponse->assertRedirect(route('management.desk.show', $registration->id));
+        $this->assertEquals('checked_in', $registration->fresh()->status);
         $this->assertEquals('on_trip', $driver1->fresh()->status);
         $this->assertEquals('on_trip', $driver2->fresh()->status);
 
@@ -275,18 +284,23 @@ class OjekManagementAndVoucherTest extends TestCase
             'status' => 'checked_in',
             'payment_status' => 'paid',
             'checked_in_at' => Carbon::yesterday(),
+            'trash_deposit_amount' => 0,
+            'trash_deposit_status' => 'waived',
             'emergency_contact_name' => 'Bapak Fajar',
             'emergency_contact_phone' => '081288882222',
             'emergency_relationship' => 'Orang Tua',
         ]);
 
-        // Process checkout
-        $checkoutResponse = $this->post(route('management.gate.checkout', $registration->id), [
-            'trash_verified' => true,
+        // Gatekeeper: pemeriksaan turun, lalu kasir menyelesaikan
+        $this->post(route('management.gate.descent.submit', $registration->id), [
             'notes' => 'Turun tepat waktu dan bersih',
-        ]);
+        ])->assertRedirect(route('management.gate.index'));
+        $this->assertEquals('returned', $registration->fresh()->status);
 
-        $checkoutResponse->assertRedirect(route('management.gate.index', ['code' => $registration->registration_code]));
+        $finalizeResponse = $this->post(route('management.desk.finalize', $registration->id));
+        $finalizeResponse->assertRedirect(route('management.desk.show', $registration->id));
+        $this->assertEquals('completed', $registration->fresh()->status);
+        $this->assertEquals('waived', $registration->fresh()->trash_deposit_status);
 
         // Access print parking pass
         $printResponse = $this->get(route('management.gate.print_parking_pass', $registration->id));

@@ -1,410 +1,299 @@
+@php
+  /** @var \App\Models\User $authUser */
+  $authUser = auth()->user();
+  $profile = [
+    'expedition' => \App\Models\AppSetting::get('expedition_name', 'SAMSARA EXPEDITION'),
+    'mountain' => \App\Models\AppSetting::get('mountain_name', 'Cikuray'),
+    'elevation' => \App\Models\AppSetting::get('mountain_elevation', '2.821 MDPL'),
+    'logo' => \App\Models\AppSetting::get('app_logo'),
+  ];
+  $nav = $authUser ? \App\Support\Navigation::sidebar($authUser) : [];
+  $bottomNav = $authUser ? \App\Support\Navigation::bottom($authUser) : [];
+  $hasDrawer = $authUser ? \App\Support\Navigation::needsDrawer($authUser) : false;
+  $badges = $authUser ? \App\Support\Navigation::badges() : [];
+  $levelTone = [
+    'superadmin' => 'brand', 'kasir' => 'success', 'gatekeeper' => 'info', 'ranger' => 'violet',
+  ][$authUser?->level()] ?? 'neutral';
+  $initials = collect(explode(' ', (string) $authUser?->name))->filter()->take(2)->map(fn ($p) => mb_strtoupper(mb_substr($p, 0, 1)))->implode('');
+@endphp
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-[#0A0B0D] text-stone-200">
+<html lang="id" class="h-full">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>@yield('title', 'Sistem Manajemen Operasional') — {{ \App\Models\AppSetting::get('expedition_name', 'SAMSARA EXPEDITION') }} ({{ \App\Models\AppSetting::get('mountain_name', 'Cikuray') }} {{ \App\Models\AppSetting::get('mountain_elevation', '2.821M') }})</title>
-  
-  <!-- Tailwind CSS Framework CDN -->
-  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
-
-  <!-- Google Fonts: Space Grotesk + JetBrains Mono + Inter -->
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
-
-    :root {
-      --font-display: 'Space Grotesk', -apple-system, sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
-      --font-body: 'Inter', -apple-system, sans-serif;
-    }
-
-    body {
-      font-family: var(--font-body);
-      background-color: #0A0B0D;
-      color: #E2E8F0;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .font-display { font-family: var(--font-display); }
-    .font-mono-tech { font-family: var(--font-mono); }
-
-    /* Custom Technical Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0A0B0D;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #20242C;
-      border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #333A48;
-    }
-  </style>
+  @include('management.partials.head')
+  <title>@yield('title', 'Sistem Manajemen Operasional') — {{ $profile['expedition'] }}</title>
 </head>
-<body class="h-full flex flex-col antialiased selection:bg-[#FF5722] selection:text-black">
+<body class="h-full antialiased selection:bg-brand selection:text-white">
 
-  <div class="flex-1 flex overflow-hidden">
-    
-    <!-- ======================================================== -->
-    <!-- SIDEBAR NAVIGATION                                       -->
-    <!-- ======================================================== -->
-    <aside class="w-64 bg-[#0E1013] border-r border-[#1E2229] flex flex-col flex-shrink-0">
-      
-      <!-- Logo / Expedition Header -->
-      <div class="p-4 border-b border-[#1E2229] flex items-center justify-between">
-        <a href="{{ route('management.dashboard') }}" class="flex items-center gap-2.5">
-          @if(\App\Models\AppSetting::get('app_logo'))
-            <img src="{{ asset('storage/' . \App\Models\AppSetting::get('app_logo')) }}" alt="Logo" class="w-8 h-8 rounded object-contain bg-[#16191F] border border-[#262B35] p-0.5">
-          @else
-            <div class="w-8 h-8 rounded bg-[#16191F] border border-[#262B35] flex items-center justify-center font-mono-tech text-xs font-bold text-[#FF5722]">
-              ▲
-            </div>
-          @endif
-          <div>
-            <span class="font-display font-black text-sm tracking-wider text-white block leading-none">SAMSARA OPS</span>
-            <span class="font-mono-tech text-[9px] text-stone-400">{{ strtoupper(\App\Models\AppSetting::get('mountain_name', 'CIKURAY')) }} {{ \App\Models\AppSetting::get('mountain_elevation', '2.821M') }}</span>
+<div id="appShell" class="relative h-full flex overflow-hidden bg-canvas">
+
+  <!-- Backdrop drawer (mobile) -->
+  <div id="mgmtBackdrop" onclick="toggleMgmtSidebar(false)" class="lg:hidden absolute inset-0 z-30 bg-black/70 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200"></div>
+
+  <!-- ================================================================ -->
+  <!-- SIDEBAR (desktop) / DRAWER (mobile)                              -->
+  <!-- ================================================================ -->
+  <aside id="mgmtSidebar" class="absolute lg:relative inset-y-0 left-0 z-40 w-[84%] max-w-[300px] lg:w-[260px] lg:max-w-none -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-out bg-surface border-r border-line flex flex-col shrink-0">
+
+    <div class="h-16 px-4 flex items-center justify-between border-b border-line shrink-0">
+      <a href="{{ route('management.dashboard') }}" class="flex items-center gap-2.5 min-w-0">
+        @if($profile['logo'])
+          <img src="{{ asset('storage/'.$profile['logo']) }}" alt="Logo" class="w-9 h-9 rounded-xl object-contain bg-raised ring-1 ring-line p-0.5">
+        @else
+          <span class="w-9 h-9 rounded-xl bg-brand/15 ring-1 ring-brand/30 flex items-center justify-center text-brand"><x-ui.icon name="mountain" class="w-5 h-5" /></span>
+        @endif
+        <div class="min-w-0">
+          <p class="font-display font-bold text-[15px] text-ink leading-none truncate">SAMSARA OPS</p>
+          <p class="text-[11px] text-muted mt-1 truncate">{{ $profile['mountain'] }} · {{ $profile['elevation'] }}</p>
+        </div>
+      </a>
+      <button type="button" onclick="toggleMgmtSidebar(false)" class="lg:hidden w-9 h-9 rounded-xl bg-raised ring-1 ring-line text-muted hover:text-ink flex items-center justify-center" aria-label="Tutup menu">
+        <x-ui.icon name="x" class="w-4 h-4" />
+      </button>
+    </div>
+
+    @if($authUser)
+      <div class="px-4 pt-4">
+        <div class="flex items-center gap-3 p-3 rounded-2xl bg-raised/70 ring-1 ring-line">
+          <span class="w-10 h-10 rounded-xl bg-canvas ring-1 ring-line flex items-center justify-center font-display font-bold text-sm text-ink">{{ $initials }}</span>
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-ink truncate">{{ $authUser->name }}</p>
+            <x-ui.badge :tone="$levelTone" size="xs" class="mt-0.5">{{ $authUser->roleLabel() }}</x-ui.badge>
           </div>
-        </a>
-        <span class="px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-[9px] font-mono-tech text-emerald-400 font-bold">
-          LIVE
-        </span>
+        </div>
+      </div>
+    @endif
+
+    <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+      @foreach($nav as $section)
+        <div>
+          <p class="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-subtle">{{ $section['title'] }}</p>
+          <div class="space-y-0.5">
+            @foreach($section['items'] as $item)
+              @php
+                $active = \App\Support\Navigation::isActive($item);
+                $count = $item['badge'] ? ($badges[$item['badge']] ?? 0) : 0;
+              @endphp
+              <a href="{{ route($item['route'], $item['params']) }}" class="group flex items-center gap-3 h-10 px-3 rounded-xl text-sm transition {{ $active ? 'bg-brand/10 text-ink font-semibold ring-1 ring-inset ring-brand/25' : 'text-muted hover:text-ink hover:bg-hover' }}">
+                <x-ui.icon :name="$item['icon']" class="w-[18px] h-[18px] shrink-0 {{ $active ? 'text-brand' : 'text-subtle group-hover:text-muted' }}" />
+                <span class="flex-1 truncate">{{ $item['label'] }}</span>
+                @if($count > 0)
+                  <span class="min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-bold flex items-center justify-center {{ $item['badge'] === 'wa_failed' ? 'bg-rose-500 text-white' : 'bg-brand text-white' }}">{{ $count }}</span>
+                @endif
+              </a>
+            @endforeach
+          </div>
+        </div>
+      @endforeach
+    </nav>
+
+    <div class="p-3 border-t border-line space-y-1 shrink-0 safe-bottom">
+      <button type="button" onclick="toggleViewMode()" class="view-mode-toggle w-full hidden items-center gap-3 h-10 px-3 rounded-xl text-sm text-muted hover:text-ink hover:bg-hover">
+        <x-ui.icon name="phone" class="w-[18px] h-[18px] text-subtle view-mode-icon-mobile" />
+        <x-ui.icon name="monitor" class="w-[18px] h-[18px] text-subtle view-mode-icon-desktop hidden" />
+        <span class="view-mode-label">Mode Mobile</span>
+      </button>
+      <a href="{{ route('portal.home') }}" target="_blank" class="flex items-center gap-3 h-10 px-3 rounded-xl text-sm text-muted hover:text-ink hover:bg-hover">
+        <x-ui.icon name="external" class="w-[18px] h-[18px] text-subtle" />
+        <span>Portal Publik</span>
+      </a>
+      <form action="{{ route('management.logout') }}" method="POST">
+        @csrf
+        <button type="submit" class="w-full flex items-center gap-3 h-10 px-3 rounded-xl text-sm text-muted hover:text-rose-300 hover:bg-rose-500/10">
+          <x-ui.icon name="logout" class="w-[18px] h-[18px]" />
+          <span>Keluar</span>
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- ================================================================ -->
+  <!-- KOLOM KONTEN                                                     -->
+  <!-- ================================================================ -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+    <header class="h-14 lg:h-16 bg-canvas/90 backdrop-blur border-b border-line px-3 lg:px-6 flex items-center justify-between gap-2 shrink-0 safe-top">
+      <div class="flex items-center gap-2.5 min-w-0">
+        @if($hasDrawer)
+          <button type="button" onclick="toggleMgmtSidebar(true)" class="lg:hidden w-10 h-10 shrink-0 rounded-xl bg-raised ring-1 ring-line text-ink flex items-center justify-center" aria-label="Buka menu">
+            <x-ui.icon name="menu" class="w-5 h-5" />
+          </button>
+        @else
+          <span class="lg:hidden w-10 h-10 shrink-0 rounded-xl bg-brand/15 ring-1 ring-brand/30 flex items-center justify-center text-brand"><x-ui.icon name="mountain" class="w-5 h-5" /></span>
+        @endif
+        <div class="min-w-0">
+          <h2 class="font-display font-semibold text-[15px] lg:text-lg text-ink leading-tight truncate">@yield('page_title', 'Dashboard')</h2>
+          <p class="hidden sm:block text-xs text-muted truncate">@yield('page_subtitle', $profile['mountain'].' · '.now()->translatedFormat('l, d F Y'))</p>
+        </div>
       </div>
 
-      <!-- Navigation Menu -->
-      <nav class="flex-1 overflow-y-auto p-3 space-y-1 font-mono-tech text-xs">
-        
-        <div class="px-2 pt-2 pb-1 text-[10px] text-stone-400 uppercase tracking-wider font-bold">
-          // OPERASIONAL UTAMA
-        </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <!-- Tombol Mode Mobile / Desktop (satu klik) -->
+        <button type="button" onclick="toggleViewMode()" title="Ganti tampilan mobile / desktop" class="view-mode-toggle hidden h-9 px-3 rounded-xl bg-raised ring-1 ring-line text-xs font-semibold text-muted hover:text-ink items-center gap-1.5">
+          <x-ui.icon name="phone" class="w-4 h-4 view-mode-icon-mobile" />
+          <x-ui.icon name="monitor" class="w-4 h-4 view-mode-icon-desktop hidden" />
+          <span class="view-mode-label">Mode Mobile</span>
+        </button>
 
-        <a href="{{ route('management.dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg transition {{ request()->routeIs('management.dashboard') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-          <span>Dashboard</span>
-        </a>
-
-        <a href="{{ route('management.simaksi.index') }}" class="flex items-center justify-between px-3 py-2 rounded-lg transition {{ request()->routeIs('management.simaksi.*') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
-          <div class="flex items-center gap-2.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <span>Verifikasi SIMAKSI</span>
-          </div>
-          @php $pendingCount = \App\Models\SimaksiRegistration::whereIn('status', ['pending', 'needs_revision', 'submitted'])->count(); @endphp
-          @if($pendingCount > 0)
-            <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold {{ request()->routeIs('management.simaksi.*') ? 'bg-black text-[#FF5722]' : 'bg-[#FF5722] text-black' }}">
-              {{ $pendingCount }}
-            </span>
-          @endif
-        </a>
-
-        <a href="{{ route('management.quota.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg transition {{ request()->routeIs('management.quota.*') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          <span>Kuota & Kalender</span>
-        </a>
-
-        <div class="px-2 pt-4 pb-1 text-[10px] text-stone-400 uppercase tracking-wider font-bold">
-          // KASIR & LOGISTIK
-        </div>
-
-        <a href="{{ route('management.pos.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg transition {{ request()->routeIs('management.pos.index') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-          <span>Kasir POS Terpadu</span>
-        </a>
-
-        <a href="{{ route('management.pos.history') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg transition {{ request()->routeIs('management.pos.history') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          <span>Riwayat Transaksi POS</span>
-        </a>
-
-        <a href="{{ route('management.pos.expenses.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg transition {{ request()->routeIs('management.pos.expenses.*') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
-          <svg class="w-4 h-4 {{ request()->routeIs('management.pos.expenses.*') ? 'text-black' : 'text-rose-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-          <span>Kas Keluar Operasional</span>
-        </a>
-
-        <a href="{{ route('management.inventory.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg transition {{ request()->routeIs('management.inventory.*') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-          <span>Inventori & Sewa Alat</span>
-        </a>
-
-        <div class="px-2 pt-4 pb-1 text-[10px] text-stone-400 uppercase tracking-wider font-bold">
-          // TRANSPORT & OJEK RESMI
-        </div>
-
-        <a href="{{ route('management.ojek.index') }}" class="flex items-center justify-between px-3 py-2 rounded-lg transition {{ request()->routeIs('management.ojek.index') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
-          <div class="flex items-center gap-2.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            <span>Dispatch & Antrean</span>
-          </div>
-          @php $waitingTripsCount = \App\Models\OjekTrip::where('trip_status', 'voucher_issued')->count(); @endphp
-          @if($waitingTripsCount > 0)
-            <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold {{ request()->routeIs('management.ojek.index') ? 'bg-black text-[#FF5722]' : 'bg-[#FF5722] text-black' }}">
-              {{ $waitingTripsCount }}
-            </span>
-          @endif
-        </a>
-
-        <a href="{{ route('management.ojek.drivers') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg transition {{ request()->routeIs('management.ojek.drivers') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-          <span>Data Driver Ojek</span>
-        </a>
-
-        <a href="{{ route('management.ojek.settlements') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg transition {{ request()->routeIs('management.ojek.settlements') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-          <span>Rekonsiliasi Payout</span>
-        </a>
-
-        <div class="px-2 pt-4 pb-1 text-[10px] text-stone-400 uppercase tracking-wider font-bold">
-          // LAPANGAN & AUDIT
-        </div>
-
-        <a href="{{ route('management.gate.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg transition {{ request()->routeIs('management.gate.*') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-          <span>Gate Check-in & Sampah</span>
-        </a>
-
-        <a href="{{ route('management.ranger.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg transition {{ request()->routeIs('management.ranger.*') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          <span>Pos Ranger (Scanner 1-3)</span>
-        </a>
-
-        <a href="{{ route('management.reports.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg transition {{ request()->routeIs('management.reports.*') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
-          <svg class="w-4 h-4 {{ request()->routeIs('management.reports.*') ? 'text-black' : 'text-emerald-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-          <span>Laporan & Analitik</span>
-        </a>
-
-        <a href="{{ route('management.audit.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg transition {{ request()->routeIs('management.audit.*') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-          <span>Audit Log Operasional</span>
-        </a>
-
-        @if(in_array(auth()->user()?->role, ['superadmin', 'admin']))
-          <div class="px-2 pt-4 pb-1 text-[10px] text-stone-400 uppercase tracking-wider font-bold">
-            // PENGATURAN SISTEM
-          </div>
-
-          <a href="{{ route('management.settings.tariffs') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg transition {{ request()->routeIs('management.settings.tariffs*') ? 'bg-[#FF5722] text-black font-bold' : 'text-stone-300 hover:bg-[#16191F] hover:text-white' }}">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            <span>Tarif & Kebijakan</span>
-          </a>
+        @if(!app()->environment('production') && config('app.allow_quick_login', false))
+          <details class="relative">
+            <summary class="h-9 px-3 rounded-xl bg-raised ring-1 ring-line text-xs font-semibold text-muted hover:text-ink flex items-center gap-1.5 cursor-pointer">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span class="hidden sm:inline">Ganti level</span>
+            </summary>
+            <div class="absolute right-0 top-full mt-2 w-60 bg-surface ring-1 ring-line-strong rounded-2xl shadow-2xl p-1.5 z-50">
+              @foreach(\App\Models\User::ROLES as $key => $role)
+                <a href="{{ route('management.quick_login', ['role' => $key]) }}" class="block px-3 py-2 rounded-xl hover:bg-hover">
+                  <span class="block text-sm font-semibold text-ink">{{ $role['label'] }}</span>
+                  <span class="block text-[11px] text-muted leading-snug">{{ $role['description'] }}</span>
+                </a>
+              @endforeach
+            </div>
+          </details>
         @endif
 
-      </nav>
-
-      <!-- Portal Publik Shortcut -->
-      <div class="p-3 border-t border-[#1E2229]">
-        <a href="{{ route('portal.home') }}" target="_blank" class="flex items-center justify-between px-3 py-2 rounded bg-[#14171E] border border-[#222731] text-[11px] font-mono-tech text-stone-300 hover:text-white transition">
-          <span>Buka Portal Publik</span>
-          <svg class="w-3.5 h-3.5 text-[#FF5722]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-        </a>
-      </div>
-
-    </aside>
-
-    <!-- ======================================================== -->
-    <!-- MAIN CONTENT AREA                                        -->
-    <!-- ======================================================== -->
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#0A0B0D]">
-      
-      <!-- Top Header Bar -->
-      <header class="h-14 bg-[#0E1013] border-b border-[#1E2229] px-6 flex items-center justify-between flex-shrink-0">
-        
-        <!-- Breadcrumbs / Page Title -->
-        <div class="flex items-center gap-3">
-          <h2 class="font-display font-bold text-base text-white">
-            @yield('page_title', 'Dashboard Operasional')
-          </h2>
-          <span class="text-stone-400 text-xs font-mono-tech">|</span>
-          <span class="text-xs text-stone-400 font-mono-tech">
-            @yield('page_subtitle', 'Pusat Kendali Ekspedisi ' . \App\Models\AppSetting::get('mountain_name', 'Cikuray'))
-          </span>
-        </div>
-
-        <!-- User Identity & Quick Role Switcher -->
-        <div class="flex items-center gap-3">
-          
-          <!-- Role Switcher Quick Pill (For dev & testing only, disabled in production) -->
-          @if(!app()->environment('production') || config('app.allow_quick_login', false))
-          <div class="relative group">
-            <button class="px-2.5 py-1 rounded bg-[#16191F] border border-[#262B35] font-mono-tech text-[10px] text-stone-300 hover:text-white flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              <span>GANTI ROLE</span>
-              <svg class="w-3 h-3 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-            </button>
-            <div class="hidden group-hover:block absolute right-0 top-full mt-1 w-48 bg-[#121418] border border-[#222731] rounded-lg shadow-2xl py-1 z-50 font-mono-tech text-xs">
-              <div class="px-3 py-1 text-[9px] text-stone-400 uppercase border-b border-[#1E2229]">Pilih Role Petugas</div>
-              <a href="{{ route('management.quick_login', ['role' => 'kasir']) }}" class="block px-3 py-2 text-stone-200 hover:bg-[#1E2229] hover:text-[#FF5722] font-bold">
-                Kasir Operasional Loket (All-in-One)
-                <span class="block text-[9px] font-normal text-stone-400">SIMAKSI, POS, Gate, Inventori</span>
-              </a>
-              <a href="{{ route('management.quick_login', ['role' => 'superadmin']) }}" class="block px-3 py-1.5 text-stone-300 hover:bg-[#1E2229] hover:text-[#FF5722]">Superadmin (Full Config)</a>
-              <a href="{{ route('management.quick_login', ['role' => 'auditor']) }}" class="block px-3 py-1.5 text-stone-300 hover:bg-[#1E2229] hover:text-[#FF5722]">Auditor Sistem</a>
-            </div>
-          </div>
-          @endif
-
-          <!-- Active Staff Pill -->
-          @if(Auth::check())
-            <div class="flex items-center gap-2 pl-2 border-l border-[#1E2229]">
-              <div class="text-right">
-                <span class="block text-xs font-bold text-white leading-tight">{{ Auth::user()->name }}</span>
-                <span class="block text-[9px] font-mono-tech text-[#FF5722] uppercase tracking-wider">{{ Auth::user()->role }}</span>
+        @if($authUser)
+          <details class="relative">
+            <summary class="w-9 h-9 lg:w-auto lg:pl-1 lg:pr-3 rounded-xl bg-raised ring-1 ring-line flex items-center gap-2 cursor-pointer">
+              <span class="w-9 h-9 lg:w-7 lg:h-7 rounded-xl lg:rounded-lg bg-brand/15 text-brand flex items-center justify-center font-display font-bold text-xs">{{ $initials }}</span>
+              <span class="hidden lg:block text-left leading-tight">
+                <span class="block text-xs font-semibold text-ink max-w-[140px] truncate">{{ $authUser->name }}</span>
+                <span class="block text-[10px] text-muted">{{ $authUser->roleLabel() }}</span>
+              </span>
+            </summary>
+            <div class="absolute right-0 top-full mt-2 w-64 bg-surface ring-1 ring-line-strong rounded-2xl shadow-2xl p-1.5 z-50">
+              <div class="px-3 py-2.5 border-b border-line mb-1">
+                <p class="text-sm font-semibold text-ink truncate">{{ $authUser->name }}</p>
+                <p class="text-xs text-muted truncate">{{ $authUser->email }}</p>
+                <x-ui.badge :tone="$levelTone" size="xs" class="mt-1.5">{{ $authUser->roleLabel() }}</x-ui.badge>
               </div>
+              <button type="button" onclick="toggleViewMode()" class="w-full flex items-center gap-2.5 px-3 h-10 rounded-xl text-sm text-muted hover:text-ink hover:bg-hover">
+                <x-ui.icon name="phone" class="w-4 h-4 view-mode-icon-mobile" />
+                <x-ui.icon name="monitor" class="w-4 h-4 view-mode-icon-desktop hidden" />
+                <span class="view-mode-label">Mode Mobile</span>
+              </button>
               <form action="{{ route('management.logout') }}" method="POST">
                 @csrf
-                <button type="submit" title="Keluar dari sistem" class="p-1.5 rounded bg-[#16191F] hover:bg-rose-900/30 text-stone-400 hover:text-rose-400 transition">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                <button type="submit" class="w-full flex items-center gap-2.5 px-3 h-10 rounded-xl text-sm text-rose-300 hover:bg-rose-500/10">
+                  <x-ui.icon name="logout" class="w-4 h-4" /> Keluar
                 </button>
               </form>
             </div>
-          @endif
+          </details>
+        @endif
+      </div>
+    </header>
 
-        </div>
-
-      </header>
-
-      <!-- Alerts / Feedback Flash Messages -->
-      @if(session('success'))
-        <div class="bg-emerald-950/80 border-b border-emerald-500/30 px-6 py-2.5 flex items-center justify-between text-xs font-mono-tech text-emerald-300">
-          <div class="flex items-center gap-3">
-            <svg class="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span>{{ session('success') }}</span>
-            @if(session('checkin_completed_id'))
-              <a href="{{ route('management.gate.print_climber_pass', session('checkin_completed_id')) }}?print=1" target="_blank" class="px-2.5 py-1 bg-emerald-400 hover:bg-emerald-300 text-black font-bold rounded text-[10px] uppercase shadow transition flex items-center gap-1">
-                <span>[PRINT]</span> Cetak Surat Jalan Pendaki (Struk Saku)
-              </a>
-            @endif
-            @if(session('checkin_has_ojek'))
-              <a href="{{ route('management.gate.print_ojek_voucher', session('checkin_registration_id')) }}" target="_blank" class="px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-black font-bold rounded text-[10px] uppercase shadow transition">
-                <span>[PRINT]</span> Cetak Voucher Ojek Resmi
-              </a>
-            @endif
-            @if(session('checkout_completed_id'))
-              <a href="{{ route('management.gate.print_parking_pass', session('checkout_completed_id')) }}" target="_blank" class="px-2.5 py-1 bg-cyan-400 hover:bg-cyan-300 text-black font-bold rounded text-[10px] uppercase shadow transition">
-                <span>[PRINT]</span> Cetak Izin Keluar Parkir
-              </a>
-            @endif
+    <!-- Notifikasi -->
+    @if(session('success') || session('error') || $errors->any())
+      <div class="px-3 lg:px-6 pt-3 space-y-2 shrink-0">
+        @if(session('success'))
+          <div class="flex items-start gap-3 rounded-2xl bg-emerald-500/10 ring-1 ring-emerald-500/25 px-4 py-3 text-sm text-emerald-200" data-flash>
+            <x-ui.icon name="check" class="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+            <div class="flex-1 min-w-0">
+              <p>{{ session('success') }}</p>
+              @if(session('checkout_completed_id'))
+                <a href="{{ route('management.gate.print_parking_pass', session('checkout_completed_id')) }}" target="_blank" class="inline-flex items-center gap-1.5 mt-2 h-8 px-3 rounded-lg bg-emerald-500 text-black text-xs font-bold"><x-ui.icon name="printer" class="w-4 h-4" /> Cetak izin keluar parkir</a>
+              @endif
+            </div>
+            <button onclick="this.closest('[data-flash]').remove()" class="text-emerald-300/70 hover:text-white" aria-label="Tutup"><x-ui.icon name="x" class="w-4 h-4" /></button>
           </div>
-          <button onclick="this.parentElement.remove()" class="text-stone-400 hover:text-white">✕</button>
-        </div>
-      @endif
-
-      @if(session('error'))
-        <div class="bg-rose-950/80 border-b border-rose-500/30 px-6 py-2.5 flex items-center justify-between text-xs font-mono-tech text-rose-300">
-          <div class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span>{{ session('error') }}</span>
+        @endif
+        @if(session('error'))
+          <div class="flex items-start gap-3 rounded-2xl bg-rose-500/10 ring-1 ring-rose-500/25 px-4 py-3 text-sm text-rose-200" data-flash>
+            <x-ui.icon name="alert" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+            <p class="flex-1 min-w-0">{{ session('error') }}</p>
+            <button onclick="this.closest('[data-flash]').remove()" class="text-rose-300/70 hover:text-white" aria-label="Tutup"><x-ui.icon name="x" class="w-4 h-4" /></button>
           </div>
-          <button onclick="this.parentElement.remove()" class="text-stone-400 hover:text-white">✕</button>
-        </div>
-      @endif
+        @endif
+        @if($errors->any())
+          <div class="flex items-start gap-3 rounded-2xl bg-rose-500/10 ring-1 ring-rose-500/25 px-4 py-3 text-sm text-rose-200" data-flash>
+            <x-ui.icon name="alert" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+            <ul class="flex-1 min-w-0 list-disc pl-4 space-y-0.5">
+              @foreach($errors->all() as $err)<li>{{ $err }}</li>@endforeach
+            </ul>
+          </div>
+        @endif
+      </div>
+    @endif
 
-      <!-- Body Content Scroll Area -->
-      <main class="flex-1 overflow-y-auto p-6">
+    <main class="flex-1 overflow-y-auto overflow-x-hidden">
+      <div class="w-full max-w-[1440px] mx-auto p-3 sm:p-4 lg:p-6 pb-6">
         @yield('content')
-      </main>
+      </div>
+    </main>
 
-    </div>
-
+    @if(count($bottomNav) > 0)
+      <nav class="lg:hidden shrink-0 bg-surface/95 backdrop-blur border-t border-line grid safe-bottom" style="grid-template-columns: repeat({{ count($bottomNav) + ($hasDrawer ? 1 : 0) }}, minmax(0, 1fr));">
+        @foreach($bottomNav as $item)
+          @php
+            $active = \App\Support\Navigation::isActive($item);
+            $count = $item['badge'] ? ($badges[$item['badge']] ?? 0) : 0;
+            $isScan = !empty($item['params']['scan']);
+          @endphp
+          <a href="{{ route($item['route'], $item['params']) }}" class="relative flex flex-col items-center justify-center gap-1 h-16 text-[11px] font-medium {{ $active ? 'text-brand' : 'text-muted' }}">
+            @if($isScan)
+              <span class="w-12 h-12 -mt-5 rounded-2xl bg-brand text-white flex items-center justify-center shadow-lg shadow-brand/30 ring-4 ring-canvas"><x-ui.icon name="scan" class="w-6 h-6" /></span>
+              <span class="-mt-0.5">{{ $item['label'] }}</span>
+            @else
+              <x-ui.icon :name="$item['icon']" class="w-[22px] h-[22px]" />
+              <span>{{ $item['label'] }}</span>
+            @endif
+            @if($count > 0)
+              <span class="absolute top-2 left-1/2 ml-2 min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-surface">{{ $count > 99 ? '99+' : $count }}</span>
+            @endif
+            @if($active && ! $isScan)
+              <span class="absolute top-0 inset-x-5 h-0.5 rounded-b bg-brand"></span>
+            @endif
+          </a>
+        @endforeach
+        @if($hasDrawer)
+          <button type="button" onclick="toggleMgmtSidebar(true)" class="flex flex-col items-center justify-center gap-1 h-16 text-[11px] font-medium text-muted">
+            <x-ui.icon name="menu" class="w-[22px] h-[22px]" />
+            <span>Menu</span>
+          </button>
+        @endif
+      </nav>
+    @endif
   </div>
+</div>
 
-  <!-- ======================================================== -->
-  <!-- MODAL: PREVIEW BUKTI PEMBAYARAN                          -->
-  <!-- ======================================================== -->
-  <div id="paymentProofModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4" onclick="if(event.target === this) closeProofModal()">
-    <div class="bg-[#121418] border border-[#262B35] rounded-2xl w-full max-w-xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden font-mono-tech">
-      
-      <!-- Top Modal Header -->
-      <div class="p-4 border-b border-[#1E2229] bg-[#121418] flex items-center justify-between shrink-0">
-        <div class="flex items-center gap-2.5">
-          <div class="w-2.5 h-2.5 rounded-sm bg-cyan-400"></div>
-          <div>
-            <span class="text-[10px] text-cyan-400 font-bold tracking-widest uppercase block leading-none">// VERIFIKASI KASIR</span>
-            <h3 class="font-display font-bold text-sm sm:text-base text-white leading-tight">BUKTI TRANSFER / PEMBAYARAN</h3>
-          </div>
-        </div>
-        <button type="button" onclick="closeProofModal()" class="w-8 h-8 rounded-full bg-[#181B22] border border-[#282D37] text-stone-400 hover:text-white flex items-center justify-center font-bold text-sm transition">
-          ✕
-        </button>
-      </div>
+@include('management.partials.proof_modal')
 
-      <!-- Metadata Strip -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 px-4 py-2.5 bg-[#0E1013] border-b border-[#1E2229] text-[10px]">
-        <div>
-          <span class="text-stone-500 uppercase block">KODE REGISTRASI:</span>
-          <span id="proofModalCode" class="text-white font-bold block truncate">-</span>
-        </div>
-        <div>
-          <span class="text-stone-500 uppercase block">KETUA ROMBONGAN:</span>
-          <span id="proofModalLeader" class="text-stone-300 font-bold block truncate">-</span>
-        </div>
-        <div>
-          <span class="text-stone-500 uppercase block">TOTAL NOMINAL:</span>
-          <span id="proofModalAmount" class="text-[#FF5722] font-bold block">-</span>
-        </div>
-        <div>
-          <span class="text-stone-500 uppercase block">METODE:</span>
-          <span id="proofModalMethod" class="text-emerald-400 font-bold block uppercase">-</span>
-        </div>
-      </div>
+<script>
+  function toggleMgmtSidebar(open) {
+    document.getElementById('mgmtSidebar')?.classList.toggle('translate-x-0', open);
+    document.getElementById('mgmtSidebar')?.classList.toggle('-translate-x-full', !open);
+    const backdrop = document.getElementById('mgmtBackdrop');
+    if (backdrop) { backdrop.classList.toggle('opacity-0', !open); backdrop.classList.toggle('pointer-events-none', !open); }
+  }
 
-      <!-- Image Display Scroll Body -->
-      <div class="flex-1 overflow-auto p-4 flex items-center justify-center bg-[#07080A]">
-        <img id="proofModalImage" src="" alt="Bukti Pembayaran" class="max-h-[60vh] w-auto max-w-full object-contain rounded-lg border border-[#1E2229] shadow-lg">
-      </div>
+  // Satu tombol: Mode Mobile <-> Mode Desktop
+  function toggleViewMode() {
+    const next = window.SAMSARA_VIEW_MODE === 'mobile' ? 'auto' : 'mobile';
+    try { localStorage.setItem('samsara_view_mode', next); } catch (e) {}
+    window.location.reload();
+  }
 
-      <!-- Bottom Action Bar -->
-      <div class="p-3 border-t border-[#1E2229] bg-[#121418] flex items-center justify-between gap-3 text-xs shrink-0">
-        <a id="proofModalRawLink" href="#" target="_blank" class="px-3 py-1.5 rounded-lg bg-[#181B22] hover:bg-[#222733] border border-[#2A303C] text-cyan-400 hover:text-cyan-300 font-bold text-[11px] inline-flex items-center gap-1.5 transition">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-          <span>Buka Resolusi Penuh (Tab Baru)</span>
-        </a>
-        <button type="button" onclick="closeProofModal()" class="px-4 py-1.5 rounded-lg bg-[#222731] hover:bg-[#2E3544] text-stone-200 font-bold text-[11px] transition">
-          Tutup [ESC]
-        </button>
-      </div>
+  (function initViewModeToggle() {
+    const forced = window.SAMSARA_VIEW_MODE === 'mobile';
+    document.querySelectorAll('.view-mode-label').forEach(el => el.textContent = forced ? 'Mode Desktop' : 'Mode Mobile');
+    document.querySelectorAll('.view-mode-icon-mobile').forEach(el => el.classList.toggle('hidden', forced));
+    document.querySelectorAll('.view-mode-icon-desktop').forEach(el => el.classList.toggle('hidden', !forced));
+    const update = () => {
+      // Di ponsel asli tampilan sudah otomatis mobile; tombol hanya di layar lebar atau saat mode dipaksa
+      const show = forced || window.innerWidth >= 1024;
+      document.querySelectorAll('.view-mode-toggle').forEach(btn => { btn.classList.toggle('hidden', !show); btn.classList.toggle('flex', show); });
+    };
+    update();
+    window.addEventListener('resize', update);
+  })();
 
-    </div>
-  </div>
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeProofModal(); toggleMgmtSidebar(false); } });
 
-  <script>
-    function showProofModal(imageUrl, code, leader, amount, method) {
-      const modal = document.getElementById('paymentProofModal');
-      const img = document.getElementById('proofModalImage');
-      const codeEl = document.getElementById('proofModalCode');
-      const leaderEl = document.getElementById('proofModalLeader');
-      const amountEl = document.getElementById('proofModalAmount');
-      const methodEl = document.getElementById('proofModalMethod');
-      const rawLink = document.getElementById('proofModalRawLink');
-
-      if (img) img.src = imageUrl;
-      if (codeEl) codeEl.innerText = code || '-';
-      if (leaderEl) leaderEl.innerText = leader || '-';
-      if (amountEl) amountEl.innerText = amount ? 'Rp ' + amount : '-';
-      if (methodEl) methodEl.innerText = method || 'TRANSFER';
-      if (rawLink) rawLink.href = imageUrl;
-
-      if (modal) {
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-      }
-    }
-
-    function closeProofModal() {
-      const modal = document.getElementById('paymentProofModal');
-      if (modal) {
-        modal.classList.add('hidden');
-        document.body.style.overflow = '';
-      }
-    }
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        closeProofModal();
-      }
-    });
-  </script>
-
+  // Tutup dropdown <details> saat klik di luar
+  document.addEventListener('click', e => {
+    document.querySelectorAll('details[open]').forEach(d => { if (!d.contains(e.target)) d.removeAttribute('open'); });
+  });
+</script>
+@stack('scripts')
 </body>
 </html>

@@ -9,7 +9,7 @@
 
   <!-- Overview Summary -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono-tech">
-    <div class="p-4 bg-[#121418] border border-[#1E2229] rounded-xl flex flex-col justify-between">
+    <div class="p-4 bg-surface border border-line rounded-xl flex flex-col justify-between">
       <span class="text-[11px] text-stone-400">TOTAL UNSETTLED PAYOUT (HAK DRIVER)</span>
       <div class="mt-2 text-2xl font-display font-black text-emerald-400">
         Rp {{ number_format($totalUnsettledAmount, 0, ',', '.') }}
@@ -17,7 +17,7 @@
       <span class="text-[10px] text-stone-400 mt-1">{{ $driversWithPending->count() }} Pengemudi menunggu pencairan</span>
     </div>
 
-    <div class="p-4 bg-[#121418] border border-[#1E2229] rounded-xl flex flex-col justify-between">
+    <div class="p-4 bg-surface border border-line rounded-xl flex flex-col justify-between">
       <span class="text-[11px] text-stone-400">KEBIJAKAN KASIR / SETTLEMENT</span>
       <div class="mt-2 text-sm text-white font-bold">
         Satu Pintu Kasir Loket
@@ -25,7 +25,7 @@
       <span class="text-[10px] text-stone-400 mt-1">Struk & tanda terima tercetak untuk audit kas</span>
     </div>
 
-    <div class="p-4 bg-[#121418] border border-[#1E2229] rounded-xl flex flex-col justify-between">
+    <div class="p-4 bg-surface border border-line rounded-xl flex flex-col justify-between">
       <span class="text-[11px] text-stone-400">BAGI HASIL BASECAMP (PEMELIHARAAN)</span>
       <div class="mt-2 text-sm text-cyan-400 font-bold">
         Rp 5.000 / Trip
@@ -49,8 +49,8 @@
   @endif
 
   <!-- Section 1: Drivers with Pending Payouts -->
-  <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-[#1E2229]">
+  <div class="bg-surface border border-line rounded-xl p-5 space-y-4 font-mono-tech text-xs">
+    <div class="flex items-center justify-between pb-3 border-b border-line">
       <div class="flex items-center gap-2">
         <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
         <h3 class="font-display font-bold text-sm text-white uppercase tracking-wider">
@@ -69,7 +69,7 @@
       <div class="overflow-x-auto">
         <table class="w-full text-left">
           <thead>
-            <tr class="text-[10px] text-stone-400 uppercase border-b border-[#1E2229]">
+            <tr class="text-[10px] text-stone-400 uppercase border-b border-line">
               <th class="pb-3">NO ROMPI</th>
               <th class="pb-3">NAMA PENGEMUDI</th>
               <th class="pb-3">PLAT MOTOR</th>
@@ -78,11 +78,11 @@
               <th class="pb-3 text-right">AKSI PEMBAYARAN</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[#1A1E26]">
+          <tbody class="divide-y divide-line">
             @foreach($driversWithPending as $driver)
-              <tr class="hover:bg-[#16191F]">
+              <tr class="hover:bg-raised">
                 <td class="py-3.5">
-                  <span class="px-2 py-0.5 rounded bg-[#16191F] border border-[#262B35] text-amber-400 font-bold text-xs">
+                  <span class="px-2 py-0.5 rounded bg-raised border border-line-strong text-amber-400 font-bold text-xs">
                     {{ $driver->registration_number }}
                   </span>
                 </td>
@@ -90,7 +90,7 @@
                   {{ $driver->name }}
                   <span class="block text-[10px] text-stone-400 font-normal">{{ $driver->phone ?? '-' }}</span>
                 </td>
-                <td class="py-3.5 font-bold text-[#FF5722]">
+                <td class="py-3.5 font-bold text-brand">
                   {{ $driver->plate_number }}
                 </td>
                 <td class="py-3.5 text-stone-300">
@@ -113,8 +113,8 @@
   </div>
 
   <!-- Section 2: Recent Settlement History -->
-  <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-[#1E2229]">
+  <div class="bg-surface border border-line rounded-xl p-5 space-y-4 font-mono-tech text-xs">
+    <div class="flex items-center justify-between pb-3 border-b border-line">
       <h3 class="font-display font-bold text-sm text-white uppercase tracking-wider">
         Riwayat Pencairan Honor (Settlement Records)
       </h3>
@@ -129,7 +129,7 @@
       <div class="overflow-x-auto">
         <table class="w-full text-left">
           <thead>
-            <tr class="text-[10px] text-stone-400 uppercase border-b border-[#1E2229]">
+            <tr class="text-[10px] text-stone-400 uppercase border-b border-line">
               <th class="pb-2">KODE SETTLEMENT</th>
               <th class="pb-2">PENGEMUDI</th>
               <th class="pb-2">JUMLAH TRIP</th>
@@ -140,10 +140,10 @@
               <th class="pb-2 text-right">STRUK</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[#1A1E26]">
+          <tbody class="divide-y divide-line">
             @foreach($recentSettlements as $stl)
-              <tr class="hover:bg-[#16191F]">
-                <td class="py-3 font-bold text-[#FF5722]">{{ $stl->settlement_code }}</td>
+              <tr class="hover:bg-raised">
+                <td class="py-3 font-bold text-brand">{{ $stl->settlement_code }}</td>
                 <td class="py-3 text-white">
                   <div class="font-bold">{{ $stl->driver?->name }}</div>
                   <div class="text-[10px] text-stone-400">#{{ $stl->driver?->registration_number }} • {{ $stl->driver?->plate_number }}</div>
@@ -151,14 +151,14 @@
                 <td class="py-3 text-stone-300">{{ $stl->total_trips }} Trip</td>
                 <td class="py-3 font-bold text-emerald-400">Rp {{ number_format($stl->total_amount, 0, ',', '.') }}</td>
                 <td class="py-3 uppercase text-stone-300">
-                  <span class="px-2 py-0.5 rounded bg-[#16191F] border border-[#262B35] text-[10px]">
+                  <span class="px-2 py-0.5 rounded bg-raised border border-line-strong text-[10px]">
                     {{ $stl->payment_method }}
                   </span>
                 </td>
                 <td class="py-3 text-stone-300">{{ $stl->cashier?->name }}</td>
                 <td class="py-3 text-stone-400">{{ $stl->settled_at->format('d/m/Y H:i') }} WIB</td>
                 <td class="py-3 text-right">
-                  <a href="{{ route('management.ojek.print_settlement', $stl->id) }}" target="_blank" class="px-2 py-1 bg-[#16191F] hover:bg-[#202530] border border-[#262B35] text-stone-300 hover:text-white rounded text-[10px] font-bold transition">
+                  <a href="{{ route('management.ojek.print_settlement', $stl->id) }}" target="_blank" class="px-2 py-1 bg-raised hover:bg-hover border border-line-strong text-stone-300 hover:text-white rounded text-[10px] font-bold transition">
                     [PRINT] Slip
                   </a>
                 </td>
@@ -174,15 +174,15 @@
 
 <!-- Modal Payout Confirmation -->
 <div id="modalPayout" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-  <div class="bg-[#121418] border border-[#262B35] rounded-xl max-w-md w-full p-6 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-[#1E2229]">
+  <div class="bg-surface border border-line-strong rounded-xl max-w-md w-full p-6 space-y-4 font-mono-tech text-xs">
+    <div class="flex items-center justify-between pb-3 border-b border-line">
       <h4 class="font-display font-bold text-base text-white">Konfirmasi Pencairan Honor Driver</h4>
       <button onclick="document.getElementById('modalPayout').classList.add('hidden')" class="text-stone-400 hover:text-white text-lg">✕</button>
     </div>
 
     <form id="formPayout" method="POST" class="space-y-4">
       @csrf
-      <div class="p-3 bg-[#16191F] border border-[#262B35] rounded-lg space-y-2">
+      <div class="p-3 bg-raised border border-line-strong rounded-lg space-y-2">
         <div class="flex justify-between">
           <span class="text-stone-400">Pengemudi:</span>
           <span id="payoutDriverName" class="font-bold text-white">-</span>
@@ -191,7 +191,7 @@
           <span class="text-stone-400">Jumlah Trip:</span>
           <span id="payoutTotalTrips" class="font-bold text-white">-</span>
         </div>
-        <div class="flex justify-between border-t border-[#1E2229] pt-2">
+        <div class="flex justify-between border-t border-line pt-2">
           <span class="text-stone-400">Total Yang Dibayarkan:</span>
           <span id="payoutAmount" class="font-bold text-emerald-400 text-sm font-display">-</span>
         </div>
@@ -199,7 +199,7 @@
 
       <div>
         <label class="block text-[10px] text-stone-400 uppercase mb-1">Metode Pembayaran:</label>
-        <select name="payment_method" class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg p-2.5 text-white">
+        <select name="payment_method" class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-white">
           <option value="cash">TUNAI (Diserahkan langsung di loket kasir)</option>
           <option value="transfer">TRANSFER BANK / E-WALLET</option>
         </select>
@@ -207,11 +207,11 @@
 
       <div>
         <label class="block text-[10px] text-stone-400 uppercase mb-1">Catatan Kasir (Opsional):</label>
-        <input type="text" name="notes" placeholder="Contoh: Honor trip shift pagi s/d sore" class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg p-2.5 text-white">
+        <input type="text" name="notes" placeholder="Contoh: Honor trip shift pagi s/d sore" class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-white">
       </div>
 
-      <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#1E2229]">
-        <button type="button" onclick="document.getElementById('modalPayout').classList.add('hidden')" class="px-3 py-2 bg-[#16191F] text-stone-300 rounded-lg hover:text-white">Batal</button>
+      <div class="flex items-center justify-end gap-2 pt-3 border-t border-line">
+        <button type="button" onclick="document.getElementById('modalPayout').classList.add('hidden')" class="px-3 py-2 bg-raised text-stone-300 rounded-lg hover:text-white">Batal</button>
         <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition">Konfirmasi & Cetak Bukti</button>
       </div>
     </form>

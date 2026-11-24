@@ -226,6 +226,6 @@ class SimaksiMedicalAndKtpPurgeTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('showProofModal');
         $response->assertSee('paymentProofModal');
-        $response->assertSee('Bukti Bayar');
+        $response->assertSee('Bukti bayar');
     }
 }

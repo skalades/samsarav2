@@ -25,7 +25,7 @@ class PosController extends Controller
         $categories = $items->pluck('category')->unique();
 
         // Registrations for quick attach in POS (pending or paid)
-        $activeRegistrations = SimaksiRegistration::whereIn('status', ['pending', 'paid', 'checked_in'])
+        $activeRegistrations = SimaksiRegistration::whereIn('status', ['pending', 'paid', 'gate_cleared', 'checked_in', 'returned'])
             ->latest()
             ->take(30)
             ->get();
@@ -102,7 +102,7 @@ class PosController extends Controller
             ->sum('total_amount');
 
         $simaksiDirect = SimaksiRegistration::whereDate('paid_at', $date)
-            ->whereIn('status', ['approved', 'paid', 'checked_in', 'completed'])
+            ->whereIn('status', \App\Models\SimaksiRegistration::REVENUE_STATUSES)
             ->get();
 
         $simaksiCash = 0.0;

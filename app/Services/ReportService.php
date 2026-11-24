@@ -37,7 +37,7 @@ class ReportService
 
         // B. Direct SIMAKSI Registrations (Paid without linked POS Order)
         $simaksiDirect = SimaksiRegistration::whereBetween('paid_at', [$start, $end])
-            ->whereIn('status', ['approved', 'paid', 'checked_in', 'completed'])
+            ->whereIn('status', \App\Models\SimaksiRegistration::REVENUE_STATUSES)
             ->whereDoesntHave('posOrders')
             ->get();
 
@@ -264,7 +264,7 @@ class ReportService
             ->toArray();
 
         $simaksiByDate = SimaksiRegistration::whereBetween('paid_at', [$start, $end])
-            ->whereIn('status', ['approved', 'paid', 'checked_in', 'completed'])
+            ->whereIn('status', \App\Models\SimaksiRegistration::REVENUE_STATUSES)
             ->whereDoesntHave('posOrders')
             ->selectRaw('DATE(paid_at) as dt, SUM(total_amount) as total')
             ->groupBy('dt')
@@ -356,7 +356,7 @@ class ReportService
         // 2. Direct SIMAKSI Registrations (+)
         $simaksi = SimaksiRegistration::with('reviewer')
             ->whereBetween('paid_at', [$start, $end])
-            ->whereIn('status', ['approved', 'paid', 'checked_in', 'completed'])
+            ->whereIn('status', \App\Models\SimaksiRegistration::REVENUE_STATUSES)
             ->whereDoesntHave('posOrders')
             ->get();
 

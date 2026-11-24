@@ -1,167 +1,157 @@
 @extends('management.layout')
 
-@section('title', 'Verifikasi Permohonan SIMAKSI')
-@section('page_title', 'Antrean Verifikasi SIMAKSI')
-@section('page_subtitle', 'Review Persyaratan, Dokumen, & Otorisasi Izin Pendakian ' . \App\Models\AppSetting::get('mountain_name', 'Gunung Cikuray'))
+@section('title', 'Verifikasi SIMAKSI')
+@section('page_title', 'Verifikasi SIMAKSI')
 
 @section('content')
-<div class="space-y-6">
+@php
+  $filters = [
+    '' => ['Semua', 'all', 'neutral'],
+    'pending' => ['Menunggu bayar', 'pending', 'warning'],
+    'paid' => ['Lunas · ke Gate', 'paid', 'success'],
+    'gate_cleared' => ['Lolos Gate', 'gate_cleared', 'info'],
+    'checked_in' => ['Di jalur', 'checked_in', 'brand'],
+    'returned' => ['Sudah turun', 'returned', 'violet'],
+    'completed' => ['Selesai', 'completed', 'neutral'],
+  ];
+  $rp = fn ($v) => 'Rp '.number_format((float) $v, 0, ',', '.');
+@endphp
 
-  <!-- ======================================================== -->
-  <!-- 1. STATUS FILTER PILLS & SEARCH                          -->
-  <!-- ======================================================== -->
-  <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-4 space-y-4">
-    
-    <div class="flex flex-wrap items-center gap-2 font-mono-tech text-xs">
-      <a href="{{ route('management.simaksi.index') }}" class="px-3.5 py-1.5 rounded-lg border transition {{ empty($status) ? 'bg-[#FF5722] text-black font-bold border-[#FF5722]' : 'bg-[#16191F] border-[#262B35] text-stone-300 hover:text-white' }}">
-        SEMUA ({{ $statusCounts['all'] }})
-      </a>
-      <a href="{{ route('management.simaksi.index', ['status' => 'pending']) }}" class="px-3.5 py-1.5 rounded-lg border transition {{ $status === 'pending' ? 'bg-[#FF5722] text-black font-bold border-[#FF5722]' : 'bg-[#16191F] border-[#262B35] text-amber-400 hover:text-white' }}">
-        PENDING ({{ $statusCounts['pending'] }})
-      </a>
-      <a href="{{ route('management.simaksi.index', ['status' => 'paid']) }}" class="px-3.5 py-1.5 rounded-lg border transition {{ $status === 'paid' ? 'bg-[#FF5722] text-black font-bold border-[#FF5722]' : 'bg-[#16191F] border-[#262B35] text-emerald-400 hover:text-white' }}">
-        PAID / LUNAS ({{ $statusCounts['paid'] }})
-      </a>
-      <a href="{{ route('management.simaksi.index', ['status' => 'checked_in']) }}" class="px-3.5 py-1.5 rounded-lg border transition {{ $status === 'checked_in' ? 'bg-[#FF5722] text-black font-bold border-[#FF5722]' : 'bg-[#16191F] border-[#262B35] text-stone-300 hover:text-white' }}">
-        DI JALUR ({{ $statusCounts['checked_in'] }})
-      </a>
-      <a href="{{ route('management.simaksi.index', ['status' => 'completed']) }}" class="px-3.5 py-1.5 rounded-lg border transition {{ $status === 'completed' ? 'bg-[#FF5722] text-black font-bold border-[#FF5722]' : 'bg-[#16191F] border-[#262B35] text-stone-300 hover:text-white' }}">
-        SELESAI ({{ $statusCounts['completed'] }})
-      </a>
-    </div>
+<x-ui.page-header title="Verifikasi SIMAKSI" subtitle="Cek berkas & bukti bayar, lalu konfirmasi lunas — info pendakian terkirim otomatis lewat WhatsApp" eyebrow="Kasir Basecamp" />
 
-    <!-- Search input -->
-    <form action="{{ route('management.simaksi.index') }}" method="GET" class="flex gap-2">
-      @if($status)
-        <input type="hidden" name="status" value="{{ $status }}">
-      @endif
-      <div class="relative flex-1">
-        <input type="text" name="search" value="{{ $search }}" placeholder="Cari Kode SIMAKSI, Nama Ketua, No. WA, atau 3 Digit Kode Unik..." class="w-full bg-[#181B22] border border-[#2A303C] rounded-lg px-4 py-2 text-xs font-mono-tech text-white focus:outline-none focus:border-[#FF5722]">
-      </div>
-      <button type="submit" class="px-4 py-2 bg-[#1A1E26] hover:bg-[#252A36] text-white border border-[#2E3544] font-mono-tech text-xs font-bold rounded-lg transition">
-        CARI
-      </button>
-      @if($search)
-        <a href="{{ route('management.simaksi.index', ['status' => $status]) }}" class="px-3 py-2 bg-rose-950/40 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-mono-tech flex items-center">
-          Reset
+{{-- Filter status --}}
+<div class="flex gap-1.5 overflow-x-auto no-scrollbar -mx-3 px-3 sm:mx-0 sm:px-0 pb-1 mb-3">
+  @foreach($filters as $key => [$label, $countKey, $tone])
+    @php $active = ($status ?? '') === $key; @endphp
+    <a href="{{ route('management.simaksi.index', array_filter(['status' => $key, 'search' => $search])) }}"
+       class="shrink-0 h-10 px-3.5 rounded-xl text-sm font-semibold flex items-center gap-2 ring-1 transition {{ $active ? 'bg-raised text-ink ring-brand/40' : 'bg-surface text-muted ring-line hover:text-ink' }}">
+      {{ $label }}
+      <x-ui.badge :tone="$active ? 'brand' : $tone" size="xs">{{ $statusCounts[$countKey] ?? 0 }}</x-ui.badge>
+    </a>
+  @endforeach
+</div>
+
+{{-- Cari --}}
+<form action="{{ route('management.simaksi.index') }}" method="GET" class="flex gap-2 mb-4">
+  @if($status)<input type="hidden" name="status" value="{{ $status }}">@endif
+  <div class="relative flex-1">
+    <x-ui.icon name="search" class="w-5 h-5 text-subtle absolute left-3.5 top-1/2 -translate-y-1/2" />
+    <input type="text" name="search" value="{{ $search }}" placeholder="Kode, nama ketua, no. WA, atau 3 digit kode unik" class="field !pl-11">
+  </div>
+  <x-ui.button type="submit" variant="secondary">Cari</x-ui.button>
+  @if($search)<x-ui.button variant="ghost" :href="route('management.simaksi.index', array_filter(['status' => $status]))">Reset</x-ui.button>@endif
+</form>
+
+<x-ui.card :padding="false">
+  {{-- Mobile: kartu --}}
+  <div class="lg:hidden divide-y divide-line">
+    @forelse($registrations as $reg)
+      @php $unpaid = $reg->payment_status !== 'paid' && ! in_array($reg->status, ['rejected']); @endphp
+      <div class="p-3">
+        <a href="{{ route('management.simaksi.show', $reg->id) }}" class="flex items-start gap-3">
+          <div class="w-11 h-11 shrink-0 rounded-xl bg-canvas ring-1 ring-line flex flex-col items-center justify-center leading-none">
+            <span class="font-display font-bold text-base text-ink">{{ $reg->total_climbers }}</span>
+            <span class="text-[9px] text-subtle mt-0.5">orang</span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-start justify-between gap-2">
+              <p class="font-semibold text-sm text-ink truncate">{{ $reg->leader_name }}</p>
+              <x-ui.badge :tone="$reg->statusTone()" size="xs">{{ $reg->statusLabel() }}</x-ui.badge>
+            </div>
+            <p class="text-[11px] text-muted mt-0.5"><span class="font-code text-ink/80">{{ $reg->registration_code }}</span> · {{ $reg->hiking_date?->translatedFormat('d M') }}</p>
+            <p class="text-sm font-semibold text-ink mt-1 tabular-nums">{{ $rp($reg->total_amount) }}
+              @if($reg->unique_code > 0)<span class="text-[11px] text-amber-300 font-normal">kode unik +{{ $reg->unique_code }}</span>@endif
+            </p>
+          </div>
         </a>
-      @endif
-    </form>
-
+        @if($unpaid || $reg->payment_proof_path)
+          <div class="flex gap-2 mt-2.5 pl-14">
+            @if($reg->payment_proof_path)
+              <button type="button" onclick="showProofModal('{{ asset('storage/'.$reg->payment_proof_path) }}', '{{ $reg->registration_code }}', '{{ addslashes($reg->leader_name) }}', '{{ number_format($reg->total_amount, 0, ',', '.') }}', '{{ strtoupper($reg->payment_method ?? 'TRANSFER') }}')" class="h-9 px-3 rounded-lg bg-sky-500/10 ring-1 ring-sky-500/25 text-sky-300 text-xs font-semibold flex items-center gap-1.5">
+                <x-ui.icon name="file" class="w-4 h-4" /> Bukti bayar
+              </button>
+            @endif
+            @if($unpaid)
+              @php $methodGuess = $reg->payment_method ?? ($reg->payment_proof_path ? 'transfer' : 'cash_pos'); @endphp
+              <form action="{{ route('management.simaksi.paid', $reg->id) }}" method="POST" class="flex-1">
+                @csrf
+                <input type="hidden" name="redirect_to" value="index">
+                <input type="hidden" name="payment_method" value="{{ $methodGuess }}">
+                <button type="submit" onclick="return confirm('Konfirmasi LUNAS via {{ strtoupper($methodGuess) }} untuk {{ $reg->registration_code }}? Info pendakian akan dikirim lewat WhatsApp.')" class="w-full h-9 px-3 rounded-lg bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-1.5">
+                  <x-ui.icon name="check" class="w-4 h-4" /> Konfirmasi lunas
+                </button>
+              </form>
+            @endif
+          </div>
+        @endif
+      </div>
+    @empty
+      <x-ui.empty icon="ticket" title="Tidak ada permohonan" text="Tidak ada SIMAKSI yang cocok dengan filter ini." />
+    @endforelse
   </div>
 
-  <!-- ======================================================== -->
-  <!-- 2. SIMAKSI QUEUE TABLE                                   -->
-  <!-- ======================================================== -->
-  <div class="bg-[#121418] border border-[#1E2229] rounded-xl p-5 space-y-4">
-    
-    <div class="overflow-x-auto">
-      <table class="w-full text-left font-mono-tech text-xs">
-        <thead>
-          <tr class="text-[10px] text-stone-400 uppercase border-b border-[#1E2229]">
-            <th class="pb-3">KODE REGISTRASI</th>
-            <th class="pb-3">KETUA ROMBONGAN</th>
-            <th class="pb-3">KONTAK WA</th>
-            <th class="pb-3">JADWAL PENDAKIAN</th>
-            <th class="pb-3">ANGGOTA</th>
-            <th class="pb-3">TOTAL BIAYA</th>
-            <th class="pb-3">STATUS SIMAKSI</th>
-            <th class="pb-3 text-right">AKSI</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-[#1A1E26]">
-          @forelse($registrations as $reg)
-            <tr class="hover:bg-[#16191F] transition">
-              <td class="py-3 font-bold text-[#FF5722]">
-                <a href="{{ route('management.simaksi.show', $reg->id) }}" class="hover:underline">
-                  {{ $reg->registration_code }}
-                </a>
-              </td>
-              <td class="py-3 text-white">
-                <div class="font-bold">{{ $reg->leader_name }}</div>
-                <div class="text-[10px] text-stone-400 font-normal truncate max-w-xs" title="{{ $reg->leader_address ?? $reg->leader_city }}">KTP: {{ $reg->leader_nik }} • {{ $reg->leader_address ?? $reg->leader_city ?? 'Alamat belum diisi' }}</div>
-              </td>
-              <td class="py-3 text-stone-300">
-                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $reg->leader_phone) }}" target="_blank" class="hover:text-[#FF5722] hover:underline flex items-center gap-1">
-                  <span>{{ $reg->leader_phone }}</span>
-                </a>
-              </td>
-              <td class="py-3 text-stone-300">
-                <div>{{ $reg->hiking_date->format('d M Y') }}</div>
-                <span class="text-[10px] text-stone-400 font-normal">Turun: {{ $reg->return_date ? $reg->return_date->format('d M Y') : '-' }}</span>
-              </td>
-              <td class="py-3 text-stone-300">
-                <span class="font-bold text-white">{{ $reg->total_climbers }} Orang</span>
-              </td>
-              <td class="py-3 font-bold text-stone-200">
-                <div class="flex items-center gap-1.5">
-                  <span>Rp {{ number_format($reg->total_amount, 0, ',', '.') }}</span>
-                  @if($reg->unique_code > 0)
-                    <span class="px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[9px] font-bold" title="Kode Unik Transfer">+{{ $reg->unique_code }}</span>
-                  @endif
-                </div>
-                @if($reg->payment_status === 'paid')
-                  <span class="block text-[9px] text-emerald-400 font-normal">LUNAS ({{ strtoupper($reg->payment_method ?? 'QRIS') }})</span>
-                @else
-                  <span class="block text-[9px] text-amber-400 font-normal">BELUM BAYAR</span>
-                @endif
-                @if($reg->payment_proof_path)
-                  <button type="button" onclick="showProofModal('{{ asset('storage/' . $reg->payment_proof_path) }}', '{{ $reg->registration_code }}', '{{ addslashes($reg->leader_name) }}', '{{ number_format($reg->total_amount, 0, ',', '.') }}', '{{ strtoupper($reg->payment_method ?? 'QRIS') }}')" class="inline-flex items-center gap-1 text-[9px] text-cyan-400 hover:text-cyan-300 hover:underline mt-0.5 cursor-pointer">
-                    <svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                    <span>Bukti Bayar</span>
-                  </button>
-                @endif
-              </td>
-              <td class="py-3">
-                <span class="px-2.5 py-1 rounded text-[10px] font-bold border {{ $reg->status_badge['bg'] }}">
-                  {{ $reg->status_badge['label'] }}
-                </span>
-                @if($reg->status === 'needs_revision')
-                  <span class="block text-[9px] text-amber-400/80 mt-1 max-w-xs truncate" title="{{ $reg->revision_notes }}">
-                    Catatan: {{ $reg->revision_notes }}
-                  </span>
-                @endif
-              </td>
-              <td class="py-3 text-right space-x-1.5 whitespace-nowrap">
-                @if($reg->status === 'pending' || $reg->payment_status !== 'paid')
-                  @php
-                    $methodGuess = $reg->payment_method ?? ($reg->payment_proof_path ? 'transfer' : 'cash_pos');
-                  @endphp
-                  <form action="{{ route('management.simaksi.paid', $reg->id) }}" method="POST" class="inline">
+  {{-- Desktop: tabel --}}
+  <div class="hidden lg:block overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="text-[11px] text-subtle bg-raised/40">
+        <tr>
+          <th class="text-left font-semibold px-5 py-3">Rombongan</th>
+          <th class="text-left font-semibold px-3 py-3">Jadwal</th>
+          <th class="text-right font-semibold px-3 py-3">Biaya</th>
+          <th class="text-left font-semibold px-3 py-3">Status</th>
+          <th class="text-right font-semibold px-5 py-3">Aksi</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-line">
+        @forelse($registrations as $reg)
+          @php $unpaid = $reg->payment_status !== 'paid' && ! in_array($reg->status, ['rejected']); @endphp
+          <tr class="hover:bg-hover/40">
+            <td class="px-5 py-3">
+              <a href="{{ route('management.simaksi.show', $reg->id) }}" class="font-semibold text-ink hover:text-brand">{{ $reg->leader_name }}</a>
+              <p class="text-[11px] text-muted"><span class="font-code">{{ $reg->registration_code }}</span> · {{ $reg->total_climbers }} orang · {{ $reg->leader_phone }}</p>
+            </td>
+            <td class="px-3 py-3 text-muted whitespace-nowrap">
+              <p class="text-ink">{{ $reg->hiking_date?->translatedFormat('d M Y') }}</p>
+              <p class="text-[11px]">{{ $reg->isTektok() ? 'Tektok' : 'Camp' }}{{ $reg->return_date && ! $reg->isTektok() ? ' · turun '.$reg->return_date->translatedFormat('d M') : '' }}</p>
+            </td>
+            <td class="px-3 py-3 text-right whitespace-nowrap">
+              <p class="font-semibold text-ink tabular-nums">{{ $rp($reg->total_amount) }}</p>
+              @if($reg->payment_proof_path)
+                <button type="button" onclick="showProofModal('{{ asset('storage/'.$reg->payment_proof_path) }}', '{{ $reg->registration_code }}', '{{ addslashes($reg->leader_name) }}', '{{ number_format($reg->total_amount, 0, ',', '.') }}', '{{ strtoupper($reg->payment_method ?? 'TRANSFER') }}')" class="text-[11px] text-sky-300 hover:underline">Lihat bukti</button>
+              @elseif($reg->unique_code > 0)
+                <p class="text-[11px] text-amber-300">kode unik +{{ $reg->unique_code }}</p>
+              @endif
+            </td>
+            <td class="px-3 py-3">
+              <x-ui.badge :tone="$reg->statusTone()" dot>{{ $reg->statusLabel() }}</x-ui.badge>
+              @if($reg->status === 'needs_revision' && $reg->revision_notes)<p class="text-[11px] text-amber-300/80 mt-1 max-w-[220px] truncate" title="{{ $reg->revision_notes }}">{{ $reg->revision_notes }}</p>@endif
+            </td>
+            <td class="px-5 py-3">
+              <div class="flex justify-end gap-2">
+                @if($unpaid)
+                  @php $methodGuess = $reg->payment_method ?? ($reg->payment_proof_path ? 'transfer' : 'cash_pos'); @endphp
+                  <form action="{{ route('management.simaksi.paid', $reg->id) }}" method="POST">
                     @csrf
                     <input type="hidden" name="redirect_to" value="index">
                     <input type="hidden" name="payment_method" value="{{ $methodGuess }}">
-                    <button type="submit" onclick="return confirm('Konfirmasi terima pembayaran via {{ strtoupper($methodGuess) }} untuk {{ $reg->registration_code }} dan set status ke PAID?')" class="px-2.5 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-mono-tech text-[10px] font-bold transition">
-                      Set PAID ({{ strtoupper($methodGuess) }})
-                    </button>
+                    <x-ui.button type="submit" variant="success" size="sm" icon="check" onclick="return confirm('Konfirmasi LUNAS via {{ strtoupper($methodGuess) }} untuk {{ $reg->registration_code }}? Info pendakian akan dikirim lewat WhatsApp.')">Lunas</x-ui.button>
                   </form>
-                @elseif($reg->status === 'paid')
-                  <a href="{{ route('management.gate.index', ['code' => $reg->registration_code]) }}" class="px-2.5 py-1.5 rounded bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 text-[10px] font-bold transition">
-                    Gate Check-in
-                  </a>
+                @elseif(in_array($reg->status, ['gate_cleared', 'returned']))
+                  <x-ui.button size="sm" variant="info" icon="inbox" :href="route('management.desk.show', $reg->id)">Meja kasir</x-ui.button>
                 @endif
-                <a href="{{ route('management.simaksi.show', $reg->id) }}" class="px-2.5 py-1.5 rounded bg-[#1A1E26] hover:bg-[#FF5722] hover:text-black hover:border-[#FF5722] text-stone-300 border border-[#2E3544] text-[10px] font-bold transition">
-                  Detail
-                </a>
-              </td>
-            </tr>
-          @empty
-            <tr>
-              <td colspan="8" class="py-8 text-center text-stone-400">
-                Tidak ada permohonan SIMAKSI yang sesuai dengan filter.
-              </td>
-            </tr>
-          @endforelse
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Pagination -->
-    <div class="pt-4 border-t border-[#1E2229]">
-      {{ $registrations->links() }}
-    </div>
-
+                <x-ui.button size="sm" variant="secondary" :href="route('management.simaksi.show', $reg->id)">Detail</x-ui.button>
+              </div>
+            </td>
+          </tr>
+        @empty
+          <tr><td colspan="5"><x-ui.empty icon="ticket" title="Tidak ada permohonan" text="Tidak ada SIMAKSI yang cocok dengan filter ini." /></td></tr>
+        @endforelse
+      </tbody>
+    </table>
   </div>
 
-</div>
+  @if($registrations->hasPages())
+    <div class="px-4 py-3 border-t border-line">{{ $registrations->links() }}</div>
+  @endif
+</x-ui.card>
 @endsection
