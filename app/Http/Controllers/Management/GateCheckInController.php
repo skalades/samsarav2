@@ -274,8 +274,16 @@ class GateCheckInController extends Controller
     {
         $code = strtoupper(trim($code));
 
-        return SimaksiRegistration::where('registration_code', $code)
-            ->orWhere('registration_code', 'LIKE', '%-'.ltrim($code, '#').'%')
+        // If a full URL or ticket path was scanned, extract the SMK code
+        if (preg_match('/SMK-[A-Z0-9-]+/i', $code, $matches)) {
+            $code = strtoupper($matches[0]);
+        }
+
+        $clean = trim($code, '*# ');
+
+        return SimaksiRegistration::where('registration_code', $clean)
+            ->orWhere('registration_code', 'LIKE', '%-'.ltrim($clean, '#').'%')
+            ->orWhere('registration_code', 'LIKE', '%'.$clean.'%')
             ->first();
     }
 }

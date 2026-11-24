@@ -35,9 +35,15 @@ class RangerCheckpointController extends Controller
 
         if ($code) {
             $cleanCode = strtoupper($code);
+            if (preg_match('/SMK-[A-Z0-9-]+/i', $cleanCode, $matches)) {
+                $cleanCode = strtoupper($matches[0]);
+            }
+            $cleanCode = trim($cleanCode, '*# ');
+
             $selectedRegistration = SimaksiRegistration::with(['members', 'checkpoints'])
                 ->where('registration_code', $cleanCode)
                 ->orWhere('registration_code', 'LIKE', '%-'.ltrim($cleanCode, '#').'%')
+                ->orWhere('registration_code', 'LIKE', '%'.$cleanCode.'%')
                 ->first();
 
             if ($selectedRegistration) {
