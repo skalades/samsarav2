@@ -405,7 +405,7 @@
         <thead>
             <tr style="background-color: #f3f4f6;">
                 <th style="border: 1px solid #d1d5db; padding: 4px; width: 33%; text-align: center;">POS 1 (Tanjakan EOD)</th>
-                <th style="border: 1px solid #d1d5db; padding: 4px; width: 34%; text-align: center;">POS 2 (Batu Gendrung)</th>
+                <th style="border: 1px solid #d1d5db; padding: 4px; width: 34%; text-align: center;">POS 2 (Batu Gendrung - Hutan Pinus)</th>
                 <th style="border: 1px solid #d1d5db; padding: 4px; width: 33%; text-align: center;">POS 3 (Thun 30)</th>
             </tr>
         </thead>

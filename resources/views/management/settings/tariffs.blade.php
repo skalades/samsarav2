@@ -215,7 +215,7 @@
             <span class="absolute left-3 top-2.5 text-stone-500 font-bold">Rp</span>
             <input type="text" inputmode="numeric" data-currency-input id="ojek_fee" name="ojek_fee_per_trip" value="{{ format_nominal(old('ojek_fee_per_trip', $tariffs['ojek_fee_per_trip'])) }}" required class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-brand">
           </div>
-          <p class="text-[9px] text-stone-400">Tarif shuttle armada ojek warga kebun teh rute Basecamp → Pos 1 per armada.</p>
+          <p class="text-[9px] text-stone-400">Tarif shuttle armada ojek warga perkebunan rute Basecamp → Pos 1 per armada.</p>
         </div>
 
         <!-- Alokasi Kas Jalur Ojek -->
@@ -241,7 +241,7 @@
             </label>
             <span class="text-[9px] px-1.5 py-0.5 rounded bg-stone-700 text-stone-300">RUTE</span>
           </div>
-          <input type="text" id="ojek_route_name" name="ojek_route_name" value="{{ old('ojek_route_name', $tariffs['ojek_route_name'] ?? 'Basecamp SAMSARA - Pos 1 (Kebun Teh)') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-brand">
+          <input type="text" id="ojek_route_name" name="ojek_route_name" value="{{ old('ojek_route_name', $tariffs['ojek_route_name'] ?? 'Basecamp SAMSARA - Pos 1 (Perkebunan Warga)') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-brand">
           <p class="text-[9px] text-stone-400">Deskripsi rute yang tercetak pada voucher ojek resmi.</p>
         </div>
 

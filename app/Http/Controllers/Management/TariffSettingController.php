@@ -81,7 +81,7 @@ class TariffSettingController extends Controller
         $simaksi = (float) $request->input('simaksi_fee_per_person');
         $ojek = (float) $request->input('ojek_fee_per_trip');
         $ojekShare = (float) $request->input('ojek_basecamp_share', 5000);
-        $ojekRoute = $request->input('ojek_route_name', 'Basecamp SAMSARA - Pos 1 (Kebun Teh)');
+        $ojekRoute = $request->input('ojek_route_name', 'Basecamp SAMSARA - Pos 1 (Perkebunan Warga)');
         $porter = (float) $request->input('porter_fee_per_trip', 350000);
         $parkMotor = (float) $request->input('parking_motor_fee');
         $parkCar = (float) $request->input('parking_car_fee');

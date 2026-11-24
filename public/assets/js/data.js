@@ -38,7 +38,7 @@ const SAMSARA_CONFIG = {
       simaksiPerPerson: pr.simaksi_fee_per_person !== undefined ? Number(pr.simaksi_fee_per_person) : 25000,
       ojekPerTrip: pr.ojek_fee_per_trip !== undefined ? Number(pr.ojek_fee_per_trip) : 30000,
       ojekBasecampShare: pr.ojek_basecamp_share !== undefined ? Number(pr.ojek_basecamp_share) : 5000,
-      ojekRouteName: pr.ojek_route_name || "Basecamp SAMSARA - Pos 1 (Kebun Teh)",
+      ojekRouteName: pr.ojek_route_name || "Basecamp SAMSARA - Pos 1 (Perkebunan Warga)",
       porterPerTrip: pr.porter_fee_per_trip !== undefined ? Number(pr.porter_fee_per_trip) : 350000,
       parkingMotor: pr.parking_motor_fee !== undefined ? Number(pr.parking_motor_fee) : 10000,
       parkingCar: pr.parking_car_fee !== undefined ? Number(pr.parking_car_fee) : 25000,
@@ -73,24 +73,23 @@ const SAMSARA_CONFIG = {
     },
     {
       code: "POS 01",
-      name: "BATAS PERKEBUNAN TEH",
+      name: "BATAS PERKEBUNAN WARGA",
       elevation: 1780,
       distance: "+2.1 KM",
       duration: "45 MENIT",
       waterSource: false,
       campArea: false,
-      description: "Batas akhir akses armada Ojek Trail. Pintu gerbang vegetasi hutan tropis primer."
+      description: "Batas akhir akses armada Ojek Trail melewati perkebunan warga. Pintu gerbang vegetasi hutan tropis primer."
     },
     {
       code: "POS 02",
-      name: "MATA AIR CEMARA",
-      elevation: 2150,
+      name: "BATU GENDRUNG (HUTAN PINUS)",
+      elevation: 1682,
       distance: "+1.8 KM",
       duration: "75 MENIT",
       waterSource: true,
-      campArea: false,
-      criticalWarning: "PERINGATAN: Titik pengisian air minum terakhir! Wajib isi penuh perbekalan botol di sini.",
-      description: "Debit air konstan 12 L/mnt sepanjang tahun. Area istirahat sejuk di bawah naungan pohon pinus."
+      campArea: true,
+      description: "Pos 2 Batu Gendrung berlokasi di kawasan asri hutan pinus. Area camp resmi dengan sumber air melimpah, toilet, dan shelter."
     },
     {
       code: "POS 03",

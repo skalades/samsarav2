@@ -63,7 +63,7 @@
         @if($sel->isTektok())
           Tektok: wajib kembali ke basecamp sebelum pukul {{ $trailConfig['tektok_max_checkout_hour'] }}:00 dan dilarang mendirikan tenda.
         @else
-          Camp: tenda hanya di Pos 2 (Batu Gendrung) atau Pos 3 (Thun 30), disarankan Pos 3. Puncak dilarang camp.
+          Camp: tenda hanya di Pos 2 (Batu Gendrung - Hutan Pinus) atau Pos 3 (Thun 30), disarankan Pos 3. Puncak dilarang camp.
         @endif
       </p>
 

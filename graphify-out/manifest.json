@@ -324,9 +324,9 @@
     "semantic_hash": "9b992dc3bea99670e384d73d3d5f6794"
   },
   "database/seeders/SamsaraManagementSeeder.php": {
-    "mtime": 1795538038.033721,
-    "seen": 1795539336.568327,
-    "ast_hash": "1bcd137bbc76aaebdf7e8c40d959e1f3",
+    "mtime": 1795540121.9146287,
+    "seen": 1795540380.0923588,
+    "ast_hash": "45b4819be9529dcdfdaed18cadee316c",
     "semantic_hash": ""
   },
   "package.json": {
@@ -342,9 +342,9 @@
     "semantic_hash": ""
   },
   "public/assets/js/data.js": {
-    "mtime": 1795537978.0257936,
-    "seen": 1795539336.5683546,
-    "ast_hash": "3557a54bb9c1884edfbe117af5a23fa1",
+    "mtime": 1795540174.8082786,
+    "seen": 1795540380.0923917,
+    "ast_hash": "fb9f4f1de74b0060f58c973fb42aced8",
     "semantic_hash": ""
   },
   "public/index.php": {
@@ -516,9 +516,9 @@
     "semantic_hash": "14d0ec5f0dfec5fa0514917fbb592f31"
   },
   "app/Http/Controllers/Management/TariffSettingController.php": {
-    "mtime": 1795531446.3575892,
-    "seen": 1795539336.5676286,
-    "ast_hash": "4714172dda0b7ebc16b03add9723365f",
+    "mtime": 1795540100.8680708,
+    "seen": 1795540380.0912862,
+    "ast_hash": "f25ba0ab6a124ebc89169a65fd462e54",
     "semantic_hash": ""
   },
   "app/Http/Middleware/RoleMiddleware.php": {
@@ -528,9 +528,9 @@
     "semantic_hash": ""
   },
   "app/Models/AppSetting.php": {
-    "mtime": 1795537914.3394787,
-    "seen": 1795539336.567697,
-    "ast_hash": "03a61a63b8758abc44dd375871d3a9b5",
+    "mtime": 1795540202.0204258,
+    "seen": 1795540380.0913699,
+    "ast_hash": "b29d74804b386d813e51452e0a32cb03",
     "semantic_hash": ""
   },
   "app/Models/OjekDriver.php": {
@@ -558,9 +558,9 @@
     "semantic_hash": "5416b529dcce07b3eb16a3febfbe2e5e"
   },
   "app/Models/SimaksiCheckpoint.php": {
-    "mtime": 1795528574.874396,
-    "seen": 1795539336.5678089,
-    "ast_hash": "d9185b6208a746be2de252bc43b4f694",
+    "mtime": 1795540216.0150623,
+    "seen": 1795540380.091532,
+    "ast_hash": "19e69666ef5be0bb8390ff95752fbb95",
     "semantic_hash": ""
   },
   "app/Services/CheckpointTrackingService.php": {
@@ -642,10 +642,10 @@
     "semantic_hash": "85c179f166f639bf22066b777a6329db"
   },
   "database/migrations/2026_11_22_110000_create_ojek_management_tables.php": {
-    "mtime": 1795350406.4831076,
-    "seen": 1795487778.7856576,
-    "ast_hash": "0ce24c61780d74fc096cf8bfe643a2e5",
-    "semantic_hash": "0ce24c61780d74fc096cf8bfe643a2e5"
+    "mtime": 1795540109.0683799,
+    "seen": 1795540380.0923002,
+    "ast_hash": "a00c4855c98708f7e8c839d4050cdc85",
+    "semantic_hash": ""
   },
   "database/migrations/2026_11_23_000001_add_performance_indexes_for_production.php": {
     "mtime": 1795418950.161065,
@@ -750,9 +750,9 @@
     "semantic_hash": ""
   },
   "resources/views/management/ranger/scanner.blade.php": {
-    "mtime": 1795537915.74648,
-    "seen": 1795539336.5685663,
-    "ast_hash": "f986ddf03408e60c337b9a666bc92767",
+    "mtime": 1795540225.6552281,
+    "seen": 1795540380.092699,
+    "ast_hash": "d8acb8e1a5cc819486d14453dc88f9d4",
     "semantic_hash": ""
   },
   "resources/views/management/reports/index.blade.php": {
@@ -768,27 +768,27 @@
     "semantic_hash": "37a22046dbe1c1068c21fd4b9a9bc239"
   },
   "resources/views/management/settings/tariffs.blade.php": {
-    "mtime": 1795537948.5657165,
-    "seen": 1795539336.5685773,
-    "ast_hash": "0c20966212bc830eaaad77e1c2f5f793",
+    "mtime": 1795540136.5618713,
+    "seen": 1795540380.0927377,
+    "ast_hash": "7c7cd796c281af601997d941ab9c9019",
     "semantic_hash": ""
   },
   "resources/views/portal/index.blade.php": {
-    "mtime": 1795538501.1903732,
-    "seen": 1795539336.5685892,
-    "ast_hash": "8b190a13955a874c59854bd0bb7c4510",
+    "mtime": 1795540191.5623899,
+    "seen": 1795540380.0927901,
+    "ast_hash": "d042067345cc5b25837e902b2e192bc2",
     "semantic_hash": ""
   },
   "resources/views/tickets/simaksi_digital.blade.php": {
-    "mtime": 1795538014.197114,
-    "seen": 1795539336.568615,
-    "ast_hash": "fb0e1a5262809cf9eeffe5686439ec4b",
+    "mtime": 1795540241.8999646,
+    "seen": 1795540380.0928621,
+    "ast_hash": "4278225cb0fa296e0b6847e18ecfc842",
     "semantic_hash": ""
   },
   "resources/views/tickets/simaksi_pdf.blade.php": {
-    "mtime": 1795537948.7094262,
-    "seen": 1795539336.5686176,
-    "ast_hash": "74f522a24fbc556106972ed5b55e1748",
+    "mtime": 1795540249.7513118,
+    "seen": 1795540380.0928695,
+    "ast_hash": "e8403693596e6ea2dca0978ecf466ea8",
     "semantic_hash": ""
   },
   "tests/Feature/CashDrawerAndOperationalExpenseTest.php": {
@@ -1248,9 +1248,9 @@
     "semantic_hash": ""
   },
   "resources/views/portal/partials/home.blade.php": {
-    "mtime": 1795531511.0551636,
-    "seen": 1795539336.5685997,
-    "ast_hash": "0978ec098cfb52d54240365419c05b39",
+    "mtime": 1795540234.3441575,
+    "seen": 1795540380.0928187,
+    "ast_hash": "8bb618ddc859141446da513b534867b4",
     "semantic_hash": ""
   },
   "resources/views/portal/partials/location.blade.php": {
@@ -1260,9 +1260,9 @@
     "semantic_hash": ""
   },
   "resources/views/portal/partials/services.blade.php": {
-    "mtime": 1795515307.4025087,
-    "seen": 1795539336.568604,
-    "ast_hash": "78806e36213077e3d924cdb95d8f7500",
+    "mtime": 1795540155.8186255,
+    "seen": 1795540380.0928285,
+    "ast_hash": "e59ebf07a170d0d99c17d05c6a17d83e",
     "semantic_hash": ""
   },
   "resources/views/portal/partials/tab-heading.blade.php": {

@@ -11,7 +11,7 @@
       <h3 class="font-display font-bold text-lg text-ink mt-4">Shuttle ojek trail</h3>
       <p class="text-xs text-muted mt-0.5">{{ $tariffs['ojek_route_name'] ?? 'Basecamp → Pos 1' }}</p>
       <p class="font-display font-bold text-2xl text-ink mt-4 tabular-nums">{{ $rp($tariffs['ojek_fee_per_trip'] ?? 30000) }} <span class="text-sm font-medium text-muted">/ perjalanan</span></p>
-      <p class="text-sm text-muted mt-3 leading-relaxed">Memotong jalan makadam perkebunan teh ±2,1 km dan menghemat waktu tempuh hingga 45 menit sebelum trek hutan.</p>
+      <p class="text-sm text-muted mt-3 leading-relaxed">Memotong jalan makadam perkebunan warga ±2,1 km dan menghemat waktu tempuh hingga 45 menit sebelum trek hutan.</p>
       <p class="text-xs text-subtle mt-auto pt-4">Voucher dicetak kasir setelah rombongan lolos pemeriksaan gerbang.</p>
     </div>
 

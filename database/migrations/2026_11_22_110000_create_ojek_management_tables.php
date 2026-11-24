@@ -33,7 +33,7 @@ return new class extends Migration
             $table->foreignId('driver_id')->nullable()->constrained('ojek_drivers')->nullOnDelete();
             $table->string('passenger_name');
             $table->string('passenger_phone')->nullable();
-            $table->string('route')->default('Basecamp - Pos 1 (Kebun Teh)');
+            $table->string('route')->default('Basecamp - Pos 1 (Perkebunan Warga)');
             $table->decimal('fare_amount', 12, 2)->default(30000);
             $table->decimal('driver_share', 12, 2)->default(25000);
             $table->decimal('basecamp_share', 12, 2)->default(5000);

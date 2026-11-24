@@ -188,7 +188,7 @@
       @foreach([
         ['mountain', 'Lautan awan & bayangan segitiga', 'Puncak kerucut Cikuray memproyeksikan bayangan segitiga raksasa di atas samudera awan saat matahari terbit.'],
         ['pin', 'Air melimpah di Pos 1–3', 'Koridor hutan yang teduh dengan air, toilet, mushola, dan shelter di tiga pos pertama. Pos 3 jadi titik isi ulang terakhir.'],
-        ['bolt', 'Ojek kebun teh & SAR 24 jam', 'Hemat ±2 jam lewat ojek resmi ke Pos 1, dengan posko siaga dan tim SAR yang siaga sepanjang hari.'],
+        ['bolt', 'Ojek perkebunan warga & SAR 24 jam', 'Hemat ±2 jam lewat ojek resmi ke Pos 1, dengan posko siaga dan tim SAR yang siaga sepanjang hari.'],
       ] as [$icon, $title, $text])
         <div class="rounded-2xl bg-surface ring-1 ring-line p-5">
           <span class="w-11 h-11 rounded-xl bg-raised ring-1 ring-line text-brand flex items-center justify-center"><x-ui.icon :name="$icon" class="w-5 h-5" /></span>
@@ -246,7 +246,7 @@
         ['Di mana saya menerima e-tiket?', 'Setelah pembayaran diverifikasi kasir, e-SIMAKSI dan info pendakian lengkap dikirim ke nomor WhatsApp ketua rombongan. Anda juga bisa membukanya kapan saja lewat menu Cek tiket.'],
         ['Kenapa logistik dihitung di gerbang?', 'Agar tidak ada sampah tertinggal di gunung. Jumlah barang seperti botol dan bungkus makanan dicatat saat naik, lalu dicocokkan dengan yang dibawa turun.'],
         ['Bagaimana data KTP saya diperlakukan?', 'Foto KTP ketua hanya dipakai untuk verifikasi petugas dan dihapus permanen otomatis setelah pendakian selesai, sesuai UU Pelindungan Data Pribadi.'],
-        ['Bolehkah mendirikan tenda di mana saja?', 'Tidak. Tenda hanya boleh di area camp resmi, yaitu Pos 2 Batu Gendrung dan Pos 3 Thun 30. Puncak dilarang untuk camp, dan pendaki tektok dilarang bermalam.'],
+        ['Bolehkah mendirikan tenda di mana saja?', 'Tidak. Tenda hanya boleh di area camp resmi, yaitu Pos 2 Batu Gendrung (kawasan hutan pinus) dan Pos 3 Thun 30. Puncak dilarang untuk camp, dan pendaki tektok dilarang bermalam.'],
         ['Sebaiknya camp di Pos 2 atau Pos 3?', 'Keduanya boleh, tapi kami sarankan Pos 3 Thun 30 karena paling dekat ke puncak. Dirikan tenda dan tinggalkan perlengkapan di Pos 3, lalu summit attack dini hari cukup membawa daypack, air, headlamp, dan jaket.'],
         ['Di mana ada air dan toilet di jalur?', 'Pos 1, Pos 2, dan Pos 3 punya air melimpah, toilet, mushola, dan shelter. Pos 4 sampai puncak tidak ada sumber air, jadi isi penuh botol di Pos 3.'],
       ] as [$q, $a])

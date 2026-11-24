@@ -1,46 +1,45 @@
-# Graph Report - SAMSARA  (2026-11-24)
+# Graph Report - SAMSARA  (2026-11-25)
 
 ## Corpus Check
-- 226 files · ~151,120 words
+- 226 files · ~151,146 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 28 file(s) not represented in the graph (top: (none) 16, .example 2, .kmz 2)
 
 ## Summary
-- 2542 nodes · 4794 edges · 226 communities (52 shown, 174 thin omitted)
+- 2543 nodes · 4794 edges · 235 communities (48 shown, 187 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 124 edges (avg confidence: 0.85)
 - Token cost: 12,500 input · 3,400 output
 
 ## Graph Freshness
-- Built from commit: `5deb81ae`
+- Built from commit: `e32e8573`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - Gate Check-In & Climber Passes
 - Medical Conditions Schema & Migration
-- Audit Logs & Governance
+- Illuminate\Http\Request
 - Frontend Tooling & Dependencies
 - web.php
 - GateFlowService
 - Ojek Dispatch & Logistics
-- TariffAndVehicleReservationTest
 - Illuminate\Support\Facades\Schema
 - TestCase
 - .log
 - Illuminate\Database\Eloquent\Model
 - Ojek Dispatch & Logistics
 - f
-- Illuminate\Http\Request
+- ce
 - ee
 - UserFactory Module
-- PublicSimaksiController.php
+- rt
 - Carbon\Carbon
 - POS Cashier & Expense Tracking
 - POS Cashier & Expense Tracking
 - User
 - POS Cashier & Expense Tracking
 - POS Cashier & Expense Tracking
-- FourLevelAccessAndGateFlowTest.php
+- DigitalTicketAndPdfDownloadTest
 - Financial Reports & Analytics
 - N
 - SimaksiService
@@ -48,9 +47,10 @@
 - ReportService.php
 - Illuminate\Foundation\Application Module
 - POS Cashier & Expense Tracking
+- SimaksiMedicalAndKtpPurgeTest.php
 - Audit Logs & Governance
 - Automated Test Suite (34)
-- Automated Test Suite (35)
+- DailyQuota
 - SIMAKSI Registration & Verification
 - POS Cashier & Expense Tracking
 - WhatsAppResult
@@ -63,7 +63,7 @@
 - POS Cashier & Expense Tracking
 - Database Schema & Table Migrations (46)
 - Ranger Checkpoints & Mountain Radar
-- Console Maintenance Commands
+- le
 - RoleMiddleware Module
 - ke
 - POS Cashier & Expense Tracking
@@ -114,7 +114,7 @@
 - receipt.blade.php
 - portal/index.blade.php
 - ProductionPreflightCommand.php
-- WhatsAppController.php
+- SimaksiRegistration
 - Q
 - p
 - sr
@@ -131,6 +131,7 @@
 - zt
 - x
 - manifest.json
+- ResetSimulationDataCommand.php
 - fe
 - te
 - xe
@@ -144,10 +145,10 @@
 - lt
 - w
 - R
-- c
+- I
 - it
 - ot
-- oe
+- se
 - at
 - m
 - me
@@ -191,7 +192,7 @@
 - IndonesianCurrencyFormattingTest
 - de
 - 2026_11_24_120000_add_payment_due_at_to_simaksi_registrations_table.php
-- gt
+- .setHints
 - Icons
 - home.blade.php
 - waypoints.blade.php
@@ -207,14 +208,22 @@
 - whatsapp.blade.php
 - users/index.blade.php
 - booking.blade.php
-- services.blade.php
+- portal.partials.tab-heading
 - telemetry.blade.php
+- ne
+- bt
+- Qe
+- DashboardController.php
+- UserFactory.php
+- oe
+- CashDrawerAndOperationalExpenseTest
+- SimaksiCheckpoint
 
 ## God Nodes (most connected - your core abstractions)
 1. `_` - 120 edges
-2. `SimaksiRegistration` - 104 edges
-3. `User` - 65 edges
-4. `f` - 64 edges
+2. `SimaksiRegistration` - 103 edges
+3. `f` - 64 edges
+4. `User` - 64 edges
 5. `c` - 52 edges
 6. `E` - 48 edges
 7. `AppSetting` - 45 edges
@@ -225,10 +234,10 @@
 ## Surprising Connections (you probably didn't know these)
 - `Tinggi / Sedang (sudah diperbaiki)` --references--> `SanitizeCurrencyInputs`  [INFERRED]
   docs/AUDIT-KELAYAKAN-GO-LIVE.md → app/Http/Middleware/SanitizeCurrencyInputs.php
-- `Kritis (sudah diperbaiki)` --references--> `DatabaseSeeder`  [INFERRED]
-  docs/AUDIT-KELAYAKAN-GO-LIVE.md → database/seeders/DatabaseSeeder.php
 - `Kritis (sudah diperbaiki)` --references--> `SamsaraManagementSeeder`  [INFERRED]
   docs/AUDIT-KELAYAKAN-GO-LIVE.md → database/seeders/SamsaraManagementSeeder.php
+- `Kritis (sudah diperbaiki)` --references--> `DatabaseSeeder`  [INFERRED]
+  docs/AUDIT-KELAYAKAN-GO-LIVE.md → database/seeders/DatabaseSeeder.php
 - `Kritis (sudah diperbaiki)` --references--> `SuperAdminSeeder`  [INFERRED]
   docs/AUDIT-KELAYAKAN-GO-LIVE.md → database/seeders/SuperAdminSeeder.php
 - `DigitalTicketAndPdfDownloadTest` --references--> `SimaksiRegistration`  [EXTRACTED]
@@ -241,62 +250,46 @@
 - **Expedition Production Stack & Architecture** — readme_samsara_expedition, readme_redis_architecture, readme_production_deployment [INFERRED 0.85]
 - **SAMSARA End-to-End Mountaineering Permit Flow** — prd_portal_pendakian_samsara_simaksi_service, prd_portal_pendakian_samsara_pos_cashier, prd_portal_pendakian_samsara_gate_checkin, prd_portal_pendakian_samsara_trash_deposit [INFERRED 0.95]
 
-## Communities (226 total, 174 thin omitted)
+## Communities (235 total, 187 thin omitted)
 
 ### Community 0 - "Gate Check-In & Climber Passes"
-Cohesion: 0.07
-Nodes (5): GateCheckInController, RangerCheckpointController, SimaksiRegistration, CheckpointTrackingService, NotificationService
+Cohesion: 0.08
+Nodes (6): CashierDeskController, GateCheckInController, RangerCheckpointController, CheckInService, CheckpointTrackingService, GateFlowService
 
 ### Community 1 - "Medical Conditions Schema & Migration"
 Cohesion: 0.18
 Nodes (12): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#5}(), {closure#6}(), {closure#1}(), {closure#2}() (+4 more)
 
-### Community 2 - "Audit Logs & Governance"
-Cohesion: 0.10
-Nodes (6): Controller, {closure#1}(), InventoryController, QuotaController, AuditService, QuotaService
+### Community 2 - "Illuminate\Http\Request"
+Cohesion: 0.07
+Nodes (9): Controller, AuthController, InspectionTemplateController, {closure#1}(), InventoryController, OperationalExpenseController, UserManagementController, PublicSimaksiController (+1 more)
 
 ### Community 3 - "Frontend Tooling & Dependencies"
 Cohesion: 0.12
 Nodes (19): devDependencies, axios@^1.11.0, concurrently@^9.0.1, laravel-vite-plugin@^2.0.0, tailwindcss@^4.0.0, @tailwindcss/vite@^4.0.0, vite@^7.0.7, private (+11 more)
 
-### Community 5 - "GateFlowService"
-Cohesion: 0.10
-Nodes (5): PurgeExpiredGroupPhotosCommand, CashierDeskController, CheckInService, GateFlowService, GroupPhotoService
-
 ### Community 9 - "TestCase"
-Cohesion: 0.10
-Nodes (6): CashDrawerAndOperationalExpenseTest, ExampleTest, ManagementRouteSmokeTest, ResetSimulationDataCommandTest, TektokCampAndCheckpointTrackingTest, TestCase
+Cohesion: 0.08
+Nodes (8): ClimberMember, BasecampLocationAndQrScanValidationTest, ExampleTest, ManagementRouteSmokeTest, OjekManagementAndVoucherTest, ResetSimulationDataCommandTest, TektokCampAndCheckpointTrackingTest, TestCase
 
 ### Community 10 - ".log"
-Cohesion: 0.08
-Nodes (18): AuthController, {closure#1}(), {closure#1}(), {closure#2}(), {closure#1}(), {closure#1}(), {closure#3}(), {closure#1}() (+10 more)
-
-### Community 11 - "Illuminate\Database\Eloquent\Model"
-Cohesion: 0.12
-Nodes (5): AuditLog, DailyQuota, SimaksiCheckpoint, SimaksiInspectionItem, TrailCondition
+Cohesion: 0.07
+Nodes (19): {closure#1}(), {closure#4}(), {closure#1}(), {closure#2}(), {closure#1}(), {closure#1}(), {closure#3}(), {closure#1}() (+11 more)
 
 ### Community 13 - "f"
 Cohesion: 0.06
 Nodes (3): a, f, l
 
-### Community 14 - "Illuminate\Http\Request"
-Cohesion: 0.15
-Nodes (3): OperationalExpenseController, UserManagementController, PublicSimaksiController
-
-### Community 15 - "ee"
-Cohesion: 0.06
-Nodes (4): bt, ee, ne, rt
-
 ### Community 16 - "UserFactory Module"
-Cohesion: 0.15
-Nodes (5): UserFactory, DatabaseSeeder, SamsaraManagementSeeder, SuperAdminSeeder, Kritis (sudah diperbaiki)
+Cohesion: 0.29
+Nodes (4): DatabaseSeeder, SamsaraManagementSeeder, SuperAdminSeeder, Kritis (sudah diperbaiki)
 
 ### Community 18 - "Carbon\Carbon"
 Cohesion: 0.13
-Nodes (6): PosController, ReportController, InventoryItem, {closure#3}(), PosService, ReportService
+Nodes (5): PosController, ReportController, InventoryItem, PosService, ReportService
 
 ### Community 21 - "User"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (5): {closure#3}(), {closure#2}(), {closure#3}(), User, Navigation
 
 ### Community 22 - "POS Cashier & Expense Tracking"
@@ -307,17 +300,9 @@ Nodes (8): description, keywords, license, minimum-stability, name, prefer-stabl
 Cohesion: 0.22
 Nodes (9): scripts, dev, post-autoload-dump, post-create-project-cmd, post-root-package-install, post-update-cmd, pre-package-uninstall, setup (+1 more)
 
-### Community 26 - "N"
-Cohesion: 0.06
-Nodes (3): ce, le, N
-
 ### Community 27 - "SimaksiService"
 Cohesion: 0.10
 Nodes (3): SimaksiController, SimaksiService, TicketPdfService
-
-### Community 28 - "be"
-Cohesion: 0.06
-Nodes (5): be, ir(), or, rr(), Rr
 
 ### Community 31 - "POS Cashier & Expense Tracking"
 Cohesion: 0.25
@@ -326,6 +311,10 @@ Nodes (8): require-dev, fakerphp/faker, laravel/pail, laravel/pint, laravel/sail
 ### Community 33 - "Audit Logs & Governance"
 Cohesion: 0.29
 Nodes (7): Immutable Audit Trail System, Daily Quota & Carrying Capacity Control, Persewaan Tenda & Peralatan Camping, Gate Check-in & Manifest Verification, Point of Sale (POS) Cashier System, Logistik Shuttle Ojek Trail, SIMAKSI Self-Service & Permit System
+
+### Community 35 - "DailyQuota"
+Cohesion: 0.18
+Nodes (3): QuotaController, DailyQuota, QuotaService
 
 ### Community 37 - "POS Cashier & Expense Tracking"
 Cohesion: 0.29
@@ -376,8 +365,8 @@ Cohesion: 0.40
 Nodes (5): Robots TXT Crawler Configuration, Production Deployment Templates & Supervisor, Redis Database Index Isolation (DB 0-3), SAMSARA EXPEDITION Operational System, SIMAKSI Simplified Lifecycle (Pending, Paid, Checked-In, Selesai)
 
 ### Community 66 - "AppSetting"
-Cohesion: 0.12
-Nodes (3): TariffSettingController, AppSetting, TariffCalculatorService
+Cohesion: 0.08
+Nodes (4): TariffSettingController, AppSetting, BookingGuardService, TariffCalculatorService
 
 ### Community 69 - "POS Cashier & Expense Tracking"
 Cohesion: 0.67
@@ -393,43 +382,43 @@ Nodes (16): bleConnect(), bleSend(), currentDevice(), encode(), EscPos, findWrit
 
 ### Community 106 - "portal/index.blade.php"
 Cohesion: 0.22
-Nodes (8): portal.partials.booking, portal.partials.bottom-nav, portal.partials.header, portal.partials.home, portal.partials.services, portal.partials.telemetry, portal.partials.waypoints, management.partials.head
+Nodes (8): management.partials.head, portal.partials.booking, portal.partials.bottom-nav, portal.partials.header, portal.partials.home, portal.partials.services, portal.partials.telemetry, portal.partials.waypoints
 
 ### Community 109 - "ProductionPreflightCommand.php"
 Cohesion: 0.11
 Nodes (4): ExpireUnpaidSimaksiCommand, ProductionPreflightCommand, PurgeCompletedKtpCommand, ResetSimulationDataCommand
 
-### Community 110 - "WhatsAppController.php"
-Cohesion: 0.11
-Nodes (4): InspectionTemplateController, WhatsAppController, WhatsAppNotifier, InspectionTemplate
+### Community 110 - "SimaksiRegistration"
+Cohesion: 0.09
+Nodes (5): WhatsAppController, SimaksiRegistration, NotificationService, WhatsAppNotifier, InspectionTemplate
 
 ### Community 111 - "Q"
-Cohesion: 0.11
-Nodes (3): dr, Q, Z
-
-### Community 120 - "ar"
-Cohesion: 0.13
-Nodes (3): ar, constructor(), lr
+Cohesion: 0.12
+Nodes (4): c, dr, Q, Z
 
 ### Community 123 - "_"
-Cohesion: 0.16
-Nodes (3): _, I, tr
+Cohesion: 0.20
+Nodes (3): _, encode(), Ir
 
 ### Community 126 - "manifest.json"
 Cohesion: 0.11
 Nodes (18): background_color, categories, description, dir, display, display_override, icons, id (+10 more)
 
 ### Community 131 - "s"
-Cohesion: 0.15
-Nodes (6): d, e(), n(), r(), s, t()
+Cohesion: 0.13
+Nodes (7): d, e(), K, n(), r(), s, t()
+
+### Community 137 - "Vr"
+Cohesion: 0.07
+Nodes (6): br(), ir(), or, rr(), Rr, Vr
 
 ### Community 138 - "lt"
 Cohesion: 0.12
 Nodes (3): jt, Jt(), lt
 
-### Community 141 - "c"
-Cohesion: 0.20
-Nodes (4): c, encode(), Ir, Xr
+### Community 141 - "I"
+Cohesion: 0.18
+Nodes (3): I, tr, Xr
 
 ### Community 155 - "Money"
 Cohesion: 0.27
@@ -451,25 +440,29 @@ Nodes (4): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}()
 Cohesion: 0.48
 Nodes (4): bindCurrencyInput(), formatInputElement(), initCurrencyInputs(), setCurrencyInputValue()
 
+### Community 189 - ".setHints"
+Cohesion: 0.29
+Nodes (3): constructor(), gt, lr
+
 ## Knowledge Gaps
-- **60 isolated node(s):** `management.layout`, `management.partials.head`, `management.layout`, `management.layout`, `management.layout` (+55 more)
+- **60 isolated node(s):** `management.layout`, `management.partials.qr_scanner`, `management.layout`, `management.partials.head`, `portal.partials.header` (+55 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1020 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **174 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **187 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `_` connect `_` to `fe`, `te`, `xe`, `s`, `gr`, `j`, `ve`, `Vr`, `lt`, `w`, `R`, `f`, `c`, `ee`, `it`, `at`, `m`, `me`, `oe`, `ot`, `ae`, `b`, `re`, `T`, `N`, `wr`, `be`, `y`, `ue`, `.encode`, `mt`, `tt`, `Nr`, `ct`, `je`, `fr`, `he`, `ze`, `O`, `dt`, `wt`, `kt`, `nt`, `ke`, `pt`, `xt`, `ut`, `de`, `gt`, `Q`, `p`, `sr`, `E`, `cr`, `pr`, `ft`, `et`, `ar`, `ht`, `pe`, `zt`, `x`?**
-  _High betweenness centrality (0.201) - this node is a cross-community bridge._
-- **What connects `management.layout`, `management.partials.head`, `management.layout` to the rest of the system?**
+- **Why does `_` connect `_` to `fe`, `te`, `xe`, `s`, `gr`, `j`, `ve`, `Vr`, `lt`, `w`, `R`, `f`, `ce`, `ee`, `I`, `at`, `it`, `m`, `me`, `ot`, `ae`, `b`, `re`, `rt`, `N`, `T`, `be`, `wr`, `ue`, `y`, `mt`, `tt`, `Nr`, `.encode`, `ct`, `je`, `fr`, `he`, `ze`, `O`, `dt`, `wt`, `kt`, `le`, `ke`, `nt`, `pt`, `xt`, `ut`, `de`, `.setHints`, `se`, `ne`, `bt`, `Qe`, `oe`, `Q`, `p`, `sr`, `E`, `cr`, `pr`, `ft`, `et`, `ar`, `ht`, `pe`, `zt`, `x`?**
+  _High betweenness centrality (0.239) - this node is a cross-community bridge._
+- **What connects `management.layout`, `management.partials.qr_scanner`, `management.layout` to the rest of the system?**
   _60 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Gate Check-In & Climber Passes` be split into smaller, more focused modules?**
-  _Cohesion score 0.07399577167019028 - nodes in this community are weakly interconnected._
-- **Why does `SimaksiRegistration` connect `Gate Check-In & Climber Passes` to `GateFlowService`, `Ojek Dispatch & Logistics`, `TariffAndVehicleReservationTest`, `TestCase`, `.log`, `Illuminate\Database\Eloquent\Model`, `Ojek Dispatch & Logistics`, `Illuminate\Http\Request`, `UserFactory Module`, `PublicSimaksiController.php`, `Carbon\Carbon`, `POS Cashier & Expense Tracking`, `POS Cashier & Expense Tracking`, `FourLevelAccessAndGateFlowTest`, `FourLevelAccessAndGateFlowTest.php`, `SimaksiService`, `ReportService.php`, `GatekeeperScannerAuditTest`, `WhatsappMessage`, `GoLiveHardeningTest.php`, `WhatsAppResult`, `Automated Test Suite (35)`, `TicketLookupOwnershipTest`, `ThermalBluetoothPrintTest.php`, `ProductionPreflightCommand.php`, `WhatsAppController.php`, `ThermalReceiptService`, `ResetSimulationDataCommand.php`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
-- **Should `Audit Logs & Governance` be split into smaller, more focused modules?**
-  _Cohesion score 0.0989247311827957 - nodes in this community are weakly interconnected._
-- **Why does `User` connect `User` to `Audit Logs & Governance`, `web.php`, `Ojek Dispatch & Logistics`, `TariffAndVehicleReservationTest`, `TestCase`, `Illuminate\Database\Eloquent\Model`, `Illuminate\Http\Request`, `UserFactory Module`, `Carbon\Carbon`, `FourLevelAccessAndGateFlowTest`, `FourLevelAccessAndGateFlowTest.php`, `Financial Reports & Analytics`, `Automated Test Suite (34)`, `GatekeeperScannerAuditTest`, `WhatsappMessage`, `GoLiveHardeningTest.php`, `Automated Test Suite (35)`, `PwaManagementTest`, `RoleMiddleware Module`, `ThermalBluetoothPrintTest.php`, `ProductionPreflightCommand.php`?**
-  _High betweenness centrality (0.028) - this node is a cross-community bridge._
+  _Cohesion score 0.08253968253968254 - nodes in this community are weakly interconnected._
+- **Why does `SimaksiRegistration` connect `SimaksiRegistration` to `Gate Check-In & Climber Passes`, `Illuminate\Http\Request`, `GateFlowService`, `Ojek Dispatch & Logistics`, `TestCase`, `.log`, `Illuminate\Database\Eloquent\Model`, `Ojek Dispatch & Logistics`, `Carbon\Carbon`, `POS Cashier & Expense Tracking`, `POS Cashier & Expense Tracking`, `FourLevelAccessAndGateFlowTest`, `DigitalTicketAndPdfDownloadTest`, `SimaksiService`, `ReportService.php`, `SimaksiMedicalAndKtpPurgeTest.php`, `GatekeeperScannerAuditTest`, `WhatsappMessage`, `GoLiveHardeningTest.php`, `WhatsAppResult`, `SIMAKSI Registration & Verification`, `TicketLookupOwnershipTest`, `ThermalBluetoothPrintTest.php`, `AppSetting`, `DashboardController.php`, `ProductionPreflightCommand.php`, `ThermalReceiptService`, `ResetSimulationDataCommand.php`?**
+  _High betweenness centrality (0.027) - this node is a cross-community bridge._
+- **Should `Illuminate\Http\Request` be split into smaller, more focused modules?**
+  _Cohesion score 0.06568832983927324 - nodes in this community are weakly interconnected._
+- **Why does `gr` connect `gr` to `cr`, `.getHeight`, `_`, `s`?**
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
 - **Should `Frontend Tooling & Dependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.11857707509881422 - nodes in this community are weakly interconnected._

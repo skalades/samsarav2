@@ -171,7 +171,7 @@
             <div class="grid grid-cols-2 gap-2 text-xs text-stone-200">
               <label class="p-2 rounded bg-raised border border-line-strong flex items-center gap-2 cursor-pointer hover:border-emerald-500/40">
                 <input type="radio" name="wzCampsite" value="POS_2" class="accent-emerald-400">
-                <span>Pos 2 Batu Gendrung</span>
+                <span>Pos 2 Batu Gendrung (Hutan Pinus)</span>
               </label>
               <label class="p-2 rounded bg-raised border border-line-strong flex items-center gap-2 cursor-pointer hover:border-emerald-500/40">
                 <input type="radio" name="wzCampsite" value="POS_3" checked class="accent-emerald-400">

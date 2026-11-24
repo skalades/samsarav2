@@ -167,7 +167,7 @@
                     </div>
                     <div class="text-xs text-stone-300 bg-[#0A0B0D]/70 p-3 rounded-xl border border-emerald-500/20 font-mono-tech space-y-1">
                         <p class="text-emerald-300 font-semibold">• Jam Buka Jalur Masuk: <strong>Mulai pukul 07:00 WIB</strong>.</p>
-                        <p>• Area Camp Resmi: <strong>Hanya di Pos 2 (Batu Gendrung) dan Pos 3 (Thun 30)</strong>. Disarankan Pos 3, paling dekat ke puncak.</p>
+                        <p>• Area Camp Resmi: <strong>Hanya di Pos 2 (Batu Gendrung - Hutan Pinus) dan Pos 3 (Thun 30)</strong>. Disarankan Pos 3, paling dekat ke puncak.</p>
                         <p class="text-rose-300">• <strong>DILARANG camp di puncak.</strong> Tinggalkan tenda dan perlengkapan di Pos 3 saat summit attack.</p>
                         <p>• Status Lokasi Camp: <strong class="text-white">{{ $registration->camp_location ? 'Terkonfirmasi: ' . $registration->camp_location : ($registration->planned_campsite ? 'Rencana: ' . $registration->planned_campsite : 'Pos 2 / Pos 3 (Bebas)') }}</strong>.</p>
                     </div>
