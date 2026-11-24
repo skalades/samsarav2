@@ -110,10 +110,10 @@ class ThermalReceiptService
             ->text('  Jam:______ Paraf:______')
             ->hr('=')
             ->text(\App\Models\AppSetting::isSarRadioEnabled() ? 'HOTLINE RESCUE & RADIO' : 'HOTLINE RESCUE SAR', 'center', true)
-            ->text('SAR: '.$this->setting('emergency_hotline', '+62 821-2233-4455'), 'center');
+            ->text('SAR: '.$this->setting('emergency_hotline', config('samsara.contact.emergency_hotline')), 'center');
 
         if (\App\Models\AppSetting::isSarRadioEnabled()) {
-            $this->text('HT: '.$this->setting('sar_frequency', '149.250 MHz'), 'center');
+            $this->text('HT: '.$this->setting('sar_frequency', config('samsara.contact.sar_frequency')), 'center');
         }
 
         $this->text('Simpan surat jalan ini & tunjukkan ke ranger di setiap Pos/Shelter.', 'center')
@@ -280,8 +280,8 @@ class ThermalReceiptService
     private function header(string $title, ?string $subtitle = null): static
     {
         $emergencyLine = \App\Models\AppSetting::isSarRadioEnabled()
-            ? 'SAR: '.$this->setting('sar_frequency', '149.250 MHz').' | WA: '.$this->setting('admin_whatsapp_display', '0821-2233-4455')
-            : 'SAR: '.$this->setting('emergency_hotline', '+62 821-2233-4455').' | WA: '.$this->setting('admin_whatsapp_display', '0821-2233-4455');
+            ? 'SAR: '.$this->setting('sar_frequency', config('samsara.contact.sar_frequency')).' | WA: '.$this->setting('admin_whatsapp_display', config('samsara.contact.admin_whatsapp_display'))
+            : 'SAR: '.$this->setting('emergency_hotline', config('samsara.contact.emergency_hotline')).' | WA: '.$this->setting('admin_whatsapp_display', config('samsara.contact.admin_whatsapp_display'));
 
         $this->ops[] = ['op' => 'logo'];
         $this->text($this->setting('expedition_name', 'SAMSARA EXPEDITION'), 'center', true, 'wide')

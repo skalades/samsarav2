@@ -1,6 +1,6 @@
 {{-- Lokasi resmi basecamp + peta Google Maps --}}
 @php
-  $mapsUrl = $profile['basecamp_maps_url'] ?? 'https://maps.app.goo.gl/xGzRkQTTArmDxpQf9';
+  $mapsUrl = $profile['basecamp_maps_url'] ?? '';
   $coords = $profile['basecamp_coordinates'] ?? '-7.331855, 107.8096294';
   $bcName = $profile['basecamp_name'] ?? 'Basecamp SAMSARA';
 @endphp

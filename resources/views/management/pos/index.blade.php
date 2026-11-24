@@ -208,7 +208,7 @@
       <div id="qrisDisplayBox" class="hidden p-2.5 bg-raised rounded border border-blue-500/40 space-y-1.5 text-center">
         <div class="flex items-center justify-between text-[10px]">
           <span class="text-blue-400 font-bold uppercase">QRIS {{ \App\Models\AppSetting::get('basecamp_name', 'BASECAMP SAMSARA') }}</span>
-          <span class="text-[9px] text-stone-400 font-mono-tech">NMID: {{ \App\Models\AppSetting::get('payment_qris_nmid', 'ID102026110099') }}</span>
+          <span class="text-[9px] text-stone-400 font-mono-tech">NMID: {{ \App\Models\AppSetting::get('payment_qris_nmid', config('samsara.payment.qris_nmid')) }}</span>
         </div>
         <div class="w-32 h-32 mx-auto bg-white p-1.5 rounded-lg flex items-center justify-center shadow-md">
           @if(\App\Models\AppSetting::get('payment_qris_image'))

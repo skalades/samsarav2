@@ -9,7 +9,7 @@
   $posList = $trailConfig['checkpoints'];
   $sel = $selectedRegistration;
   $canCamp = $sel && ! $sel->isTektok() && ($posList[$activePos]['can_camp'] ?? false);
-  $sar = \App\Models\AppSetting::get('sar_frequency', '149.250 MHz');
+  $sar = \App\Models\AppSetting::get('sar_frequency', config('samsara.contact.sar_frequency'));
 @endphp
 
 <div class="max-w-2xl mx-auto space-y-4">

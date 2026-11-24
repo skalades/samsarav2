@@ -761,7 +761,7 @@ const App = {
         return;
       }
 
-      if (!nik || nik.length < 10) {
+      if (!nik || !/^\d{16}$/.test(nik)) {
         alert('Mohon masukkan Nomor KTP/NIK Ketua Tim yang valid (16 digit).');
         document.getElementById('wzLeaderNik')?.focus();
         return;
@@ -897,8 +897,8 @@ const App = {
           elName?.focus();
           return;
         }
-        if (!elNik || !elNik.value.trim() || elNik.value.trim().length < 8) {
-          alert(`Mohon lengkapi NIK Anggota #${i}`);
+        if (!elNik || !/^\d{16}$/.test(elNik.value.trim())) {
+          alert(`Mohon lengkapi NIK Anggota #${i} (16 digit angka sesuai KTP)`);
           elNik?.focus();
           return;
         }
@@ -1064,7 +1064,8 @@ const App = {
 
     copyAccount(num, bankName = '') {
       const bank = bankName || SAMSARA_CONFIG.expedition.bankName || 'Bank Resmi';
-      const acc = num || SAMSARA_CONFIG.expedition.bankAccountRaw || '8100982111';
+      const acc = num || SAMSARA_CONFIG.expedition.bankAccountRaw || '';
+      if (!acc) { alert('Rekening resmi basecamp belum dikonfigurasi. Silakan hubungi admin basecamp.'); return; }
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(acc).then(() => {
           alert(`Nomor Rekening ${bank} (${acc}) berhasil disalin ke clipboard.`);
@@ -1149,7 +1150,7 @@ const App = {
           const elMed = document.getElementById(`wzMemMed_${i}`);
           members.push({
             full_name: elName?.value.trim() || `Anggota #${i}`,
-            nik: elNik?.value.trim() || `320501${i}0000000`,
+            nik: elNik?.value.trim() || '',
             phone: null,
             gender: elGen?.value || 'L',
             city_origin: leaderCity,
@@ -1225,7 +1226,9 @@ const App = {
           methodEl.innerText = `${result.payment_method}${uniqueNote} ${result.has_proof ? '(BUKTI TERUNGGAH)' : '(BELUM BAYAR)'}`;
         }
         if (statusEl) {
-          statusEl.innerText = (result.has_proof) ? 'MENUNGGU VERIFIKASI KASIR' : 'BELUM BAYAR (MENUNGGU PEMBAYARAN)';
+          statusEl.innerText = (result.has_proof)
+            ? 'MENUNGGU VERIFIKASI KASIR'
+            : `BELUM BAYAR · BAYAR SEBELUM ${result.payment_due_label || '-'} (OTOMATIS BATAL)`;
           statusEl.className = result.has_proof
             ? 'text-[10px] text-amber-400 font-bold px-2.5 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded uppercase tracking-wider'
             : 'text-[10px] text-rose-400 font-bold px-2.5 py-0.5 bg-rose-500/10 border border-rose-500/30 rounded uppercase tracking-wider';
@@ -1296,7 +1299,8 @@ const App = {
     },
 
     openWhatsAppAdmin(data) {
-      const adminPhone = SAMSARA_CONFIG.expedition.adminWhatsApp || '6282122334455';
+      const adminPhone = SAMSARA_CONFIG.expedition.adminWhatsApp || '';
+      if (!adminPhone) { alert('Nomor WhatsApp admin basecamp belum dikonfigurasi. Simpan kode tiket Anda dan hubungi loket basecamp.'); return; }
       
       let memberListText = '';
       if (Array.isArray(data.members)) {
@@ -1639,7 +1643,22 @@ Halo Admin ${SAMSARA_CONFIG.expedition.basecampName || 'Basecamp SAMSARA'}, saya
     quickSearch(code) {
       const input = document.getElementById('searchTicketInput');
       if (input) input.value = code;
+      this.toggleNikField();
       this.search();
+    },
+
+    // Kueri berupa nomor HP (bukan kode SMK-) → tampilkan kolom 4 digit terakhir NIK
+    isPhoneQuery(query) {
+      return !/^SMK-/i.test(query) && /^\+?[\d\s\-().]{9,20}$/.test(query);
+    },
+
+    toggleNikField() {
+      const query = document.getElementById('searchTicketInput')?.value.trim() || '';
+      document.getElementById('searchNikWrap')?.classList.toggle('hidden', !this.isPhoneQuery(query));
+    },
+
+    escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     },
 
     async search() {
@@ -1651,10 +1670,26 @@ Halo Admin ${SAMSARA_CONFIG.expedition.basecampName || 'Basecamp SAMSARA'}, saya
       if (!query) {
         res.innerHTML = `
           <div class="text-center py-6 text-stone-500 text-xs font-mono-tech space-y-1">
-            <p>Ketik Kode SIMAKSI (contoh: <strong class="text-stone-300">SMK-202611-001</strong>) atau No. WhatsApp Ketua Tim.</p>
+            <p>Ketik Kode SIMAKSI (contoh: <strong class="text-stone-300">SMK-202611-A8F2K9QX</strong>) atau No. WhatsApp Ketua Tim.</p>
           </div>
         `;
         return;
+      }
+
+      const params = new URLSearchParams({ query });
+      if (this.isPhoneQuery(query)) {
+        const nikLast4 = document.getElementById('searchNikLast4')?.value.trim() || '';
+        if (!/^\d{4}$/.test(nikLast4)) {
+          this.toggleNikField();
+          res.innerHTML = `
+            <div class="p-4 bg-[#121418] border border-amber-500/30 rounded-xl text-xs font-mono-tech text-center text-amber-300">
+              Masukkan 4 digit terakhir NIK ketua untuk mencari tiket dengan nomor WhatsApp.
+            </div>
+          `;
+          document.getElementById('searchNikLast4')?.focus();
+          return;
+        }
+        params.set('nik_last4', nikLast4);
       }
 
       // Tactical Loading HUD
@@ -1666,7 +1701,7 @@ Halo Admin ${SAMSARA_CONFIG.expedition.basecampName || 'Basecamp SAMSARA'}, saya
       `;
 
       try {
-        const response = await fetch('/api/simaksi/lookup?query=' + encodeURIComponent(query), {
+        const response = await fetch('/api/simaksi/lookup?' + params.toString(), {
           headers: { 'Accept': 'application/json' }
         });
 
@@ -1685,8 +1720,8 @@ Halo Admin ${SAMSARA_CONFIG.expedition.basecampName || 'Basecamp SAMSARA'}, saya
               <div class="p-4 bg-[#121418] border border-rose-500/30 rounded-xl space-y-2 text-xs font-mono-tech text-center">
                 <span class="text-rose-400 font-bold block">[!] DATA TIKET TIDAK DITEMUKAN</span>
                 <p class="text-stone-400 text-[11px] leading-relaxed">
-                  Tidak ditemukan pendaftaran dengan kode atau nomor <strong>"${query}"</strong>.<br>
-                  Pastikan kode registrasi atau nomor WhatsApp sesuai dengan saat pendaftaran.
+                  Tidak ditemukan pendaftaran dengan kode atau nomor <strong>"${this.escapeHtml(query)}"</strong>.<br>
+                  Pastikan kode registrasi, atau nomor WhatsApp + 4 digit terakhir NIK ketua, sesuai dengan saat pendaftaran.
                 </p>
                 <div class="pt-2">
                   <a href="https://wa.me/${SAMSARA_CONFIG.expedition.adminWhatsApp}?text=${encodeURIComponent('Halo Admin SAMSARA, saya ingin cek status tiket dengan query: ' + query)}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#16191F] border border-[#282D37] text-stone-300 hover:text-white text-[10px]">

@@ -84,7 +84,7 @@ class QuotaController extends Controller
             'weather_condition' => $request->input('weather_condition'),
             'soil_condition' => $request->input('soil_condition'),
             'wind_speed' => $request->input('wind_speed', '14 km/jam'),
-            'sar_frequency' => $request->input('sar_frequency', AppSetting::get('sar_frequency', '149.250 MHz')),
+            'sar_frequency' => $request->input('sar_frequency', AppSetting::get('sar_frequency', config('samsara.contact.sar_frequency'))),
             'ranger_notes' => $request->input('ranger_notes'),
             'updated_by' => Auth::id(),
         ]);

@@ -60,12 +60,12 @@
       </div>
       <p class="text-stone-300">
         Titik Kumpul: {{ $profile['basecamp_location'] ?? 'Kecamatan Cilawu / Bayongbong, Garut' }}
-        • <a href="{{ $profile['basecamp_maps_url'] ?? 'https://maps.app.goo.gl/xGzRkQTTArmDxpQf9' }}" target="_blank" rel="noopener noreferrer" class="text-brand hover:underline font-bold inline-flex items-center gap-0.5">Google Maps ↗</a>
+        • <a href="{{ $profile['basecamp_maps_url'] ?? '' }}" target="_blank" rel="noopener noreferrer" class="text-brand hover:underline font-bold inline-flex items-center gap-0.5">Google Maps ↗</a>
       </p>
       @if(!empty($profile['sar_radio_enabled']) && !empty($profile['sar_frequency']))
-        <p>Radio Darurat: {{ $profile['sar_frequency'] }} • WhatsApp Admin: {{ $profile['admin_whatsapp_display'] ?? '+62 821-2233-4455' }}</p>
+        <p>Radio Darurat: {{ $profile['sar_frequency'] }} • WhatsApp Admin: {{ $profile['admin_whatsapp_display'] ?? '' }}</p>
       @else
-        <p>Hotline Darurat SAR: {{ $profile['emergency_hotline'] ?? '+62 821-2233-4455' }} • WhatsApp Admin: {{ $profile['admin_whatsapp_display'] ?? '+62 821-2233-4455' }}</p>
+        <p>Hotline Darurat SAR: {{ $profile['emergency_hotline'] ?? '' }} • WhatsApp Admin: {{ $profile['admin_whatsapp_display'] ?? '' }}</p>
       @endif
       <p class="text-stone-500">© {{ date('Y') }} {{ strtoupper($profile['expedition_name'] ?? 'SAMSARA EXPEDITION') }}. LINDUNGI KELESTARIAN HUTAN {{ strtoupper($profile['mountain_name'] ?? 'CIKURAY') }}.</p>
     </footer>
@@ -532,14 +532,16 @@
                   <img src="{{ asset('storage/' . $profile['payment_qris_image']) }}" alt="QRIS Resmi {{ $profile['payment_qris_name'] ?? 'Basecamp' }}" class="max-w-full max-h-[260px] w-auto h-auto object-contain rounded cursor-pointer transition hover:scale-[1.02]">
                 </a>
               @else
-                <div class="w-44 h-44 flex items-center justify-center p-1">
-                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=00020101021226600016ID.SAMSARA.GARUT01189360099900000000015204581253033605802ID5918SAMSARA+CIKURAY6005GARUT6304A1B2" alt="QRIS Samsara" class="w-full h-full object-contain" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'text-black text-[10px] font-bold\'>[QRIS RESMI]<br>NMID: {{ $profile['payment_qris_nmid'] ?? 'ID102026110099' }}</div>'">
+                {{-- Tidak pernah membuat QR tiruan: tanpa gambar QRIS resmi yang diunggah superadmin, pendaki diarahkan ke metode lain --}}
+                <div class="w-44 h-44 flex flex-col items-center justify-center p-3 text-center text-black">
+                  <span class="text-[11px] font-bold">QRIS belum tersedia</span>
+                  <span class="text-[9px] mt-1">Silakan pilih Transfer Bank atau Bayar Tunai di Pos, atau hubungi admin basecamp.</span>
                 </div>
               @endif
             </div>
 
             <div class="text-[9px] font-mono-tech text-stone-400 space-y-1">
-              <span class="text-stone-200 block font-bold">NMID: {{ $profile['payment_qris_nmid'] ?? 'ID102026110099' }} — {{ $profile['payment_qris_name'] ?? 'PT SAMSARA ADVENTURE GARUT' }}</span>
+              <span class="text-stone-200 block font-bold">NMID: {{ $profile['payment_qris_nmid'] ?? '' }} — {{ $profile['payment_qris_name'] ?? '' }}</span>
               <span class="text-stone-400 block text-[8.5px]">Mendukung: GoPay, OVO, Dana, ShopeePay, BCA, Livin, Mandiri, dll.</span>
               @if(!empty($profile['payment_qris_image']))
                 <div class="pt-1">
@@ -556,11 +558,11 @@
             <span class="text-[10px] text-stone-400 block uppercase">REKENING RESMI {{ strtoupper($profile['expedition_name'] ?? 'EXPEDITION') }}:</span>
             <div class="p-2.5 bg-raised border border-line-strong rounded-lg flex items-center justify-between">
               <div>
-                <span class="text-[9px] text-stone-400 block">{{ $profile['payment_bank_name'] ?? 'BANK CENTRAL ASIA (BCA)' }}</span>
-                <span class="text-sm font-bold text-white tracking-wider">{{ $profile['payment_bank_account'] ?? '810-0982-111' }}</span>
-                <span class="text-[9px] text-stone-400 block">a.n. {{ $profile['payment_bank_holder'] ?? 'PT SAMSARA ADVENTURE GARUT' }}</span>
+                <span class="text-[9px] text-stone-400 block">{{ $profile['payment_bank_name'] ?? '' }}</span>
+                <span class="text-sm font-bold text-white tracking-wider">{{ $profile['payment_bank_account'] ?? '' }}</span>
+                <span class="text-[9px] text-stone-400 block">a.n. {{ $profile['payment_bank_holder'] ?? '' }}</span>
               </div>
-              <button type="button" onclick="App.wizard.copyAccount('{{ $profile['payment_bank_account_raw'] ?? '8100982111' }}', '{{ $profile['payment_bank_name'] ?? 'BCA' }}')" class="tap-active px-2.5 py-1.5 bg-hover text-brand hover:bg-[#282E38] border border-brand/30 rounded text-[10px] font-bold">
+              <button type="button" onclick="App.wizard.copyAccount('{{ $profile['payment_bank_account_raw'] ?? '' }}', '{{ $profile['payment_bank_name'] ?? 'BCA' }}')" class="tap-active px-2.5 py-1.5 bg-hover text-brand hover:bg-[#282E38] border border-brand/30 rounded text-[10px] font-bold">
                 SALIN REK
               </button>
             </div>
@@ -782,22 +784,22 @@
             CARI KODE REGISTRASI ATAU NO. WHATSAPP KETUA
           </label>
           <div class="flex gap-2">
-            <input type="text" id="searchTicketInput" value="SMK-202611-001" placeholder="Contoh: SMK-202611-001 atau 0812..." onkeydown="if(event.key==='Enter') App.ticket.search()" class="flex-1 bg-raised border border-line-strong rounded-lg px-3 py-2 text-xs text-white uppercase focus:outline-none focus:border-brand transition">
+            <input type="text" id="searchTicketInput" value="" placeholder="Contoh: SMK-202611-A8F2K9QX atau 0812..." oninput="App.ticket.toggleNikField()" onkeydown="if(event.key==='Enter') App.ticket.search()" class="flex-1 bg-raised border border-line-strong rounded-lg px-3 py-2 text-xs text-white uppercase focus:outline-none focus:border-brand transition">
             <button type="button" id="btnSearchTicket" onclick="App.ticket.search()" class="px-4 py-2 bg-brand hover:bg-brand-hover text-black font-bold text-xs rounded-lg tap-active transition flex items-center gap-1.5">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
               <span>LACAK</span>
             </button>
           </div>
 
-          <!-- Quick Chip Suggestions -->
+          <!-- Verifikasi kepemilikan: wajib saat mencari dengan nomor WhatsApp (nomor HP mudah diketahui orang lain) -->
+          <div id="searchNikWrap" class="hidden pt-1 space-y-1">
+            <label for="searchNikLast4" class="block text-[10px] text-stone-400 uppercase">4 DIGIT TERAKHIR NIK KETUA</label>
+            <input type="text" id="searchNikLast4" inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="••••" onkeydown="if(event.key==='Enter') App.ticket.search()" class="w-28 bg-raised border border-line-strong rounded-lg px-3 py-2 text-xs text-white tracking-[0.4em] focus:outline-none focus:border-brand transition">
+            <p class="text-[9px] text-stone-500">Demi keamanan data, pencarian via nomor WhatsApp wajib disertai 4 digit terakhir NIK ketua.</p>
+          </div>
+
+          <!-- Tiket yang pernah dibuat dari perangkat ini -->
           <div id="ticketQuickChips" class="flex flex-wrap gap-1.5 pt-1 text-[9px]">
-            <span class="text-stone-500 py-0.5">Contoh Cepat:</span>
-            <button type="button" onclick="App.ticket.quickSearch('SMK-202611-001')" class="px-2 py-0.5 rounded bg-raised border border-line-strong text-stone-300 hover:border-brand">
-              SMK-202611-001
-            </button>
-            <button type="button" onclick="App.ticket.quickSearch('SMK-202611-002')" class="px-2 py-0.5 rounded bg-raised border border-line-strong text-stone-300 hover:border-brand">
-              SMK-202611-002
-            </button>
             <span id="recentTicketChipContainer"></span>
           </div>
         </div>
@@ -847,7 +849,7 @@
   </script>
 
   <!-- Modular JavaScript Scripts -->
-  <script src="{{ asset('assets/js/currency-input.js') }}"></script>
+  <script src="{{ asset('assets/js/currency-input.js') }}?v={{ filemtime(public_path('assets/js/currency-input.js')) }}"></script>
   <script src="{{ asset('assets/js/data.js') }}?v={{ filemtime(public_path('assets/js/data.js')) }}"></script>
   <script src="{{ asset('assets/js/app.js') }}?v={{ filemtime(public_path('assets/js/app.js')) }}"></script>
 </body>

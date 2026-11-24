@@ -24,7 +24,7 @@ Aplikasi dapat langsung diakses melalui peramban:
 
 ## 🔑 4 Level Akses & Akun Pengujian
 
-Kata sandi semua akun demo: `samsara2026`. Superadmin dapat menambah, mengubah level, dan menonaktifkan akun di **Pengaturan → Petugas & Akses**. Peran lama otomatis dipetakan (admin/auditor → superadmin, verifikator/inventori → kasir, gate_officer/petugas_lapangan → gatekeeper).
+Kata sandi akun demo **lokal** (`php artisan db:seed --class=SamsaraManagementSeeder`, ditolak di produksi): `samsara2026`. Di produksi, superadmin dibuat oleh `SuperAdminSeeder` dengan `SUPERADMIN_PASSWORD` dari `.env` (atau acak bila kosong). Superadmin dapat menambah, mengubah level, dan menonaktifkan akun di **Pengaturan → Petugas & Akses**. Peran lama otomatis dipetakan (admin/auditor → superadmin, verifikator/inventori → kasir, gate_officer/petugas_lapangan → gatekeeper).
 
 | Level | Akun demo | Beranda & modul |
 |---|---|---|
@@ -152,3 +152,18 @@ Telah disediakan berkas template siap pakai di root proyek:
 - [`deployment/supervisor/samsara-worker.conf`](file:///c:/Users/skala/OneDrive/Documents/SAMSARA/deployment/supervisor/samsara-worker.conf): Konfigurasi Supervisor process manager untuk menjaga queue worker Redis tetap aktif 24/7.
 - [`deployment/nginx/samsara.conf`](file:///c:/Users/skala/OneDrive/Documents/SAMSARA/deployment/nginx/samsara.conf): Konfigurasi Nginx produksi dengan security headers, denial aturan file sensitif (`.env`, `.git`), dan optimasi asset caching.
 - [`deployment/deploy.sh`](file:///c:/Users/skala/OneDrive/Documents/SAMSARA/deployment/deploy.sh): Skrip otomasi deployment zero-downtime (git pull, composer install, migration, caching, queue restart).
+
+### 4. Checklist Go-Live (Uji Kelayakan)
+
+```bash
+cp .env.production.example .env        # isi DB, Redis, SMTP, WA gateway, SUPERADMIN_*
+php artisan key:generate
+php artisan migrate --force
+php artisan db:seed --class=SuperAdminSeeder --force   # JANGAN jalankan SamsaraManagementSeeder
+php artisan storage:link
+certbot certonly --webroot -w /var/www/samsara/public -d samsaracikuray.id -d www.samsaracikuray.id
+supervisorctl reread && supervisorctl update           # worker + scheduler
+php artisan samsara:preflight                          # wajib 0 FAIL sebelum dibuka publik
+```
+
+Setelah login superadmin pertama: isi **Pengaturan → Tarif & Profil** (rekening, QRIS, WhatsApp admin, hotline SAR). Portal tidak lagi menampilkan rekening/QRIS contoh — bila belum diisi, kolom tampil kosong dan `samsara:preflight` gagal.

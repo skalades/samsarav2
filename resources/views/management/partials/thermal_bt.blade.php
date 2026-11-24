@@ -67,7 +67,7 @@
   </div>
 </div>
 
-<script src="{{ asset('assets/js/escpos-bt.js') }}?v=1"></script>
+<script src="{{ asset('assets/js/escpos-bt.js') }}?v={{ filemtime(public_path('assets/js/escpos-bt.js')) }}"></script>
 <script>
   (function () {
     const doc = @json($doc);

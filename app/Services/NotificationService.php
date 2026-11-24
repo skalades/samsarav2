@@ -42,9 +42,9 @@ class NotificationService
         $hikingDate = $reg->hiking_date ? $reg->hiking_date->format('d M Y') : '-';
         $total = number_format($reg->total_amount, 0, ',', '.');
         $uniqueNote = $reg->unique_code > 0 ? " (Termasuk 3 digit kode unik verifikasi: +{$reg->unique_code})" : '';
-        $bankName = AppSetting::get('payment_bank_name', 'BANK CENTRAL ASIA (BCA)');
-        $bankAcc = AppSetting::get('payment_bank_account', '810-0982-111');
-        $bankHolder = AppSetting::get('payment_bank_holder', 'PT SAMSARA ADVENTURE GARUT');
+        $bankName = AppSetting::get('payment_bank_name', config('samsara.payment.bank_name'));
+        $bankAcc = AppSetting::get('payment_bank_account', config('samsara.payment.bank_account'));
+        $bankHolder = AppSetting::get('payment_bank_holder', config('samsara.payment.bank_holder'));
         $expedition = AppSetting::get('expedition_name', 'SAMSARA EXPEDITION');
         $mountain = AppSetting::get('mountain_name', 'GUNUNG CIKURAY');
         $elevation = AppSetting::get('mountain_elevation', '2.821 MDPL');

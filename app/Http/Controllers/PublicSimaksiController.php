@@ -9,6 +9,8 @@ use App\Models\InventoryItem;
 use App\Models\SimaksiRegistration;
 use App\Models\TrailCondition;
 use App\Services\AuditService;
+use App\Services\BookingGuardService;
+use App\Services\SimaksiService;
 use App\Services\GroupPhotoService;
 use App\Services\TicketPdfService;
 use App\Support\CodeGenerator;
@@ -16,6 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 
 class PublicSimaksiController extends Controller
@@ -88,14 +91,18 @@ class PublicSimaksiController extends Controller
             }
         }
 
+        $guard = app(BookingGuardService::class);
+        $today = Carbon::today()->toDateString();
+        $lastBookableDate = Carbon::today()->addDays($guard->maxDaysAhead())->toDateString();
+
         $request->validate([
             'hiking_category' => 'nullable|string|in:tektok,camp',
             'planned_campsite' => 'nullable|string|in:POS_2,POS_3',
-            'hiking_date' => 'required|date',
-            'return_date' => 'nullable|date',
+            'hiking_date' => "required|date|after_or_equal:{$today}|before_or_equal:{$lastBookableDate}",
+            'return_date' => 'nullable|date|after_or_equal:hiking_date',
             'leader_name' => 'required|string|max:100',
-            'leader_nik' => 'required|string|max:25',
-            'leader_phone' => 'required|string|max:25',
+            'leader_nik' => 'required|digits:16',
+            'leader_phone' => ['required', 'string', 'max:25', 'regex:/^\+?[0-9\s\-().]{9,20}$/'],
             'leader_city' => 'nullable|string|max:255',
             'leader_address' => 'nullable|string|max:500',
             'emergency_contact_name' => 'required|string|max:100',
@@ -104,7 +111,7 @@ class PublicSimaksiController extends Controller
             'medical_conditions' => 'nullable|string|max:255',
             'members' => 'required|array|min:1|max:15',
             'members.*.full_name' => 'required|string|max:100',
-            'members.*.nik' => 'required|string|max:25',
+            'members.*.nik' => 'required|digits:16',
             'members.*.gender' => 'required|in:L,P',
             'members.*.medical_conditions' => 'nullable|string|max:255',
             'payment_method' => 'required|string|in:qris,transfer,cash_pos',
@@ -115,9 +122,19 @@ class PublicSimaksiController extends Controller
             'motorcycle_count' => 'nullable|integer|min:0|max:50',
             'car_count' => 'nullable|integer|min:0|max:20',
             'unique_code' => 'nullable|integer|min:0|max:999',
+        ], [
+            'hiking_date.after_or_equal' => 'Tanggal pendakian tidak boleh tanggal yang sudah lewat.',
+            'hiking_date.before_or_equal' => 'Pendaftaran hanya dibuka maksimal '.$guard->maxDaysAhead().' hari ke depan.',
+            'leader_nik.digits' => 'NIK ketua harus 16 digit angka sesuai KTP.',
+            'members.*.nik.digits' => 'NIK setiap anggota harus 16 digit angka sesuai KTP.',
+            'leader_phone.regex' => 'Format nomor WhatsApp ketua tidak valid.',
         ]);
 
-        return DB::transaction(function () use ($request) {
+        // Lepaskan dulu kuota dari booking kedaluwarsa di tanggal ini (tidak bergantung pada scheduler)
+        $hikingDateStr = Carbon::parse($request->input('hiking_date'))->toDateString();
+        app(SimaksiService::class)->expireOverdueBookings($hikingDateStr);
+
+        return DB::transaction(function () use ($request, $guard) {
             $hikingDate = Carbon::parse($request->input('hiking_date'));
             $members = $request->input('members');
             $totalClimbers = count($members);
@@ -126,6 +143,12 @@ class PublicSimaksiController extends Controller
             // Uses resilient atomic fetch-or-create with duplicate-key catch to prevent TOCTOU race conditions
             $dateStr = $hikingDate->toDateString();
             $defaultDailyQuota = (int) AppSetting::get('default_daily_quota', 150);
+
+            $hikingCategory = $request->input('hiking_category', 'camp');
+            $plannedCampsite = ($hikingCategory === 'camp') ? $request->input('planned_campsite') : null;
+            $returnDateStr = ($hikingCategory === 'tektok')
+                ? $hikingDate->toDateString()
+                : ($request->input('return_date') ? Carbon::parse($request->input('return_date'))->toDateString() : $hikingDate->copy()->addDay()->toDateString());
 
             $quota = DailyQuota::whereDate('quota_date', $dateStr)->lockForUpdate()->first();
             if (! $quota) {
@@ -153,6 +176,19 @@ class PublicSimaksiController extends Controller
                     'success' => false,
                     'message' => 'Sisa kuota pada tanggal tersebut tidak mencukupi (Tersisa: '.max(0, $quota->max_quota - $quota->booked_quota).' pendaki).',
                 ], 422);
+            }
+
+            // Anti-fraud: NIK ganda / NIK sudah dipakai rombongan lain / terlalu banyak booking belum bayar per nomor WA.
+            // Dicek di dalam lock kuota agar dua request paralel tidak sama-sama lolos.
+            $violation = $guard->violation(
+                leaderNik: (string) $request->input('leader_nik'),
+                memberNiks: array_map(fn ($m) => (string) $m['nik'], $members),
+                leaderPhone: (string) $request->input('leader_phone'),
+                hikingDate: $hikingDate,
+                returnDate: Carbon::parse($returnDateStr),
+            );
+            if ($violation) {
+                return response()->json(['success' => false, 'message' => $violation], 422);
             }
 
             // Calculate 3-digit unique transfer code (101 - 999) for Transfer & QRIS
@@ -196,7 +232,7 @@ class PublicSimaksiController extends Controller
             $ktpPath = null;
             if ($request->hasFile('leader_ktp')) {
                 $ktpFile = $request->file('leader_ktp');
-                $ktpFilename = 'ktp_'.date('Ymd_His').'_'.Str::random(12).'.'.$ktpFile->getClientOriginalExtension();
+                $ktpFilename = 'ktp_'.date('Ymd_His').'_'.Str::random(12).'.'.$ktpFile->extension();
                 $ktpPath = $ktpFile->storeAs('ktp', $ktpFilename, 'local');
             }
 
@@ -204,7 +240,7 @@ class PublicSimaksiController extends Controller
             $proofPath = null;
             if ($request->hasFile('payment_proof')) {
                 $file = $request->file('payment_proof');
-                $filename = 'proof_'.date('Ymd_His').'_'.Str::random(8).'.'.$file->getClientOriginalExtension();
+                $filename = 'proof_'.date('Ymd_His').'_'.Str::random(8).'.'.$file->extension();
                 $proofPath = $file->storeAs('payments', $filename, 'public');
             }
 
@@ -215,18 +251,16 @@ class PublicSimaksiController extends Controller
             $leaderAddress = $request->input('leader_address') ?: $request->input('leader_city', 'Indonesia');
             $leaderCity = $request->input('leader_city') ?: $leaderAddress;
 
-            $hikingCategory = $request->input('hiking_category', 'camp');
-            $plannedCampsite = ($hikingCategory === 'camp') ? $request->input('planned_campsite') : null;
-            $returnDateStr = ($hikingCategory === 'tektok')
-                ? $hikingDate->toDateString()
-                : ($request->input('return_date') ? Carbon::parse($request->input('return_date'))->toDateString() : $hikingDate->copy()->addDay()->toDateString());
+            // Batas waktu bayar: lewat dari ini tanpa bayar/bukti → dibatalkan otomatis & kuota dilepas
+            $paymentDueAt = $proofPath ? null : $guard->paymentDueAt($paymentMethod, $hikingDate);
 
             // Create Registration
             $reg = SimaksiRegistration::create([
                 'registration_code' => $code,
                 'leader_name' => $request->input('leader_name'),
                 'leader_nik' => $request->input('leader_nik'),
-                'leader_phone' => $request->input('leader_phone'),
+                // Simpan hanya digit agar pencarian tiket & batas booking per nomor WA konsisten
+                'leader_phone' => preg_replace('/\D/', '', (string) $request->input('leader_phone')),
                 'leader_email' => $request->input('leader_email'),
                 'leader_city' => $leaderCity,
                 'leader_address' => $leaderAddress,
@@ -255,6 +289,7 @@ class PublicSimaksiController extends Controller
                 'payment_status' => $proofPath ? 'paid' : 'unpaid', // Jika upload bukti transfer, status bayar pending verifikasi
                 'payment_method' => $request->input('payment_method'),
                 'payment_proof_path' => $proofPath,
+                'payment_due_at' => $paymentDueAt,
                 'trash_deposit_amount' => $trashDepositAmount,
                 'trash_deposit_status' => $trashDepositStatus,
             ]);
@@ -309,6 +344,8 @@ class PublicSimaksiController extends Controller
                 'trash_deposit_amount' => $reg->trash_deposit_amount,
                 'trash_deposit_status' => $reg->trash_deposit_status,
                 'status' => $reg->status,
+                'payment_due_at' => $paymentDueAt?->toIso8601String(),
+                'payment_due_label' => $paymentDueAt?->translatedFormat('d M Y H:i').($paymentDueAt ? ' WIB' : ''),
                 'ticket_url' => route('portal.simaksi.ticket', $code),
                 'pdf_download_url' => route('portal.simaksi.ticket_pdf', $code),
                 'message' => 'Pendaftaran SIMAKSI berhasil dikirim. Kode tiket Anda adalah '.$code,
@@ -331,27 +368,70 @@ class PublicSimaksiController extends Controller
             ], 422);
         }
 
-        // Clean phone query if numeric
+        $notFound = fn () => response()->json([
+            'success' => false,
+            'message' => 'Data tiket SIMAKSI tidak ditemukan untuk pencarian: '.htmlspecialchars($query),
+        ], 404);
+
         $cleanPhone = preg_replace('/[^0-9]/', '', $query);
+        $isPhoneQuery = ! str_starts_with(strtoupper($query), 'SMK-') && strlen($cleanPhone) >= 10;
 
-        // Strict lookup: exact registration code or full phone match (prevents mass PII scraping)
-        $reg = SimaksiRegistration::with('members')
-            ->where(function ($q) use ($query, $cleanPhone) {
-                $q->where('registration_code', strtoupper($query));
+        if (! $isPhoneQuery) {
+            // Kode registrasi: kode 8 karakter acak berperan sebagai kunci akses tiket
+            $reg = SimaksiRegistration::with('members')
+                ->where('registration_code', strtoupper($query))
+                ->first();
 
-                if (! empty($cleanPhone) && strlen($cleanPhone) >= 10) {
-                    $q->orWhere('leader_phone', $cleanPhone);
-                }
-            })
-            ->latest()
-            ->first();
+            return $reg ? $this->lookupResponse($reg) : $notFound();
+        }
 
-        if (! $reg) {
+        // Nomor WhatsApp mudah diketahui orang lain → wajib bukti kepemilikan: 4 digit terakhir NIK ketua.
+        // Tanpa ini siapa pun yang tahu nomor HP pendaki bisa mendapat kode tiket lalu mengganti KTP/bukti bayarnya.
+        $nikLast4 = (string) $request->input('nik_last4', '');
+        if (! preg_match('/^\d{4}$/', $nikLast4)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Data tiket SIMAKSI tidak ditemukan untuk pencarian: '.htmlspecialchars($query),
-            ], 404);
+                'requires_nik' => true,
+                'message' => 'Pencarian dengan nomor WhatsApp wajib disertai 4 digit terakhir NIK ketua rombongan.',
+            ], 422);
         }
+
+        // Batasi tebakan NIK per nomor (lintas IP): 5 kegagalan / 30 menit
+        $phone = BookingGuardService::normalizePhone($cleanPhone);
+        $attemptKey = 'simaksi-lookup-phone:'.$phone;
+        if (RateLimiter::tooManyAttempts($attemptKey, 5)) {
+            $minutes = (int) ceil(RateLimiter::availableIn($attemptKey) / 60);
+
+            return response()->json([
+                'success' => false,
+                'message' => "Terlalu banyak percobaan untuk nomor ini. Coba lagi dalam {$minutes} menit atau gunakan Kode SIMAKSI.",
+            ], 429);
+        }
+
+        $reg = SimaksiRegistration::with('members')
+            ->where('leader_phone', 'like', '%'.substr($phone, -9))
+            ->where('leader_nik', 'like', '%'.$nikLast4)
+            ->latest()
+            ->get()
+            ->first(fn ($r) => BookingGuardService::normalizePhone($r->leader_phone) === $phone
+                && str_ends_with((string) $r->leader_nik, $nikLast4));
+
+        if (! $reg) {
+            RateLimiter::hit($attemptKey, 30 * 60);
+
+            return $notFound();
+        }
+
+        RateLimiter::clear($attemptKey);
+
+        return $this->lookupResponse($reg);
+    }
+
+    /**
+     * Ringkasan tiket untuk portal publik (data pribadi dimasking sesuai UU PDP).
+     */
+    private function lookupResponse(SimaksiRegistration $reg)
+    {
 
         $proofUrl = null;
         if ($reg->payment_proof_path) {
@@ -401,7 +481,7 @@ class PublicSimaksiController extends Controller
                 'leader_nik' => $maskNik($reg->leader_nik),
                 'leader_phone' => $maskPhone($reg->leader_phone),
                 'leader_city' => $reg->leader_city,
-                'leader_address' => $reg->leader_address ?? $reg->leader_city,
+                'leader_address' => $reg->leader_city, // Alamat lengkap hanya untuk petugas (UU PDP)
                 'medical_conditions' => $medicalMask,
                 'emergency_contact_name' => $reg->emergency_contact_name,
                 'emergency_contact_phone' => $maskPhone($reg->emergency_contact_phone),
@@ -414,6 +494,9 @@ class PublicSimaksiController extends Controller
                 'status_label' => $statusLabels[$reg->status] ?? strtoupper($reg->status),
                 'revision_notes' => $reg->revision_notes,
                 'payment_status' => $reg->payment_status,
+                'payment_due_label' => ($reg->status === 'pending' && $reg->payment_status !== 'paid' && $reg->payment_due_at)
+                    ? $reg->payment_due_at->translatedFormat('d M Y H:i').' WIB'
+                    : null,
                 'payment_method' => strtoupper($reg->payment_method),
                 'simaksi_fee' => $reg->simaksi_fee,
                 'ojek_fee' => $reg->ojek_fee,
@@ -474,8 +557,16 @@ class PublicSimaksiController extends Controller
             ], 404);
         }
 
+        // Booking yang sudah dibatalkan (mis. kedaluwarsa) tidak bisa dihidupkan lagi lewat unggah bukti
+        if ($reg->status === 'rejected') {
+            return response()->json([
+                'success' => false,
+                'message' => 'SIMAKSI '.$code.' sudah dibatalkan ('.($reg->rejection_reason ?: 'ditolak').'). Silakan daftar ulang atau hubungi basecamp bila Anda sudah terlanjur transfer.',
+            ], 422);
+        }
+
         $file = $request->file('payment_proof');
-        $filename = 'proof_susulan_'.date('Ymd_His').'_'.Str::random(8).'.'.$file->getClientOriginalExtension();
+        $filename = 'proof_susulan_'.date('Ymd_His').'_'.Str::random(8).'.'.$file->extension();
         $proofPath = $file->storeAs('payments', $filename, 'public');
 
         $updates = [
@@ -531,7 +622,7 @@ class PublicSimaksiController extends Controller
         }
 
         $file = $request->file('leader_ktp');
-        $filename = 'ktp_reupload_'.date('Ymd_His').'_'.Str::random(12).'.'.$file->getClientOriginalExtension();
+        $filename = 'ktp_reupload_'.date('Ymd_His').'_'.Str::random(12).'.'.$file->extension();
         $ktpPath = $file->storeAs('ktp', $filename, 'local');
 
         $updates = [
@@ -605,9 +696,11 @@ class PublicSimaksiController extends Controller
                 'uploaded_at' => Carbon::now()->translatedFormat('d M Y, H:i').' WIB',
             ]);
         } catch (\Throwable $e) {
+            report($e);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memproses foto regu: '.$e->getMessage(),
+                'message' => 'Gagal memproses foto regu. Pastikan berkas berupa foto JPG/PNG/WEBP yang valid lalu coba lagi.',
             ], 500);
         }
     }

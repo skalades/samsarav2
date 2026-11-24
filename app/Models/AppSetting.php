@@ -238,9 +238,9 @@ class AppSetting extends Model
         ];
 
         if (static::isSarRadioEnabled()) {
-            $facilities[] = ['radio', 'Radio jalur', (string) static::get('sar_frequency', '149.250 MHz')];
+            $facilities[] = ['radio', 'Radio jalur', (string) static::get('sar_frequency', config('samsara.contact.sar_frequency'))];
         } else {
-            $facilities[] = ['phone', 'Hotline SAR 24 Jam', (string) static::get('emergency_hotline', '+62 821-2233-4455')];
+            $facilities[] = ['phone', 'Hotline SAR 24 Jam', (string) static::get('emergency_hotline', config('samsara.contact.emergency_hotline'))];
         }
 
         $facilities[] = ['checklist', 'Loket & briefing', 'Registrasi dan cek alat'];
@@ -253,7 +253,7 @@ class AppSetting extends Model
      */
     public static function getExpeditionProfile(): array
     {
-        $bankAccount = (string) static::get('payment_bank_account', '810-0982-111');
+        $bankAccount = (string) static::get('payment_bank_account', config('samsara.payment.bank_account'));
         $rawAccount = preg_replace('/[^0-9]/', '', $bankAccount);
         $appLogo = static::get('app_logo', null);
         $qrisImage = static::get('payment_qris_image', null);
@@ -271,25 +271,25 @@ class AppSetting extends Model
             'peak_name' => (string) static::get('peak_name', 'Puncak Triangulasi Gunung Cikuray'),
             'basecamp_elevation' => (string) static::get('basecamp_elevation', '1.245 MDPL'),
             'basecamp_location' => (string) static::get('basecamp_location', 'Kecamatan Cilawu / Bayongbong, Garut, Jawa Barat'),
-            'basecamp_maps_url' => (string) static::get('basecamp_maps_url', 'https://maps.app.goo.gl/xGzRkQTTArmDxpQf9'),
+            'basecamp_maps_url' => (string) static::get('basecamp_maps_url', config('samsara.contact.basecamp_maps_url')),
             'basecamp_coordinates' => (string) static::get('basecamp_coordinates', '-7.331855, 107.8096294'),
             'basecamp_latitude' => (string) static::get('basecamp_latitude', '-7.331855'),
             'basecamp_longitude' => (string) static::get('basecamp_longitude', '107.8096294'),
             'default_daily_quota' => (int) static::get('default_daily_quota', 150),
             'min_climbers_per_group' => (int) static::get('min_climbers_per_group', 1),
             'max_climbers_per_group' => (int) static::get('max_climbers_per_group', 15),
-            'admin_whatsapp' => (string) static::get('admin_whatsapp', '6282122334455'),
-            'admin_whatsapp_display' => (string) static::get('admin_whatsapp_display', '+62 821-2233-4455'),
-            'emergency_hotline' => (string) static::get('emergency_hotline', '+62 821-2233-4455'),
+            'admin_whatsapp' => (string) static::get('admin_whatsapp', config('samsara.contact.admin_whatsapp')),
+            'admin_whatsapp_display' => (string) static::get('admin_whatsapp_display', config('samsara.contact.admin_whatsapp_display')),
+            'emergency_hotline' => (string) static::get('emergency_hotline', config('samsara.contact.emergency_hotline')),
             'sar_radio_enabled' => static::isSarRadioEnabled(),
-            'sar_frequency' => static::isSarRadioEnabled() ? (string) static::get('sar_frequency', '149.250 MHz') : null,
-            'sar_frequency_raw' => (string) static::get('sar_frequency', '149.250 MHz'),
-            'payment_bank_name' => (string) static::get('payment_bank_name', 'BANK CENTRAL ASIA (BCA)'),
+            'sar_frequency' => static::isSarRadioEnabled() ? (string) static::get('sar_frequency', config('samsara.contact.sar_frequency')) : null,
+            'sar_frequency_raw' => (string) static::get('sar_frequency', config('samsara.contact.sar_frequency')),
+            'payment_bank_name' => (string) static::get('payment_bank_name', config('samsara.payment.bank_name')),
             'payment_bank_account' => $bankAccount,
-            'payment_bank_account_raw' => (string) static::get('payment_bank_account_raw', $rawAccount ?: '8100982111'),
-            'payment_bank_holder' => (string) static::get('payment_bank_holder', 'PT SAMSARA ADVENTURE GARUT'),
-            'payment_qris_nmid' => (string) static::get('payment_qris_nmid', 'ID102026110099'),
-            'payment_qris_name' => (string) static::get('payment_qris_name', 'PT SAMSARA ADVENTURE GARUT'),
+            'payment_bank_account_raw' => (string) static::get('payment_bank_account_raw', $rawAccount),
+            'payment_bank_holder' => (string) static::get('payment_bank_holder', config('samsara.payment.bank_holder')),
+            'payment_qris_nmid' => (string) static::get('payment_qris_nmid', config('samsara.payment.qris_nmid')),
+            'payment_qris_name' => (string) static::get('payment_qris_name', config('samsara.payment.qris_name')),
         ];
     }
 

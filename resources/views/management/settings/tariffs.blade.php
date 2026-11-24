@@ -435,7 +435,7 @@
           <label for="admin_whatsapp_display" class="text-[10px] font-bold text-stone-300 uppercase block">
             Tampilan No. WhatsApp UI
           </label>
-          <input type="text" id="admin_whatsapp_display" name="admin_whatsapp_display" value="{{ old('admin_whatsapp_display', $profile['admin_whatsapp_display'] ?? '+62 821-2233-4455') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-purple-400">
+          <input type="text" id="admin_whatsapp_display" name="admin_whatsapp_display" value="{{ old('admin_whatsapp_display', $profile['admin_whatsapp_display'] ?? '') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-purple-400">
           <p class="text-[9px] text-stone-400">Format teks yang tampil di footer portal dan struk kasir.</p>
         </div>
 
@@ -452,7 +452,7 @@
               </span>
             </label>
           </div>
-          <input type="text" id="sar_frequency" name="sar_frequency" value="{{ old('sar_frequency', $profile['sar_frequency_raw'] ?? $profile['sar_frequency'] ?? '149.250 MHz') }}" class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-purple-400">
+          <input type="text" id="sar_frequency" name="sar_frequency" value="{{ old('sar_frequency', $profile['sar_frequency_raw'] ?? $profile['sar_frequency'] ?? '') }}" class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-purple-400">
           <p class="text-[9px] text-stone-400">Centang untuk mempublikasikan frekuensi radio HT ke pendaki. Saat nonaktif, sistem mengutamakan Hotline SAR.</p>
         </div>
       </div>
@@ -463,7 +463,7 @@
           <label for="emergency_hotline" class="text-[10px] font-bold text-stone-300 uppercase block">
             Hotline Call Center Darurat / Medis
           </label>
-          <input type="text" id="emergency_hotline" name="emergency_hotline" value="{{ old('emergency_hotline', $profile['emergency_hotline'] ?? '+62 821-2233-4455') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-purple-400">
+          <input type="text" id="emergency_hotline" name="emergency_hotline" value="{{ old('emergency_hotline', $profile['emergency_hotline'] ?? '') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-purple-400">
           <p class="text-[9px] text-stone-400">Nomor panggilan cepat telepon seluler jika terjadi kondisi darurat.</p>
         </div>
 
@@ -490,7 +490,7 @@
               </a>
             @endif
           </div>
-          <input type="url" id="basecamp_maps_url" name="basecamp_maps_url" value="{{ old('basecamp_maps_url', $profile['basecamp_maps_url'] ?? 'https://maps.app.goo.gl/xGzRkQTTArmDxpQf9') }}" placeholder="https://maps.app.goo.gl/..." class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-purple-400">
+          <input type="url" id="basecamp_maps_url" name="basecamp_maps_url" value="{{ old('basecamp_maps_url', $profile['basecamp_maps_url'] ?? '') }}" placeholder="https://maps.app.goo.gl/..." class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-purple-400">
           <p class="text-[9px] text-stone-400">URL tautan navigasi Google Maps resmi (termasuk shortlink maps.app.goo.gl).</p>
         </div>
 
@@ -525,7 +525,7 @@
           <label for="bank_name" class="text-[10px] font-bold text-stone-300 uppercase block">
             Nama Bank
           </label>
-          <input type="text" id="bank_name" name="payment_bank_name" value="{{ old('payment_bank_name', $profile['payment_bank_name'] ?? 'BANK CENTRAL ASIA (BCA)') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-blue-400">
+          <input type="text" id="bank_name" name="payment_bank_name" value="{{ old('payment_bank_name', $profile['payment_bank_name'] ?? '') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-blue-400">
           <p class="text-[9px] text-stone-400">Contoh: BANK CENTRAL ASIA (BCA) atau BANK MANDIRI.</p>
         </div>
 
@@ -534,7 +534,7 @@
           <label for="bank_account" class="text-[10px] font-bold text-stone-300 uppercase block">
             Nomor Rekening Bank
           </label>
-          <input type="text" id="bank_account" name="payment_bank_account" value="{{ old('payment_bank_account', $profile['payment_bank_account'] ?? '810-0982-111') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-blue-400">
+          <input type="text" id="bank_account" name="payment_bank_account" value="{{ old('payment_bank_account', $profile['payment_bank_account'] ?? '') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-blue-400">
           <p class="text-[9px] text-stone-400">Nomor tujuan transfer yang dapat disalin satu-klik oleh pendaki.</p>
         </div>
 
@@ -543,7 +543,7 @@
           <label for="bank_holder" class="text-[10px] font-bold text-stone-300 uppercase block">
             Nama Atas Nama Rekening (A.N.)
           </label>
-          <input type="text" id="bank_holder" name="payment_bank_holder" value="{{ old('payment_bank_holder', $profile['payment_bank_holder'] ?? 'PT SAMSARA ADVENTURE GARUT') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-blue-400">
+          <input type="text" id="bank_holder" name="payment_bank_holder" value="{{ old('payment_bank_holder', $profile['payment_bank_holder'] ?? '') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-blue-400">
           <p class="text-[9px] text-stone-400">Nama penerima resmi yang dicocokkan saat mutasi bank.</p>
         </div>
       </div>
@@ -554,7 +554,7 @@
           <label for="qris_nmid" class="text-[10px] font-bold text-stone-300 uppercase block">
             NMID QRIS Nasional
           </label>
-          <input type="text" id="qris_nmid" name="payment_qris_nmid" value="{{ old('payment_qris_nmid', $profile['payment_qris_nmid'] ?? 'ID102026110099') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-blue-400">
+          <input type="text" id="qris_nmid" name="payment_qris_nmid" value="{{ old('payment_qris_nmid', $profile['payment_qris_nmid'] ?? '') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-blue-400">
           <p class="text-[9px] text-stone-400">Nomor identifikasi merchant nasional QRIS resmi.</p>
         </div>
 
@@ -563,7 +563,7 @@
           <label for="qris_name" class="text-[10px] font-bold text-stone-300 uppercase block">
             Nama Merchant QRIS
           </label>
-          <input type="text" id="qris_name" name="payment_qris_name" value="{{ old('payment_qris_name', $profile['payment_qris_name'] ?? 'PT SAMSARA ADVENTURE GARUT') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-blue-400">
+          <input type="text" id="qris_name" name="payment_qris_name" value="{{ old('payment_qris_name', $profile['payment_qris_name'] ?? '') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-blue-400">
           <p class="text-[9px] text-stone-400">Nama badan usaha yang terdaftar pada standar QRIS.</p>
         </div>
       </div>

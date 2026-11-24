@@ -373,7 +373,7 @@
                     </div>
                     <div class="text-xs text-stone-300 flex items-center gap-1.5 font-mono-tech">
                         <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                        {{ $registration->leader_phone }}
+                        {{ strlen((string) $registration->leader_phone) > 6 ? substr($registration->leader_phone, 0, 4).'****'.substr($registration->leader_phone, -3) : 'Terproteksi' }}
                     </div>
                     <div class="text-[11px] text-stone-400 pt-1 border-t border-[#1E2229]">
                         <span class="text-stone-500">Kontak Darurat:</span> {{ $registration->emergency_contact_name }} ({{ $maskedEmergencyPhone }})
@@ -486,12 +486,12 @@
         <div class="bg-[#0A0B0D] p-4 border-t border-[#1E2229] text-center text-[10px] font-mono-tech text-stone-500 space-y-1">
             <p>
                 Lokasi Basecamp: <span class="text-stone-300">{{ $profile['basecamp_location'] ?? 'Garut, Jawa Barat' }}</span>
-                • <a href="{{ $profile['basecamp_maps_url'] ?? 'https://maps.app.goo.gl/xGzRkQTTArmDxpQf9' }}" target="_blank" rel="noopener noreferrer" class="text-[#FF5722] hover:underline font-bold inline-flex items-center gap-0.5">Google Maps ↗</a>
+                • <a href="{{ $profile['basecamp_maps_url'] ?? '' }}" target="_blank" rel="noopener noreferrer" class="text-[#FF5722] hover:underline font-bold inline-flex items-center gap-0.5">Google Maps ↗</a>
             </p>
             @if(!empty($profile['sar_radio_enabled']) && !empty($profile['sar_frequency']))
-                <p>Frekuensi Radio Darurat SAR: <strong class="text-stone-300">{{ $profile['sar_frequency'] }}</strong> | Hotline SAR: <strong class="text-stone-300">{{ $profile['emergency_hotline'] ?? '+62 821-2233-4455' }}</strong></p>
+                <p>Frekuensi Radio Darurat SAR: <strong class="text-stone-300">{{ $profile['sar_frequency'] }}</strong> | Hotline SAR: <strong class="text-stone-300">{{ $profile['emergency_hotline'] ?? '' }}</strong></p>
             @else
-                <p>Hotline Darurat SAR 24 Jam: <strong class="text-stone-300">{{ $profile['emergency_hotline'] ?? '+62 821-2233-4455' }}</strong></p>
+                <p>Hotline Darurat SAR 24 Jam: <strong class="text-stone-300">{{ $profile['emergency_hotline'] ?? '' }}</strong></p>
             @endif
             <p>© {{ date('Y') }} {{ $profile['expedition_name'] ?? 'SAMSARA' }} Portal. Dokumen sah terotentikasi digital.</p>
         </div>

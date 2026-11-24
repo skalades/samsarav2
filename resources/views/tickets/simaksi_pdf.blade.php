@@ -248,7 +248,7 @@
                             <div class="brand-title">{{ $profile['expedition_name'] ?? 'SAMSARA EXPEDITION' }}</div>
                             <div class="brand-subtitle">
                                 Otoritas Pengelola Jalur Resmi {{ $profile['mountain_name'] ?? 'Gunung Cikuray' }} ({{ $profile['mountain_elevation'] ?? '2.821 MDPL' }})<br>
-                                Lokasi: {{ $profile['basecamp_location'] ?? 'Garut, Jawa Barat' }} | Hotline: {{ $profile['emergency_hotline'] ?? '+62 821-2233-4455' }}
+                                Lokasi: {{ $profile['basecamp_location'] ?? 'Garut, Jawa Barat' }} | Hotline: {{ $profile['emergency_hotline'] ?? '' }}
                             </div>
                         </td>
                     </tr>
@@ -442,7 +442,7 @@
                         @if(!empty($profile['sar_radio_enabled']) && !empty($profile['sar_frequency']))
                             <li><strong>Radio Darurat SAR:</strong> Frekuensi darurat resmi: <strong>{{ $profile['sar_frequency'] }}</strong>.</li>
                         @else
-                            <li><strong>Hotline Darurat SAR:</strong> Hubungi nomor siaga resmi basecamp di <strong>{{ $profile['emergency_hotline'] ?? '+62 821-2233-4455' }}</strong>.</li>
+                            <li><strong>Hotline Darurat SAR:</strong> Hubungi nomor siaga resmi basecamp di <strong>{{ $profile['emergency_hotline'] ?? '' }}</strong>.</li>
                         @endif
                         <li><strong>Dilarang Keras:</strong> Membuat api unggun terbuka di area vegetasi kering, memetik edelweiss, dan membuang sampah sembarangan.</li>
                     </ul>

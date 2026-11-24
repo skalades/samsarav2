@@ -82,9 +82,9 @@
       <div class="font-bold" style="font-size: 14px;">{{ \App\Models\AppSetting::get('expedition_name', 'SAMSARA EXPEDITION') }}</div>
       <div style="font-size: 9px;">BASECAMP {{ strtoupper(\App\Models\AppSetting::get('mountain_name', 'CIKURAY')) }} {{ \App\Models\AppSetting::get('mountain_elevation', '2.821M') }} GARUT</div>
       @if(\App\Models\AppSetting::isSarRadioEnabled())
-        <div style="font-size: 9px;">Radio SAR: {{ \App\Models\AppSetting::get('sar_frequency', '149.250 MHz') }} • WA: {{ \App\Models\AppSetting::get('admin_whatsapp_display', '0821-2233-4455') }}</div>
+        <div style="font-size: 9px;">Radio SAR: {{ \App\Models\AppSetting::get('sar_frequency', config('samsara.contact.sar_frequency')) }} • WA: {{ \App\Models\AppSetting::get('admin_whatsapp_display', config('samsara.contact.admin_whatsapp_display')) }}</div>
       @else
-        <div style="font-size: 9px;">Hotline SAR: {{ \App\Models\AppSetting::get('emergency_hotline', '+62 821-2233-4455') }} • WA: {{ \App\Models\AppSetting::get('admin_whatsapp_display', '0821-2233-4455') }}</div>
+        <div style="font-size: 9px;">Hotline SAR: {{ \App\Models\AppSetting::get('emergency_hotline', config('samsara.contact.emergency_hotline')) }} • WA: {{ \App\Models\AppSetting::get('admin_whatsapp_display', config('samsara.contact.admin_whatsapp_display')) }}</div>
       @endif
     </div>
 

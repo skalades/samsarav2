@@ -20,6 +20,10 @@ class SamsaraManagementSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->environment('production')) {
+            throw new \RuntimeException('SamsaraManagementSeeder berisi data demo dan tidak boleh dijalankan di produksi.');
+        }
+
         $password = Hash::make('samsara2026');
 
         // 1. Multi-role Users

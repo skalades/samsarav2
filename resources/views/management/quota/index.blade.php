@@ -145,7 +145,7 @@
 
         <div>
           <label class="block text-stone-400 uppercase text-[10px] mb-1">FREKUENSI RADIO SAR BASECAMP</label>
-          <input type="text" name="sar_frequency" value="{{ $trail?->sar_frequency ?? \App\Models\AppSetting::get('sar_frequency', '149.250 MHz') }}" required class="w-full bg-raised border border-line-strong rounded-lg p-2 text-white">
+          <input type="text" name="sar_frequency" value="{{ $trail?->sar_frequency ?? \App\Models\AppSetting::get('sar_frequency', config('samsara.contact.sar_frequency')) }}" required class="w-full bg-raised border border-line-strong rounded-lg p-2 text-white">
         </div>
       </div>
 

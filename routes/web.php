@@ -35,8 +35,11 @@ Route::middleware('throttle:60,1')->group(function () {
     Route::get('/simaksi/ticket/{code}/pdf', [PublicSimaksiController::class, 'downloadTicketPdf'])->name('portal.simaksi.ticket_pdf');
 });
 
+Route::post('/api/simaksi/register', [PublicSimaksiController::class, 'store'])
+    ->middleware('throttle:simaksi-register')
+    ->name('portal.simaksi.register');
+
 Route::middleware('throttle:15,1')->group(function () {
-    Route::post('/api/simaksi/register', [PublicSimaksiController::class, 'store'])->name('portal.simaksi.register');
     Route::post('/api/simaksi/upload-proof', [PublicSimaksiController::class, 'uploadProof'])->name('portal.simaksi.upload_proof');
     Route::post('/api/simaksi/upload-ktp', [PublicSimaksiController::class, 'uploadKtp'])->name('portal.simaksi.upload_ktp');
     Route::post('/api/simaksi/upload-group-photo', [PublicSimaksiController::class, 'uploadGroupPhoto'])->name('portal.simaksi.upload_group_photo');

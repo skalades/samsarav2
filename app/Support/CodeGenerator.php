@@ -19,14 +19,16 @@ use Illuminate\Support\Str;
 class CodeGenerator
 {
     /**
-     * Generate unique SIMAKSI Registration Code: SMK-YYYYMM-XXXX
-     * Contoh: SMK-202611-A8F2
+     * Generate unique SIMAKSI Registration Code: SMK-YYYYMM-XXXXXXXX
+     * 8 karakter (36^8 ≈ 2,8 triliun kombinasi/bulan): kode adalah satu-satunya kunci akses tiket publik,
+     * sehingga harus tahan tebak (brute-force) walau endpoint dibatasi rate-limit.
+     * Contoh: SMK-202611-A8F2K9QX
      */
     public static function simaksiCode(): string
     {
         $prefix = 'SMK-'.date('Ym').'-';
         do {
-            $code = $prefix.strtoupper(Str::random(4));
+            $code = $prefix.strtoupper(Str::random(8));
         } while (SimaksiRegistration::where('registration_code', $code)->exists());
 
         return $code;

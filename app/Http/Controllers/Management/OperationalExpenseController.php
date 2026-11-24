@@ -71,7 +71,7 @@ class OperationalExpenseController extends Controller
         $receiptPath = null;
         if ($request->hasFile('receipt_photo')) {
             $file = $request->file('receipt_photo');
-            $filename = 'receipt_exp_'.date('Ymd_His').'_'.Str::random(6).'.'.$file->getClientOriginalExtension();
+            $filename = 'receipt_exp_'.date('Ymd_His').'_'.Str::random(6).'.'.$file->extension();
             $receiptPath = $file->storeAs('expenses', $filename, 'public');
         }
 

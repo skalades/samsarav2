@@ -231,7 +231,7 @@
       <!-- Emergency Hotline & Safety Rules -->
       <div class="stamp-box">
         <div class="font-bold">HOTLINE RESCUE & INFORMASI SAR</div>
-        <div>SAR BASECAMP: {{ $profile['emergency_hotline'] ?? '+62 821-2233-4455' }}</div>
+        <div>SAR BASECAMP: {{ $profile['emergency_hotline'] ?? '' }}</div>
         @if(!empty($profile['sar_radio_enabled']) && !empty($profile['sar_frequency']))
           <div>FREKUENSI HT: {{ $profile['sar_frequency'] }}</div>
         @endif

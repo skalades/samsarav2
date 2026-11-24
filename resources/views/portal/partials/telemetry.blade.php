@@ -12,7 +12,7 @@
     'amber' => ['bg-amber-500/10 ring-amber-500/25', 'text-amber-300', 'bg-amber-400'],
     'rose' => ['bg-rose-500/10 ring-rose-500/25', 'text-rose-300', 'bg-rose-400'],
   ][$meta[2]];
-  $hotline = $profile['emergency_hotline'] ?? '+62 821-2233-4455';
+  $hotline = $profile['emergency_hotline'] ?? '';
   $hotlineTel = preg_replace('/[^0-9+]/', '', $hotline);
 @endphp
 

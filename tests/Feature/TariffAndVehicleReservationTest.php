@@ -102,8 +102,8 @@ class TariffAndVehicleReservationTest extends TestCase
         // Tariffs: SIMAKSI 25k/org, Ojek 30k/trip, Tenda 65k, Motor 10k, Mobil 25k
         // Booking: 2 climbers (50k) + 1 ojek (30k) + 2 motorcycles (20k) + 1 car (25k) = 125k subtotal
         $payload = [
-            'hiking_date' => '2026-12-01',
-            'return_date' => '2026-12-02',
+            'hiking_date' => now()->addDays(7)->toDateString(),
+            'return_date' => now()->addDays(8)->toDateString(),
             'leader_name' => 'Fahmi Ridwan',
             'leader_nik' => '3205011993080009',
             'leader_phone' => '081234567890',
@@ -155,8 +155,8 @@ class TariffAndVehicleReservationTest extends TestCase
         AppSetting::set('trash_deposit_enabled', false, 'Status Deposit Sampah', 'boolean', 'policy');
 
         $payload = [
-            'hiking_date' => '2026-12-05',
-            'return_date' => '2026-12-06',
+            'hiking_date' => now()->addDays(11)->toDateString(),
+            'return_date' => now()->addDays(12)->toDateString(),
             'leader_name' => 'Gilang Ramadhan',
             'leader_nik' => '3205011991040008',
             'leader_phone' => '081299112233',
@@ -183,8 +183,8 @@ class TariffAndVehicleReservationTest extends TestCase
 
         $fullAddress = 'Jl. Otista No. 120, RT 03/RW 07, Kel. Tarogong, Kec. Tarogong Kidul, Garut, Jawa Barat';
         $payload = [
-            'hiking_date' => '2026-12-10',
-            'return_date' => '2026-12-11',
+            'hiking_date' => now()->addDays(16)->toDateString(),
+            'return_date' => now()->addDays(17)->toDateString(),
             'leader_name' => 'Aditya Pratama',
             'leader_nik' => '3205011995110001',
             'leader_phone' => '081322446688',

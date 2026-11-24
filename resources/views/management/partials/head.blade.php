@@ -119,5 +119,5 @@
   }
 </style>
 
-<script src="{{ asset('assets/js/currency-input.js') }}"></script>
-<script src="{{ asset('assets/js/pwa.js') }}" defer></script>
+<script src="{{ asset('assets/js/currency-input.js') }}?v={{ filemtime(public_path('assets/js/currency-input.js')) }}"></script>
+<script src="{{ asset('assets/js/pwa.js') }}?v={{ filemtime(public_path('assets/js/pwa.js')) }}" defer></script>
