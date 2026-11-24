@@ -232,8 +232,11 @@
                     </div>
                     <p class="text-[11px] text-stone-400">Tunjukkan kode ini kepada petugas pendaftaran di Pos Gerbang Basecamp untuk otentikasi cepat.</p>
                 </div>
-                <div class="bg-white p-3 rounded-xl shadow-md border border-stone-300 text-center flex-shrink-0">
-                    <div class="font-mono-tech font-black text-black text-sm tracking-widest px-3 py-1 bg-stone-100 rounded border border-stone-300">
+                <div class="bg-white p-2.5 rounded-xl shadow-md border border-stone-300 text-center flex-shrink-0 flex flex-col items-center">
+                    <div class="p-1 bg-white rounded flex items-center justify-center">
+                        {!! \App\Support\QrCode::svg($registration->registration_code, 84, 1) !!}
+                    </div>
+                    <div class="font-mono-tech font-black text-black text-xs tracking-widest px-2.5 py-0.5 bg-stone-100 rounded border border-stone-300 mt-1">
                         *{{ $registration->registration_code }}*
                     </div>
                     <div class="text-[9px] font-mono-tech font-bold text-stone-600 mt-1 uppercase tracking-wider">Valid Basecamp SAMSARA</div>
@@ -480,6 +483,10 @@
 
         <!-- Footer -->
         <div class="bg-[#0A0B0D] p-4 border-t border-[#1E2229] text-center text-[10px] font-mono-tech text-stone-500 space-y-1">
+            <p>
+                Lokasi Basecamp: <span class="text-stone-300">{{ $profile['basecamp_location'] ?? 'Garut, Jawa Barat' }}</span>
+                • <a href="{{ $profile['basecamp_maps_url'] ?? 'https://maps.app.goo.gl/xGzRkQTTArmDxpQf9' }}" target="_blank" rel="noopener noreferrer" class="text-[#FF5722] hover:underline font-bold inline-flex items-center gap-0.5">Google Maps ↗</a>
+            </p>
             <p>Frekuensi Radio Darurat SAR: <strong class="text-stone-300">{{ $profile['sar_frequency'] ?? '149.250 MHz' }}</strong> | Hotline SAR: <strong class="text-stone-300">{{ $profile['emergency_hotline'] ?? '+62 821-2233-4455' }}</strong></p>
             <p>© {{ date('Y') }} {{ $profile['expedition_name'] ?? 'SAMSARA' }} Portal. Dokumen sah terotentikasi digital.</p>
         </div>

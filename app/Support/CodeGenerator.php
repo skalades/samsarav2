@@ -54,7 +54,7 @@ class CodeGenerator
     {
         $prefix = 'STL-OJK-'.date('Ymd').'-';
         do {
-            $code = $prefix.strtoupper(Str::random(4));
+            $code = $prefix.strtoupper(Str::random(5));
         } while (OjekSettlement::where('settlement_code', $code)->exists());
 
         return $code;

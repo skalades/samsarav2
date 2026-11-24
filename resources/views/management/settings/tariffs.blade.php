@@ -464,6 +464,33 @@
           <p class="text-[9px] text-stone-400">Lokasi titik kumpul awal yang dicantumkan pada petunjuk kedatangan.</p>
         </div>
       </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+        <!-- Google Maps Link -->
+        <div class="p-3.5 rounded-lg bg-raised border border-line-strong space-y-2">
+          <div class="flex items-center justify-between">
+            <label for="basecamp_maps_url" class="text-[10px] font-bold text-stone-300 uppercase block">
+              Tautan Google Maps Basecamp
+            </label>
+            @if(!empty($profile['basecamp_maps_url']))
+              <a href="{{ $profile['basecamp_maps_url'] }}" target="_blank" rel="noopener" class="text-[9px] text-purple-400 hover:underline flex items-center gap-1 font-mono-tech">
+                Buka Peta ↗
+              </a>
+            @endif
+          </div>
+          <input type="url" id="basecamp_maps_url" name="basecamp_maps_url" value="{{ old('basecamp_maps_url', $profile['basecamp_maps_url'] ?? 'https://maps.app.goo.gl/xGzRkQTTArmDxpQf9') }}" placeholder="https://maps.app.goo.gl/..." class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-purple-400">
+          <p class="text-[9px] text-stone-400">URL tautan navigasi Google Maps resmi (termasuk shortlink maps.app.goo.gl).</p>
+        </div>
+
+        <!-- Koordinat GPS Basecamp -->
+        <div class="p-3.5 rounded-lg bg-raised border border-line-strong space-y-2">
+          <label for="basecamp_coordinates" class="text-[10px] font-bold text-stone-300 uppercase block">
+            Titik Koordinat GPS (Latitude, Longitude)
+          </label>
+          <input type="text" id="basecamp_coordinates" name="basecamp_coordinates" value="{{ old('basecamp_coordinates', $profile['basecamp_coordinates'] ?? '-7.331855, 107.8096294') }}" placeholder="-7.331855, 107.8096294" class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-mono-tech font-bold text-xs focus:outline-none focus:border-purple-400">
+          <p class="text-[9px] text-stone-400">Koordinat satelit untuk navigasi GPS offline dan preview peta landing page.</p>
+        </div>
+      </div>
     </div>
 
     <!-- ======================================================== -->

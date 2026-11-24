@@ -178,6 +178,10 @@
             <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
             <span>CEK STATUS E-TIKET</span>
           </button>
+          <a href="#basecamp-location" onclick="document.getElementById('basecamp-location')?.scrollIntoView({behavior: 'smooth'}); return false;" class="tap-active px-4 py-2.5 rounded-xl bg-[#181C24] hover:bg-[#202632] border border-[#2D3340] text-stone-200 font-bold uppercase tracking-wider flex items-center gap-2 transition">
+            <svg class="w-4 h-4 text-[#FF5722]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>LOKASI BASECAMP</span>
+          </a>
         </div>
       </div>
 
@@ -466,6 +470,133 @@
               <span class="text-[9px] text-stone-400 block">P3K, oksigen & rescue</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- 6. LOKASI RESMI & NAVIGASI BASECAMP (GOOGLE MAPS)         -->
+      <!-- ======================================================== -->
+      <div id="basecamp-location" class="p-5 rounded-2xl bg-[#121418] border border-[#1E2229] space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-[#1E2229]">
+          <div class="flex items-center gap-2">
+            <div class="w-2.5 h-2.5 rounded-sm bg-[#FF5722]"></div>
+            <div>
+              <span class="font-mono-tech text-[10px] text-[#FF5722] font-bold tracking-widest uppercase block leading-none">// TITIK KUMPUL & NAVIGASI LAPANGAN</span>
+              <h2 class="font-display font-bold text-base text-white leading-tight uppercase">
+                LOKASI RESMI {{ $profile['basecamp_name'] ?? 'BASECAMP SAMSARA' }}
+              </h2>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 font-mono-tech text-[10px] text-emerald-400 font-bold">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>GERBANG BUKA 24 JAM</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- 2-Column Grid: Info & Actions + Interactive Map -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch font-mono-tech">
+          
+          <!-- Column 1: Basecamp Details & Navigation Guide (lg:col-span-5) -->
+          <div class="lg:col-span-5 flex flex-col justify-between space-y-3.5">
+            <div class="space-y-3">
+              <!-- Location Card -->
+              <div class="p-4 rounded-xl bg-[#16191F] border border-[#222731] space-y-2.5">
+                <div class="flex items-center justify-between text-[11px]">
+                  <span class="text-stone-400 font-bold flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-[#FF5722]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    TITIK KUMPUL RESMI
+                  </span>
+                  <span class="px-2 py-0.5 rounded bg-[#FF5722]/15 text-[#FF5722] text-[10px] font-bold border border-[#FF5722]/30">
+                    {{ $profile['basecamp_elevation'] ?? '1.450 MDPL' }}
+                  </span>
+                </div>
+                <h3 class="font-display font-black text-base text-white tracking-wide">
+                  {{ $profile['basecamp_name'] ?? 'SAMSARA BASECAMP' }}
+                </h3>
+                <p class="text-xs text-stone-300 font-sans leading-relaxed">
+                  {{ $profile['basecamp_location'] ?? 'Kecamatan Cilawu / Bayongbong, Garut, Jawa Barat' }}
+                </p>
+
+                <!-- GPS Coordinates Pill with Copy Action -->
+                <div class="pt-1 flex items-center justify-between p-2 rounded-lg bg-[#0E1013] border border-[#222731] text-[11px]">
+                  <div class="flex items-center gap-2 truncate">
+                    <span class="text-stone-500 text-[10px]">GPS:</span>
+                    <span id="txtCoordinates" class="text-emerald-400 font-bold truncate">
+                      {{ $profile['basecamp_coordinates'] ?? '-7.331855, 107.8096294' }}
+                    </span>
+                  </div>
+                  <button type="button" onclick="navigator.clipboard.writeText('{{ $profile['basecamp_coordinates'] ?? '-7.331855, 107.8096294' }}'); const btn = this; const orig = btn.innerText; btn.innerText = 'TERSALIN!'; btn.classList.add('text-emerald-400'); setTimeout(() => { btn.innerText = orig; btn.classList.remove('text-emerald-400'); }, 2000);" class="shrink-0 px-2 py-0.5 rounded bg-[#1C2028] hover:bg-[#282E3A] border border-[#2E3544] text-[10px] text-stone-300 hover:text-white transition font-bold">
+                    SALIN
+                  </button>
+                </div>
+              </div>
+
+              <!-- Quick Arrival Tips -->
+              <div class="p-3.5 rounded-xl bg-[#16191F]/70 border border-[#222731] space-y-2 text-[11px] text-stone-300 font-sans">
+                <div class="flex items-center gap-1.5 text-stone-400 font-mono-tech text-[10px] font-bold uppercase">
+                  <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  PANDUAN RUTE & TRANSPORTASI
+                </div>
+                <ul class="space-y-1.5 text-[11px] leading-relaxed text-stone-300">
+                  <li class="flex items-start gap-1.5">
+                    <span class="text-[#FF5722] font-bold font-mono-tech">•</span>
+                    <span><strong>Akses Kendaraan:</strong> Jalan aspal dapat dilalui mobil pribadi & sepeda motor langsung sampai ke halaman parkir Basecamp.</span>
+                  </li>
+                  <li class="flex items-start gap-1.5">
+                    <span class="text-[#FF5722] font-bold font-mono-tech">•</span>
+                    <span><strong>Transportasi Umum:</strong> Dari Terminal Guntur Garut naik angkot jurusan Cikajang/Bayongbong, turun di simpang jalur Samsara dilanjutkan ojek lokal.</span>
+                  </li>
+                  <li class="flex items-start gap-1.5">
+                    <span class="text-[#FF5722] font-bold font-mono-tech">•</span>
+                    <span><strong>Start Pendakian:</strong> Di basecamp tersedia armada shuttle ojek resmi menuju Pos 1 untuk menghemat tenaga pendakian.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Direct Google Maps Action Button -->
+            <div class="pt-1">
+              <a href="{{ $profile['basecamp_maps_url'] ?? 'https://maps.app.goo.gl/xGzRkQTTArmDxpQf9' }}" target="_blank" rel="noopener noreferrer" class="tap-active w-full py-3 px-4 rounded-xl bg-[#FF5722] hover:bg-[#F4511E] text-black font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition shadow-lg shadow-[#FF5722]/20 text-center">
+                <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                <span>BUKA NAVIGASI GOOGLE MAPS</span>
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Column 2: Embedded Google Map & Visual Satellite View (lg:col-span-7) -->
+          <div class="lg:col-span-7 flex flex-col">
+            <div class="relative w-full h-72 sm:h-80 lg:h-full min-h-[300px] rounded-xl overflow-hidden border border-[#222731] bg-[#0E1013] shadow-inner group">
+              <!-- Live Google Maps iframe with GPS Coordinates -->
+              <iframe
+                title="Peta Navigasi {{ $profile['basecamp_name'] ?? 'SAMSARA BASECAMP' }}"
+                src="https://www.google.com/maps?q={{ urlencode($profile['basecamp_coordinates'] ?? '-7.331855,107.8096294') }}&hl=id&z=15&output=embed"
+                class="w-full h-full border-0 contrast-125 opacity-90 group-hover:opacity-100 transition duration-300"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade">
+              </iframe>
+
+              <!-- Map Header Badge Overlay -->
+              <div class="absolute top-3 left-3 z-10 pointer-events-none">
+                <div class="px-2.5 py-1 rounded-md bg-[#0E1013]/90 backdrop-blur-md border border-[#222731] text-[10px] text-white font-mono-tech flex items-center gap-1.5 shadow-lg">
+                  <span class="w-2 h-2 rounded-full bg-[#FF5722]"></span>
+                  <span class="font-bold uppercase tracking-wider">{{ $profile['basecamp_name'] ?? 'SAMSARA BASECAMP' }}</span>
+                </div>
+              </div>
+
+              <!-- Map Open Overlay Button -->
+              <div class="absolute bottom-3 right-3 z-10">
+                <a href="{{ $profile['basecamp_maps_url'] ?? 'https://maps.app.goo.gl/xGzRkQTTArmDxpQf9' }}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg bg-[#0E1013]/90 hover:bg-[#FF5722] hover:text-black text-white border border-[#2E3544] hover:border-[#FF5722] font-mono-tech font-bold text-[10px] inline-flex items-center gap-1.5 backdrop-blur-md transition shadow-xl">
+                  <span>BUKA DI APLIKASI MAPS</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -950,6 +1081,10 @@
         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
         <span>POST SAR {{ strtoupper($profile['basecamp_name'] ?? 'BASECAMP SAMSARA') }} AKTIF 24 JAM</span>
       </div>
+      <p class="text-stone-300">
+        Titik Kumpul: {{ $profile['basecamp_location'] ?? 'Kecamatan Cilawu / Bayongbong, Garut' }}
+        • <a href="{{ $profile['basecamp_maps_url'] ?? 'https://maps.app.goo.gl/xGzRkQTTArmDxpQf9' }}" target="_blank" rel="noopener noreferrer" class="text-[#FF5722] hover:underline font-bold inline-flex items-center gap-0.5">Google Maps ↗</a>
+      </p>
       <p>Radio Darurat: {{ $profile['sar_frequency'] ?? '149.250 MHz' }} • WhatsApp Admin: {{ $profile['admin_whatsapp_display'] ?? '+62 821-2233-4455' }}</p>
       <p class="text-stone-500">© {{ date('Y') }} {{ strtoupper($profile['expedition_name'] ?? 'SAMSARA EXPEDITION') }}. LINDUNGI KELESTARIAN HUTAN {{ strtoupper($profile['mountain_name'] ?? 'CIKURAY') }}.</p>
     </footer>

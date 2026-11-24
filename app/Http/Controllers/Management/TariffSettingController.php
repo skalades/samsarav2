@@ -61,6 +61,8 @@ class TariffSettingController extends Controller
             'emergency_hotline' => 'nullable|string|max:30',
             'sar_frequency' => 'nullable|string|max:50',
             'basecamp_location' => 'nullable|string|max:255',
+            'basecamp_maps_url' => 'nullable|url|max:500',
+            'basecamp_coordinates' => 'nullable|string|max:100',
 
             // Banking & QRIS
             'payment_bank_name' => 'nullable|string|max:100',
@@ -158,6 +160,12 @@ class TariffSettingController extends Controller
         }
         if ($request->filled('basecamp_location')) {
             AppSetting::set('basecamp_location', (string) $request->input('basecamp_location'), 'Lokasi Basecamp', 'string', 'contact');
+        }
+        if ($request->filled('basecamp_maps_url')) {
+            AppSetting::set('basecamp_maps_url', (string) $request->input('basecamp_maps_url'), 'Link Google Maps Basecamp', 'string', 'contact');
+        }
+        if ($request->filled('basecamp_coordinates')) {
+            AppSetting::set('basecamp_coordinates', (string) $request->input('basecamp_coordinates'), 'Koordinat GPS Basecamp', 'string', 'contact');
         }
 
         // Update Banking & QRIS

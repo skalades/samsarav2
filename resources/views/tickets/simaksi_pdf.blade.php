@@ -499,8 +499,11 @@
                 <div style="margin-top: 3px;">Waktu Cetak: {{ $printedAt }} | Petugas Verifikator: {{ $registration->reviewer?->name ?: 'Sistem Otomatis Basecamp' }}</div>
             </td>
             <td style="width: 25%; text-align: right; vertical-align: top;">
-                <div style="font-weight: bold; font-size: 9px; margin-bottom: 3px;">SCAN VALIDASI GERBANG</div>
-                <div style="font-family: monospace; font-size: 11px; font-weight: bold; color: #064e3b; border: 1px solid #064e3b; padding: 4px; display: inline-block; background: #ecfdf5;">
+                <div style="font-weight: bold; font-size: 9px; margin-bottom: 4px; color: #111827;">SCAN VALIDASI GERBANG</div>
+                <div style="margin-bottom: 4px;">
+                    {!! \App\Support\QrCode::svg($registration->registration_code, 70, 1) !!}
+                </div>
+                <div style="font-family: monospace; font-size: 10px; font-weight: bold; color: #064e3b; border: 1px solid #064e3b; padding: 2px 5px; display: inline-block; background: #ecfdf5;">
                     [ {{ $registration->registration_code }} ]
                 </div>
             </td>
