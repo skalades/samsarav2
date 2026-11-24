@@ -305,8 +305,8 @@
 
       const toast = document.createElement('div');
       toast.id = 'pwaNoticeToast';
-      toast.className = `fixed bottom-20 lg:bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full ${tone.bg} border ${tone.border} shadow-xl flex items-center gap-2.5 text-xs font-semibold ${tone.text} transition-all duration-300 pointer-events-none`;
-      toast.innerHTML = `<span class="w-2 h-2 rounded-full ${tone.dot}"></span><span>${message}</span>`;
+      toast.className = `fixed bottom-20 lg:bottom-6 left-1/2 -translate-x-1/2 z-50 w-max max-w-[calc(100vw-2rem)] px-4 py-2.5 rounded-full ${tone.bg} border ${tone.border} shadow-xl flex items-center gap-2.5 text-xs font-semibold ${tone.text} transition-all duration-300 pointer-events-none`;
+      toast.innerHTML = `<span class="w-2 h-2 shrink-0 rounded-full ${tone.dot}"></span><span class="truncate">${message}</span>`;
 
       document.body.appendChild(toast);
       setTimeout(() => {

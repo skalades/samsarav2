@@ -140,11 +140,10 @@
         <div style="font-size: 9px; font-weight: bold; margin-top: 2px;">BUKTI FISIK PEMERIKSAAN SETIAP POS</div>
       </div>
 
-      <!-- Registration Code & Barcode -->
+      <!-- Registration Code -->
       <div class="barcode-box">
-        <div style="font-size: 8px; letter-spacing: 0;">KODE REGISTRASI RESMI:</div>
-        <img src="{{ \App\Support\QrCode::pngDataUri($registration->registration_code, 6, 4) }}" width="96" height="96" alt="QR Code {{ $registration->registration_code }}" style="display: block; margin: 6px auto; background: #ffffff; padding: 4px; image-rendering: pixelated;">
-        <div class="font-black" style="font-size: 14px;">*{{ $registration->registration_code }}*</div>
+        <div style="font-size: 8px; letter-spacing: 0;">KODE SIMAKSI RESMI:</div>
+        <div class="font-black" style="font-size: 15px; margin-top: 2px;">{{ $registration->registration_code }}</div>
       </div>
 
       <!-- Time & Leader Info -->

@@ -14,15 +14,15 @@
 <form id="descentForm" method="POST" action="{{ route('management.gate.descent.submit', $registration->id) }}" class="max-w-3xl mx-auto space-y-4">
   @csrf
 
-  <div class="rounded-2xl bg-gradient-to-br from-violet-500/15 to-surface ring-1 ring-violet-500/25 p-4 flex items-start gap-4">
+  <div class="rounded-2xl bg-gradient-to-br from-violet-500/15 to-surface ring-1 ring-violet-500/25 p-4 flex items-start gap-3 sm:gap-4">
     @if($photo)
-      <a href="{{ $photo }}" target="_blank" class="shrink-0"><img src="{{ $photo }}" alt="Foto tim" class="w-20 h-20 rounded-xl object-cover ring-1 ring-line"></a>
+      <a href="{{ $photo }}" target="_blank" class="shrink-0"><img src="{{ $photo }}" alt="Foto tim" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover ring-1 ring-line"></a>
     @endif
     <div class="min-w-0 flex-1">
       <p class="font-code text-xs text-violet-300">{{ $registration->registration_code }}</p>
-      <h1 class="font-display font-bold text-xl text-ink mt-0.5 truncate">{{ $registration->leader_name }}</h1>
-      <p class="text-sm text-muted mt-0.5">{{ $registration->members->where('is_checked_in', true)->count() }} pendaki naik · berangkat {{ $registration->checked_in_at?->translatedFormat('d M H:i') }}</p>
-      <p class="text-xs text-muted mt-1">Terakhir terlihat: <span class="text-ink">{{ str_replace('_', ' ', $registration->last_seen_pos ?? 'BASECAMP') }}</span> · {{ $registration->last_seen_at?->diffForHumans() }}</p>
+      <h1 class="font-display font-bold text-lg sm:text-xl text-ink mt-0.5 truncate">{{ $registration->leader_name }}</h1>
+      <p class="text-xs sm:text-sm text-muted mt-0.5">{{ $registration->members->where('is_checked_in', true)->count() }} pendaki naik · berangkat {{ $registration->checked_in_at?->translatedFormat('d M H:i') }}</p>
+      <p class="text-xs text-muted mt-1">Terakhir terlihat: <span class="text-ink">{{ str_replace('_', ' ', $registration->last_seen_pos ?? 'BASECAMP') }}</span>{{ $registration->last_seen_at ? ' · '.$registration->last_seen_at->diffForHumans() : '' }}</p>
     </div>
   </div>
 
@@ -34,15 +34,15 @@
     @else
       <div class="space-y-2">
         @foreach($logisticItems as $item)
-          <div class="logistic-row flex items-center gap-3 p-2 pl-3 rounded-xl bg-raised/60 ring-1 ring-line transition" data-up="{{ $item->qty_up }}">
+          <div class="logistic-row flex items-center gap-2 sm:gap-3 p-2 pl-3 rounded-xl bg-raised/60 ring-1 ring-line transition" data-up="{{ $item->qty_up }}">
             <div class="min-w-0 flex-1">
               <p class="text-sm font-semibold text-ink truncate">{{ $item->name }}</p>
               <p class="text-[11px] text-muted">Naik: <strong class="text-ink tabular-nums">{{ $item->qty_up }}</strong> {{ $item->unit }} <span class="row-status ml-1"></span></p>
             </div>
             <div class="flex items-center shrink-0 rounded-xl bg-canvas ring-1 ring-line-strong">
-              <button type="button" class="w-11 h-11 text-xl text-muted hover:text-ink" onclick="stepQty(this, -1)" aria-label="Kurangi">−</button>
-              <input type="number" inputmode="numeric" min="0" name="qty_down[{{ $item->id }}]" value="{{ old('qty_down.'.$item->id, 0) }}" class="qty-input w-12 h-11 bg-transparent text-center font-display font-bold text-lg text-ink outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none" oninput="evaluate()">
-              <button type="button" class="w-11 h-11 text-xl text-muted hover:text-ink" onclick="stepQty(this, 1)" aria-label="Tambah">+</button>
+              <button type="button" class="w-10 h-10 sm:w-11 sm:h-11 text-xl text-muted hover:text-ink" onclick="stepQty(this, -1)" aria-label="Kurangi">−</button>
+              <input type="number" inputmode="numeric" min="0" name="qty_down[{{ $item->id }}]" value="{{ old('qty_down.'.$item->id, 0) }}" class="qty-input w-10 sm:w-12 h-10 sm:h-11 bg-transparent text-center font-display font-bold text-base sm:text-lg text-ink outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" oninput="evaluate()">
+              <button type="button" class="w-10 h-10 sm:w-11 sm:h-11 text-xl text-muted hover:text-ink" onclick="stepQty(this, 1)" aria-label="Tambah">+</button>
             </div>
           </div>
         @endforeach
@@ -58,8 +58,8 @@
         @foreach($gearItems->where('checked_up', true) as $item)
           <label class="relative inline-flex cursor-pointer select-none">
             <input type="checkbox" name="gear_down[{{ $item->id }}]" value="1" class="peer absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10 gear-check" onchange="evaluate()" @checked(old('gear_down.'.$item->id))>
-            <span class="inline-flex items-center gap-2 h-11 px-4 rounded-xl text-sm font-medium ring-1 ring-line-strong bg-raised text-muted peer-checked:bg-emerald-500/15 peer-checked:text-emerald-200 peer-checked:ring-emerald-500/40 transition pointer-events-none">
-              <x-ui.icon name="check" class="w-4 h-4 opacity-40" /> {{ $item->name }}
+            <span class="inline-flex items-center gap-2 h-11 px-3.5 sm:px-4 rounded-xl text-sm font-medium ring-1 ring-line-strong bg-raised text-muted peer-checked:bg-emerald-500/15 peer-checked:text-emerald-200 peer-checked:ring-emerald-500/40 peer-checked:[&>svg]:opacity-100 peer-checked:[&>svg]:text-emerald-400 transition pointer-events-none">
+              <x-ui.icon name="check" class="w-4 h-4 opacity-35 transition" /> {{ $item->name }}
             </span>
           </label>
         @endforeach
@@ -71,10 +71,10 @@
     <textarea name="notes" rows="2" class="field" placeholder="mis. 2 botol tertinggal di Pos 3, sudah dilaporkan ke ranger">{{ old('notes') }}</textarea>
   </x-ui.card>
 
-  <div class="sticky bottom-0 z-20 -mx-3 sm:-mx-4 lg:mx-0 px-3 sm:px-4 lg:px-0 py-3 bg-canvas/95 backdrop-blur border-t border-line lg:border-0 lg:bg-transparent">
-    <div class="flex items-center gap-3">
-      <p id="summaryText" class="hidden sm:block flex-1 text-xs text-muted"></p>
-      <x-ui.button id="submitDescent" type="submit" size="xl" variant="success" icon="check" class="w-full sm:w-auto">Selesai diperiksa · kirim ke kasir</x-ui.button>
+  <div class="sticky bottom-0 z-20 px-3 py-3 rounded-2xl lg:rounded-none lg:px-0 bg-canvas/95 backdrop-blur ring-1 ring-line lg:ring-0 lg:bg-transparent">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+      <p id="summaryText" class="flex-1 text-xs text-muted text-center sm:text-left"></p>
+      <x-ui.button id="submitDescent" type="submit" size="xl" variant="success" icon="check" class="w-full sm:w-auto !text-sm sm:!text-base !px-4 sm:!px-6">Selesai diperiksa · kirim ke kasir</x-ui.button>
     </div>
   </div>
 </form>

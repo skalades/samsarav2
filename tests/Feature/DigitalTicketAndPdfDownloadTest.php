@@ -193,4 +193,29 @@ class DigitalTicketAndPdfDownloadTest extends TestCase
         $response2 = $this->get(route('portal.simaksi.ticket_pdf', 'SMK-NONEXISTENT'));
         $response2->assertStatus(404);
     }
+
+    public function test_pdf_view_uses_dompdf_safe_table_layout_for_long_addresses(): void
+    {
+        $this->registration->update([
+            'leader_city' => 'SMKN 2 GARUT, JL. Suherman no.90, Ds. Jati, Kec. Tarogong Kaler, Kab. Garut',
+        ]);
+
+        $html = view('tickets.simaksi_pdf', [
+            'registration' => $this->registration->fresh(),
+            'members' => $this->registration->members,
+            'profile' => \App\Models\AppSetting::getExpeditionProfile(),
+            'tariffs' => \App\Models\AppSetting::getTariffs(),
+            'statusLabel' => 'LUNAS (SIAP CHECK-IN)',
+            'statusColor' => '#059669',
+            'printedAt' => now()->translatedFormat('d F Y, H:i').' WIB',
+        ])->render();
+
+        $this->assertStringContainsString('kv-table', $html);
+        $this->assertStringNotContainsString('display: flex', $html);
+        $this->assertStringNotContainsString('data-label', $html);
+        $this->assertStringContainsString('SMKN 2 GARUT, JL. Suherman no.90', $html);
+
+        $pdf = app(\App\Services\TicketPdfService::class)->generate($this->registration->fresh())->output();
+        $this->assertStringStartsWith('%PDF-', $pdf);
+    }
 }

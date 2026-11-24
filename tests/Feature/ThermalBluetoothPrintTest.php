@@ -63,21 +63,24 @@ class ThermalBluetoothPrintTest extends TestCase
         return $reg->load('members');
     }
 
-    public function test_climber_pass_document_contains_qr_rows_and_cut(): void
+    public function test_climber_pass_document_contains_simaksi_code_rows_and_cut_without_qr(): void
     {
         $doc = app(ThermalReceiptService::class)->climberPass($this->registration());
 
         $ops = array_column($doc, 'op');
         $this->assertSame('logo', $ops[0]);
         $this->assertSame('cut', end($ops));
-        $this->assertContains(['op' => 'qr', 'data' => 'SMK-'.date('Ym').'-777', 'size' => 6], $doc);
+        $this->assertNotContains('qr', $ops);
+
+        $texts = array_column(array_filter($doc, fn ($o) => $o['op'] === 'text'), 'text');
+        $this->assertContains('SMK-'.date('Ym').'-777', $texts);
 
         $rights = array_column(array_filter($doc, fn ($o) => $o['op'] === 'row'), 'right');
         $this->assertContains('RINA THERMAL', $rights);
         $this->assertContains('1 ORANG', $rights);
     }
 
-    public function test_print_pages_render_bluetooth_controls(): void
+    public function test_print_pages_render_bluetooth_controls_without_qr(): void
     {
         $reg = $this->registration();
         $this->actingAs($this->admin);
@@ -90,7 +93,9 @@ class ThermalBluetoothPrintTest extends TestCase
             $res->assertOk();
             $res->assertSee('assets/js/escpos-bt.js', false);
             $res->assertSee('data-btp-print', false);
-            $res->assertSee('"op":"qr"', false);
+            $res->assertDontSee('"op":"qr"', false);
+            $res->assertDontSee('data:image/png;base64,', false);
+            $res->assertSee($reg->registration_code, false);
         }
     }
 
@@ -111,5 +116,51 @@ class ThermalBluetoothPrintTest extends TestCase
         $res->assertOk();
         $res->assertSee('data-btp-print', false);
         $res->assertSee('Rp 15.000', false);
+    }
+
+    public function test_ojek_and_parking_vouchers_are_compact_without_header_or_footer(): void
+    {
+        $reg = $this->registration();
+        $reg->update(['ojek_count' => 1, 'motorcycle_count' => 1, 'parking_fee' => 10000]);
+
+        $trip = \App\Models\OjekTrip::create([
+            'simaksi_registration_id' => $reg->id,
+            'trip_code' => 'VCR-COMPACT-01',
+            'passenger_name' => 'Rina Thermal',
+            'route' => 'Basecamp → Pos 1',
+            'fare_amount' => 30000,
+            'driver_share' => 25000,
+            'basecamp_share' => 5000,
+            'trip_status' => 'voucher_issued',
+            'settlement_status' => 'unsettled',
+        ]);
+
+        $service = app(ThermalReceiptService::class);
+        foreach ([
+            $service->ojekVouchers($reg, collect([$trip])),
+            $service->tripVoucher($trip),
+            $service->parkingPass($reg, 'Kasir'),
+        ] as $doc) {
+            $ops = array_column($doc, 'op');
+            $this->assertNotContains('logo', $ops);
+            $this->assertNotContains('qr', $ops);
+            $texts = array_column(array_filter($doc, fn ($o) => $o['op'] === 'text'), 'text');
+            $this->assertNotContains('VERIFIKASI PANGKALAN OJEK', $texts);
+            $this->assertNotContains('VALIDASI POS PORTAL PARKIR', $texts);
+        }
+
+        $this->actingAs($this->admin);
+        foreach ([
+            route('management.gate.print_ojek_voucher', $reg->id),
+            route('management.ojek.print_voucher', $trip->id),
+            route('management.gate.print_parking_pass', $reg->id),
+        ] as $url) {
+            $res = $this->get($url);
+            $res->assertOk();
+            $res->assertSee('margin: 0;', false);
+            $res->assertDontSee('VERIFIKASI PANGKALAN OJEK', false);
+            $res->assertDontSee('VALIDASI POS PORTAL PARKIR', false);
+            $res->assertDontSee('thermal-logo', false);
+        }
     }
 }

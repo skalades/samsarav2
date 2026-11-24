@@ -21,7 +21,6 @@ use Illuminate\Support\Collection;
  *  ['op' => 'text', 'text' => '..', 'align' => 'left|center|right', 'bold' => bool, 'size' => 'normal|wide|tall|big']
  *  ['op' => 'row', 'left' => '..', 'right' => '..', 'bold' => bool]
  *  ['op' => 'hr', 'char' => '-']
- *  ['op' => 'qr', 'data' => '..', 'size' => 6]
  *  ['op' => 'feed', 'lines' => 1]
  *  ['op' => 'cut']
  *
@@ -60,7 +59,7 @@ class ThermalReceiptService
         }
 
         $this->hr()
-            ->qr($order->order_number)
+            ->text('* '.$order->order_number.' *', 'center', true)
             ->text('SIMPAN STRUK INI SEBAGAI BUKTI SERAH TERIMA ALAT & LAYANAN RESMI', 'center')
             ->text('LINDUNGI ALAM '.strtoupper($this->setting('mountain_name', 'GUNUNG CIKURAY')), 'center', true);
 
@@ -73,8 +72,8 @@ class ThermalReceiptService
 
         $this->text($reg->isTektok() ? '[TEKTOK - 1 HARI - DILARANG CAMP]' : '[CAMP - POS 2 / POS 3]', 'center', true)
             ->text('BUKTI FISIK PEMERIKSAAN SETIAP POS', 'center')
-            ->feed()
-            ->qr($reg->registration_code)
+            ->hr()
+            ->text('KODE SIMAKSI:', 'center')
             ->text($reg->registration_code, 'center', true, 'wide')
             ->hr()
             ->row('WAKTU MASUK', ($reg->checked_in_at ?? now())->format('d/m/Y H:i').' WIB')
@@ -125,51 +124,44 @@ class ThermalReceiptService
 
     /**
      * One document containing every voucher, separated by a cut.
+     * Compact format: no header/footer to save thermal paper.
      */
     public function ojekVouchers(SimaksiRegistration $reg, Collection $trips): array
     {
         $this->reset();
         $total = $trips->count();
         foreach ($trips->values() as $index => $trip) {
-            $this->header('KUPON TIKET OJEK RESMI', 'PANGKALAN BASECAMP '.strtoupper($this->setting('mountain_name', 'CIKURAY')))
-                ->qr($trip->trip_code)
-                ->text($trip->trip_code, 'center', true, 'wide')
+            $this->text('KUPON OJEK · '.$trip->trip_code, 'center', true)
                 ->hr()
-                ->row('NO. SIMAKSI', $reg->registration_code, true)
+                ->row('SIMAKSI', $reg->registration_code, true)
                 ->row('ROMBONGAN', $reg->leader_name)
                 ->row('PENUMPANG', $trip->passenger_name, true)
                 ->row('TRAYEK', $trip->route ?? $this->setting('ojek_route_name', 'Basecamp - Pos 1'))
-                ->row('TANGGAL', now()->format('d/m/Y H:i'))
-                ->row('STATUS', 'LUNAS DI LOKET', true);
+                ->row('STATUS', 'LUNAS · '.now()->format('d/m H:i'), true);
             $this->driverRows($trip);
-            $this->ojekFooter()
-                ->text('KU-'.($index + 1).' DARI '.$total.' - BERLAKU HARI INI', 'center');
             if ($index < $total - 1) {
-                $this->feed(3)->cut();
+                $this->feed(1)->cut();
             }
         }
 
-        return $this->finish();
+        return $this->finishCompact();
     }
 
     public function tripVoucher(OjekTrip $trip): array
     {
         $this->reset()
-            ->header('TIKET KUPON OJEK RESMI', 'PANGKALAN BASECAMP '.strtoupper($this->setting('mountain_name', 'CIKURAY')))
-            ->qr($trip->trip_code)
-            ->text($trip->trip_code, 'center', true, 'wide')
+            ->text('KUPON OJEK · '.$trip->trip_code, 'center', true)
             ->hr()
             ->row('PENUMPANG', $trip->passenger_name, true)
             ->row('TRAYEK', $trip->route)
-            ->row('TARIF', $this->rp($trip->fare_amount), true)
-            ->row('STATUS', 'LUNAS DI KASIR');
+            ->row('TARIF', $this->rp($trip->fare_amount).' (LUNAS)', true);
         if ($trip->simaksi) {
-            $this->row('REF SIMAKSI', $trip->simaksi->registration_code);
+            $this->row('SIMAKSI', $trip->simaksi->registration_code);
         }
         $this->driverRows($trip);
-        $this->ojekFooter()->text('TANGGAL: '.$trip->created_at?->format('d/m/Y H:i').' WIB', 'center');
+        $this->row('WAKTU', $trip->created_at?->format('d/m/Y H:i'));
 
-        return $this->finish();
+        return $this->finishCompact();
     }
 
     public function parkingPass(SimaksiRegistration $reg, ?string $officer = null): array
@@ -185,30 +177,21 @@ class ThermalReceiptService
         }
 
         $this->reset()
-            ->header('TIKET IZIN KELUAR PARKIR', 'SECURITY GATE PASS')
-            ->text('KENDARAAN DIVERIFIKASI RESMI', 'center', true)
-            ->qr('PRK-PASS-'.$reg->registration_code)
+            ->text('IZIN KELUAR PARKIR', 'center', true)
             ->text('PRK-PASS-'.$reg->registration_code, 'center', true)
             ->hr()
-            ->row('NO. SIMAKSI', $reg->registration_code, true)
+            ->row('SIMAKSI', $reg->registration_code, true)
             ->row('KETUA', $reg->leader_name, true)
-            ->row('NO. KONTAK', $reg->leader_phone)
-            ->row('CHECK-IN', $reg->checked_in_at ? $reg->checked_in_at->format('d/m/Y H:i') : '-')
-            ->row('CHECK-OUT', ($reg->checked_out_at ?? now())->format('d/m/Y H:i'))
+            ->row('MASUK', $reg->checked_in_at ? $reg->checked_in_at->format('d/m H:i') : '-')
+            ->row('KELUAR', ($reg->checked_out_at ?? now())->format('d/m H:i'))
             ->hr()
-            ->text('KENDARAAN TERDAFTAR:', 'center')
-            ->text($vehicle, 'center', true, 'tall')
+            ->text($vehicle, 'center', true)
             ->text('PARKIR LUNAS ('.$this->rp($reg->parking_fee).')', 'center', true)
             ->hr()
-            ->row('STATUS SAMPAH', $reg->trash_deposit_status === 'refunded' ? 'LENGKAP' : 'BEBAS JAMINAN')
-            ->row('PETUGAS', $officer ?? 'Ranger Pos Basecamp')
-            ->hr()
-            ->text('VALIDASI POS PORTAL PARKIR', 'center', true)
-            ->feed(3)
-            ->text('[ PARAF / CAP PETUGAS ]', 'center')
-            ->text('Tunjukkan tiket ini ke petugas portal saat kendaraan keluar.', 'center');
+            ->row('SAMPAH', $reg->trash_deposit_status === 'refunded' ? 'LENGKAP' : 'BEBAS JAMINAN')
+            ->row('PETUGAS', $officer ?? 'Ranger Pos Basecamp');
 
-        return $this->finish();
+        return $this->finishCompact();
     }
 
     public function settlement(OjekSettlement $s): array
@@ -277,6 +260,13 @@ class ThermalReceiptService
         return $this->ops;
     }
 
+    private function finishCompact(): array
+    {
+        $this->feed(1)->cut();
+
+        return $this->ops;
+    }
+
     private function header(string $title, ?string $subtitle = null): static
     {
         $emergencyLine = \App\Models\AppSetting::isSarRadioEnabled()
@@ -307,15 +297,6 @@ class ThermalReceiptService
         }
     }
 
-    private function ojekFooter(): static
-    {
-        return $this->hr()
-            ->text('VERIFIKASI PANGKALAN OJEK', 'center', true)
-            ->feed(3)
-            ->text('Serahkan kupon ini kepada pengemudi.', 'center')
-            ->text('Wajib helm & satu penumpang per motor.', 'center');
-    }
-
     private function signatures(string $leftTitle, ?string $leftName, string $rightTitle, ?string $rightName): static
     {
         return $this->row($leftTitle, $rightTitle)
@@ -341,15 +322,6 @@ class ThermalReceiptService
     private function hr(string $char = '-'): static
     {
         $this->ops[] = ['op' => 'hr', 'char' => $char];
-
-        return $this;
-    }
-
-    private function qr(?string $data, int $size = 6): static
-    {
-        if ($data) {
-            $this->ops[] = ['op' => 'qr', 'data' => $data, 'size' => $size];
-        }
 
         return $this;
     }

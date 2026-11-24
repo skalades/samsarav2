@@ -85,6 +85,12 @@ class GatekeeperScannerAuditTest extends TestCase
 
         // 2. Verify local offline-first asset is loaded
         $response->assertSee('assets/js/html5-qrcode.min.js', false);
+
+        // 3. Verify mobile PWA shell & gate UI consistency
+        $response->assertSee('pwa-net-badge inline-flex', false);
+        $response->assertSee('grid-cols-3 gap-1', false);
+        $response->assertSee('enterkeyhint="search"', false);
+        $response->assertDontSee('-mt-5 rounded-2xl', false);
     }
 
     public function test_scanner_decodes_and_routes_paid_ticket_via_exact_code(): void

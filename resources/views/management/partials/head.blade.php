@@ -90,7 +90,8 @@
   .safe-top { padding-top: env(safe-area-inset-top); }
 
   input, select, textarea { color-scheme: dark; }
-  .field { width: 100%; height: 2.75rem; border-radius: 0.75rem; background: #0B0D10; border: 1px solid #2F3641; padding: 0 0.875rem; font-size: 0.9375rem; color: #ECEFF3; outline: none; transition: border-color .15s, box-shadow .15s; }
+  .field { width: 100%; height: 2.75rem; border-radius: 0.75rem; background: #0B0D10; border: 1px solid #2F3641; padding: 0 0.875rem; font-size: 1rem; color: #ECEFF3; outline: none; transition: border-color .15s, box-shadow .15s; }
+  @media (min-width: 1024px) { .field { font-size: 0.9375rem; } }
   textarea.field { height: auto; padding: 0.625rem 0.875rem; }
   .field:focus { border-color: #FF5722; box-shadow: 0 0 0 3px rgba(255, 87, 34, .15); }
   .field::placeholder { color: #6E7887; }

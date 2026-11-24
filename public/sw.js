@@ -4,7 +4,7 @@
  * Versi: 1.0.0
  */
 
-const CACHE_VERSION = 'v1.0.0';
+const CACHE_VERSION = 'v1.0.1';
 const STATIC_CACHE_NAME = `samsara-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE_NAME = `samsara-runtime-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline.html';
@@ -23,6 +23,8 @@ const PRECACHE_ASSETS = [
   '/assets/css/main.css',
   '/assets/js/pwa.js',
   '/assets/js/currency-input.js',
+  '/assets/js/html5-qrcode.min.js',
+  '/assets/js/escpos-bt.js',
 ];
 
 // Domain eksternal yang diizinkan untuk di-cache (CDN Fonts, script UI)

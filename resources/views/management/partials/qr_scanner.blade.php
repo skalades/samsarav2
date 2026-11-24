@@ -16,36 +16,38 @@
 <div id="qrScannerOverlay" class="hidden fixed inset-0 z-[60] bg-black/95 flex flex-col justify-between backdrop-blur-md select-none transition-opacity duration-200" role="dialog" aria-modal="true" aria-label="Scanner Barcode & QR Code">
   
   {{-- 1. Top Header Bar --}}
-  <div class="flex items-center justify-between px-4 sm:px-6 h-16 safe-top shrink-0 border-b border-white/10 bg-black/60">
-    <div class="flex items-center gap-2.5">
-      <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
-        <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-      </span>
-      <div>
-        <p class="text-white font-bold text-sm leading-tight tracking-wide flex items-center gap-2">
-          SCANNER VALIDASI
-          <span class="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">LIVE</span>
-        </p>
-        <p class="text-[11px] text-white/50 leading-none mt-0.5 font-mono">QR Code & Barcode Gatekeeper</p>
+  <div class="shrink-0 border-b border-white/10 bg-black/60 safe-top">
+    <div class="flex items-center justify-between px-4 sm:px-6 h-14 sm:h-16">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+        </span>
+        <div class="min-w-0">
+          <p class="text-white font-bold text-sm leading-tight tracking-wide flex items-center gap-2">
+            <span class="truncate">SCANNER VALIDASI</span>
+            <span class="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold shrink-0">LIVE</span>
+          </p>
+          <p class="text-[11px] text-white/50 leading-none mt-0.5 font-mono truncate">QR Code & Barcode Gatekeeper</p>
+        </div>
       </div>
-    </div>
 
-    <button type="button" onclick="closeQrScanner()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center transition border border-white/10" aria-label="Tutup scanner">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-    </button>
+      <button type="button" onclick="closeQrScanner()" class="w-10 h-10 shrink-0 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center transition border border-white/10" aria-label="Tutup scanner">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
   </div>
 
   {{-- 2. Camera Controls & Selector Toolbar --}}
   <div class="px-4 py-2.5 bg-white/5 border-b border-white/10 shrink-0">
     <div class="max-w-md mx-auto flex items-center gap-2 font-mono text-xs">
       {{-- Camera Selector Dropdown --}}
-      <div class="relative flex-1">
+      <div class="relative flex-1 min-w-0">
         <label for="qrCameraSelect" class="sr-only">Pilih Kamera</label>
         <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-emerald-400">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         </div>
         <select id="qrCameraSelect" onchange="onQrCameraSelected(this.value)" class="w-full h-10 pl-8 pr-7 bg-white/10 hover:bg-white/15 border border-white/20 text-white font-medium rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-emerald-400 appearance-none truncate">
-          <option value="" disabled selected class="text-neutral-900">Mendeteksi daftar kamera…</option>
+          <option value="" disabled selected class="bg-neutral-900 text-white">Mendeteksi daftar kamera…</option>
         </select>
         <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none text-white/50">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -67,11 +69,11 @@
   </div>
 
   {{-- 3. Center Viewfinder --}}
-  <div class="flex-1 flex flex-col items-center justify-center p-4 relative min-h-0">
-    <div class="relative w-full max-w-xs sm:max-w-sm rounded-2xl overflow-hidden bg-black border-2 border-emerald-500/50 shadow-2xl">
+  <div class="flex-1 flex flex-col items-center justify-center p-3 sm:p-4 relative min-h-0 overflow-y-auto">
+    <div class="relative w-full max-w-xs sm:max-w-sm rounded-2xl overflow-hidden bg-black border-2 border-emerald-500/50 shadow-2xl shrink-0">
       
       {{-- Viewport target element for Html5Qrcode --}}
-      <div id="qrReaderViewport" class="w-full min-h-[260px]"></div>
+      <div id="qrReaderViewport" class="w-full min-h-[200px] max-h-[42dvh] overflow-hidden"></div>
 
       {{-- Laser Scanning Bar Animation --}}
       <div class="pointer-events-none absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_12px_#34d399] animate-[scannerBeam_2.2s_ease-in-out_infinite]"></div>
@@ -85,7 +87,7 @@
       </div>
 
       {{-- Flash Overlay on Scan Success --}}
-      <div id="qrSuccessFlash" class="hidden pointer-events-none absolute inset-0 bg-emerald-500/40 backdrop-blur-xs transition-opacity duration-200 flex items-center justify-center">
+      <div id="qrSuccessFlash" class="hidden pointer-events-none absolute inset-0 bg-emerald-500/40 backdrop-blur-sm transition-opacity duration-200 flex items-center justify-center">
         <div class="p-3 bg-emerald-500 rounded-full text-black shadow-lg">
           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
         </div>
@@ -93,7 +95,7 @@
     </div>
 
     {{-- Live Scanner Status Hint --}}
-    <div class="mt-3 text-center px-4">
+    <div class="mt-2.5 text-center px-3 shrink-0">
       <p id="qrScannerStatus" class="text-xs font-mono text-emerald-400/90 font-medium tracking-wide">
         Memulai inisialisasi kamera…
       </p>
@@ -104,13 +106,13 @@
   </div>
 
   {{-- 4. Bottom Manual Code Fallback Input --}}
-  <div class="p-4 bg-black/60 border-t border-white/10 safe-bottom shrink-0">
-    <div class="max-w-md mx-auto space-y-2">
+  <div class="p-3 sm:p-4 bg-black/60 border-t border-white/10 safe-bottom shrink-0">
+    <div class="max-w-md mx-auto space-y-1.5">
       <div class="flex items-center gap-2">
-        <div class="relative flex-1">
-          <input type="text" id="qrManualCodeInput" placeholder="Ketik kode manual (mis. 50GQ / SMK-...)" autocomplete="off" class="w-full h-10 px-3 bg-white/10 border border-white/20 text-white placeholder:text-white/40 text-xs font-mono font-bold rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-400 uppercase">
+        <div class="relative flex-1 min-w-0">
+          <input type="text" id="qrManualCodeInput" enterkeyhint="search" placeholder="Ketik kode manual (mis. 50GQ / SMK-...)" autocomplete="off" class="w-full h-11 px-3 bg-white/10 border border-white/20 text-white placeholder:text-white/40 text-sm sm:text-xs font-mono font-bold rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-400 uppercase">
         </div>
-        <button type="button" onclick="submitQrManualCode()" class="h-10 px-4 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-black font-extrabold text-xs font-mono rounded-xl flex items-center gap-1.5 transition shrink-0">
+        <button type="button" onclick="submitQrManualCode()" class="h-11 px-4 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-black font-extrabold text-xs font-mono rounded-xl flex items-center gap-1.5 transition shrink-0">
           <span>KIRIM</span>
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
         </button>
@@ -131,7 +133,13 @@
 #qrReaderViewport video {
   width: 100% !important;
   height: auto !important;
+  max-height: 42dvh !important;
+  object-fit: cover !important;
   display: block;
+}
+#qrCameraSelect option {
+  background-color: #12151A;
+  color: #ECEFF3;
 }
 </style>
 
@@ -207,12 +215,27 @@
     if (overlay) overlay.classList.add('hidden');
     turnOffTorchUi();
 
+    if (window.location.search.includes('scan=')) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('scan');
+      history.replaceState(null, '', url.toString());
+    }
+
     if (html5QrCode && html5QrCode.isScanning) {
       html5QrCode.stop().then(() => {
         try { html5QrCode.clear(); } catch (e) {}
       }).catch(() => {});
     }
   };
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      const overlay = document.getElementById('qrScannerOverlay');
+      if (overlay && !overlay.classList.contains('hidden')) {
+        window.closeQrScanner();
+      }
+    }
+  });
 
   function populateCameraDropdown(devices, activeId) {
     const select = document.getElementById('qrCameraSelect');
