@@ -45,12 +45,12 @@ return [
     | auto_send_on_paid : kirim otomatis saat kasir mengonfirmasi LUNAS
     */
     'whatsapp' => [
-        'driver' => env('WA_GATEWAY_DRIVER', 'log'),
-        'endpoint' => env('WA_GATEWAY_ENDPOINT'),
-        'token' => env('WA_GATEWAY_TOKEN'),
-        'secret' => env('WA_GATEWAY_SECRET'),
+        'driver' => env('WA_GATEWAY_DRIVER', env('WHATSAPP_GATEWAY_PROVIDER', 'log')),
+        'endpoint' => env('WA_GATEWAY_ENDPOINT', env('WHATSAPP_GATEWAY_URL')),
+        'token' => env('WA_GATEWAY_TOKEN', env('WHATSAPP_GATEWAY_TOKEN')),
+        'secret' => env('WA_GATEWAY_SECRET', env('WHATSAPP_GATEWAY_SECRET')),
         'timeout' => (int) env('WA_GATEWAY_TIMEOUT', 10),
-        'auto_send_on_paid' => (bool) env('WA_AUTO_SEND_ON_PAID', true),
+        'auto_send_on_paid' => (bool) env('WA_AUTO_SEND_ON_PAID', env('WHATSAPP_GATEWAY_ENABLED', true)),
     ],
 
 ];
