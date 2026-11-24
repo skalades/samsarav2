@@ -239,7 +239,6 @@ class QrCode
         }
 
         // 8. Format info for Level M, Mask 0
-        // Standard Format Info: 15 bits: 101010000010010 (XORed with 0x5412)
         $formatBits = '101010000010010';
         $fmtCoords1 = [
             [8, 0], [8, 1], [8, 2], [8, 3], [8, 4], [8, 5],
@@ -272,12 +271,6 @@ class QrCode
 
     /**
      * Generate pure SVG string of QR Code.
-     *
-     * @param string $text
-     * @param int $displaySize Width/height in pixels
-     * @param int $quietZone Quiet zone border in modules
-     * @param string $darkColor Color of black modules
-     * @param string $lightColor Color of white modules / background
      */
     public static function svg(string $text, int $displaySize = 100, int $quietZone = 2, string $darkColor = '#000000', string $lightColor = '#ffffff'): string
     {
@@ -309,7 +302,43 @@ class QrCode
     }
 
     /**
-     * Generate Base64 Data URI for HTML img tag or DomPDF.
+     * Generate Base64 PNG Data URI (100% compatible with DomPDF and all PDF renderers).
+     */
+    public static function pngDataUri(string $text, int $scale = 4, int $quietZone = 2): string
+    {
+        $grid = static::matrixV1M($text);
+        $size = count($grid);
+        $totalModules = $size + ($quietZone * 2);
+        $imgSize = $totalModules * $scale;
+
+        $img = imagecreatetruecolor($imgSize, $imgSize);
+        $white = imagecolorallocate($img, 255, 255, 255);
+        $black = imagecolorallocate($img, 0, 0, 0);
+
+        imagefilledrectangle($img, 0, 0, $imgSize - 1, $imgSize - 1, $white);
+
+        for ($r = 0; $r < $size; $r++) {
+            for ($c = 0; $c < $size; $c++) {
+                if ($grid[$r][$c] === 1) {
+                    $x1 = ($c + $quietZone) * $scale;
+                    $y1 = ($r + $quietZone) * $scale;
+                    $x2 = $x1 + $scale - 1;
+                    $y2 = $y1 + $scale - 1;
+                    imagefilledrectangle($img, $x1, $y1, $x2, $y2, $black);
+                }
+            }
+        }
+
+        ob_start();
+        imagepng($img);
+        $pngData = ob_get_clean();
+        imagedestroy($img);
+
+        return 'data:image/png;base64,' . base64_encode($pngData);
+    }
+
+    /**
+     * Generate Base64 Data URI SVG for HTML img tag.
      */
     public static function dataUri(string $text, int $displaySize = 100, int $quietZone = 2, string $darkColor = '#000000', string $lightColor = '#ffffff'): string
     {

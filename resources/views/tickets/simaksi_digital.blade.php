@@ -234,7 +234,7 @@
                 </div>
                 <div class="bg-white p-2.5 rounded-xl shadow-md border border-stone-300 text-center flex-shrink-0 flex flex-col items-center">
                     <div class="p-1 bg-white rounded flex items-center justify-center">
-                        {!! \App\Support\QrCode::svg($registration->registration_code, 84, 1) !!}
+                        <img src="{{ \App\Support\QrCode::pngDataUri($registration->registration_code, 4, 1) }}" width="84" height="84" alt="QR Code" class="block">
                     </div>
                     <div class="font-mono-tech font-black text-black text-xs tracking-widest px-2.5 py-0.5 bg-stone-100 rounded border border-stone-300 mt-1">
                         *{{ $registration->registration_code }}*

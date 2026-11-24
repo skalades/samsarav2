@@ -24,12 +24,6 @@ class Barcode
 
     /**
      * Generate Code 128 Barcode as pure inline SVG.
-     *
-     * @param string $text Text to encode (e.g. 'SMK-202611-XMCX')
-     * @param int $height Height of barcode in pixels
-     * @param float $moduleWidth Width of single module in pixels
-     * @param string $barColor Color of bars (default '#000000')
-     * @param string $bgColor Background color (or 'transparent')
      */
     public static function code128Svg(string $text, int $height = 42, float $moduleWidth = 1.6, string $barColor = '#000000', string $bgColor = 'transparent'): string
     {
@@ -38,7 +32,6 @@ class Barcode
             return '';
         }
 
-        // Start with Code B (Value 104)
         $startB = 104;
         $values = [$startB];
         $checksum = $startB;
@@ -46,7 +39,7 @@ class Barcode
         for ($i = 0; $i < strlen($text); $i++) {
             $charVal = ord($text[$i]) - 32;
             if ($charVal < 0 || $charVal > 95) {
-                $charVal = 0; // fallback to space
+                $charVal = 0;
             }
             $values[] = $charVal;
             $checksum += $charVal * ($i + 1);
@@ -54,9 +47,8 @@ class Barcode
 
         $checksumVal = $checksum % 103;
         $values[] = $checksumVal;
-        $values[] = 106; // Stop code
+        $values[] = 106;
 
-        // Assemble modules (1 for bar, 0 for space)
         $modules = '';
         foreach ($values as $val) {
             $pattern = static::$patterns[$val] ?? '212222';
@@ -67,19 +59,16 @@ class Barcode
                 $isBar = ! $isBar;
             }
         }
-        // Terminal bar of stop code (always 2 modules wide)
         $modules .= '11';
 
         $totalModules = strlen($modules);
         $totalWidth = (int) ceil($totalModules * $moduleWidth);
 
-        // Build SVG rects
         $svgElements = [];
         if ($bgColor !== 'transparent') {
             $svgElements[] = sprintf('<rect width="%d" height="%d" fill="%s"/>', $totalWidth, $height, $bgColor);
         }
 
-        $pos = 0;
         $barStart = null;
         for ($m = 0; $m < $totalModules; $m++) {
             if ($modules[$m] === '1') {
@@ -124,7 +113,72 @@ class Barcode
     }
 
     /**
-     * Generate Code 128 as Base64 Data URI SVG for DomPDF and img src.
+     * Generate Code 128 as Base64 PNG Data URI (100% compatible with DomPDF).
+     */
+    public static function code128PngDataUri(string $text, int $height = 42, int $moduleWidth = 2): string
+    {
+        $text = trim($text);
+        if ($text === '') {
+            return '';
+        }
+
+        $startB = 104;
+        $values = [$startB];
+        $checksum = $startB;
+
+        for ($i = 0; $i < strlen($text); $i++) {
+            $charVal = ord($text[$i]) - 32;
+            if ($charVal < 0 || $charVal > 95) {
+                $charVal = 0;
+            }
+            $values[] = $charVal;
+            $checksum += $charVal * ($i + 1);
+        }
+
+        $checksumVal = $checksum % 103;
+        $values[] = $checksumVal;
+        $values[] = 106;
+
+        $modules = '';
+        foreach ($values as $val) {
+            $pattern = static::$patterns[$val] ?? '212222';
+            $isBar = true;
+            for ($p = 0; $p < strlen($pattern); $p++) {
+                $w = (int) $pattern[$p];
+                $modules .= str_repeat($isBar ? '1' : '0', $w);
+                $isBar = ! $isBar;
+            }
+        }
+        $modules .= '11';
+
+        $totalModules = strlen($modules);
+        $quiet = 8;
+        $totalWidth = ($totalModules + ($quiet * 2)) * $moduleWidth;
+
+        $img = imagecreatetruecolor($totalWidth, $height);
+        $white = imagecolorallocate($img, 255, 255, 255);
+        $black = imagecolorallocate($img, 0, 0, 0);
+
+        imagefilledrectangle($img, 0, 0, $totalWidth - 1, $height - 1, $white);
+
+        for ($m = 0; $m < $totalModules; $m++) {
+            if ($modules[$m] === '1') {
+                $x1 = ($m + $quiet) * $moduleWidth;
+                $x2 = $x1 + $moduleWidth - 1;
+                imagefilledrectangle($img, $x1, 0, $x2, $height - 1, $black);
+            }
+        }
+
+        ob_start();
+        imagepng($img);
+        $pngData = ob_get_clean();
+        imagedestroy($img);
+
+        return 'data:image/png;base64,' . base64_encode($pngData);
+    }
+
+    /**
+     * Generate Code 128 as Base64 Data URI SVG.
      */
     public static function code128DataUri(string $text, int $height = 42, float $moduleWidth = 1.6, string $barColor = '#000000', string $bgColor = '#ffffff'): string
     {

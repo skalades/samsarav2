@@ -78,9 +78,15 @@ class BasecampLocationAndQrScanValidationTest extends TestCase
         $this->assertStringContainsString('<svg', $qrSvg);
         $this->assertStringContainsString('width="75"', $qrSvg);
 
+        $qrPng = QrCode::pngDataUri($code);
+        $this->assertStringStartsWith('data:image/png;base64,', $qrPng);
+
         $barcodeSvg = Barcode::code128Svg($code, 40);
         $this->assertStringContainsString('<svg', $barcodeSvg);
         $this->assertStringContainsString('height="40"', $barcodeSvg);
+
+        $barcodePng = Barcode::code128PngDataUri($code);
+        $this->assertStringStartsWith('data:image/png;base64,', $barcodePng);
     }
 
     public function test_simaksi_pdf_ticket_renders_qr_scan_validation_gerbang(): void
@@ -115,5 +121,9 @@ class BasecampLocationAndQrScanValidationTest extends TestCase
         $response = $this->get(route('portal.simaksi.ticket_pdf', $reg->registration_code));
         $response->assertOk();
         $this->assertSame('application/pdf', $response->headers->get('Content-Type'));
+
+        $pdfContent = $response->getContent();
+        // Assert that DomPDF embedded the QR Code image stream in the PDF
+        $this->assertStringContainsString('/Subtype /Image', $pdfContent);
     }
 }

@@ -501,7 +501,7 @@
             <td style="width: 25%; text-align: right; vertical-align: top;">
                 <div style="font-weight: bold; font-size: 9px; margin-bottom: 4px; color: #111827;">SCAN VALIDASI GERBANG</div>
                 <div style="margin-bottom: 4px;">
-                    {!! \App\Support\QrCode::svg($registration->registration_code, 70, 1) !!}
+                    <img src="{{ \App\Support\QrCode::pngDataUri($registration->registration_code, 4, 1) }}" width="65" height="65" alt="QR Code" style="display: inline-block;">
                 </div>
                 <div style="font-family: monospace; font-size: 10px; font-weight: bold; color: #064e3b; border: 1px solid #064e3b; padding: 2px 5px; display: inline-block; background: #ecfdf5;">
                     [ {{ $registration->registration_code }} ]
