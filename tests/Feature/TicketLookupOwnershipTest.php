@@ -43,10 +43,58 @@ class TicketLookupOwnershipTest extends TestCase
         return $this->getJson(route('portal.simaksi.lookup', $params));
     }
 
-    public function test_lookup_by_code_still_works_without_nik(): void
+    public function test_code_lookup_without_nik_or_token_is_rejected_and_leaks_no_data(): void
     {
-        $this->lookup(['query' => 'smk-202611-owner123'])->assertOk()
+        $this->lookup(['query' => 'smk-202611-owner123'])->assertStatus(422)
+            ->assertJsonPath('requires_nik', true)
+            ->assertDontSee('Pendaki Pemilik');
+    }
+
+    public function test_lookup_by_code_with_correct_nik_or_token_works(): void
+    {
+        $this->lookup(['query' => 'smk-202611-owner123', 'nik_last4' => '4321'])->assertOk()
             ->assertJsonPath('data.registration_code', 'SMK-202611-OWNER123');
+
+        $this->lookup(['query' => 'smk-202611-owner123', 'token' => $this->reg->access_token])->assertOk()
+            ->assertJsonPath('data.registration_code', 'SMK-202611-OWNER123');
+    }
+
+    public function test_code_lookup_nik_guessing_is_locked_after_five_failures(): void
+    {
+        foreach (['0001', '0002', '0003', '0004', '0005'] as $i => $guess) {
+            $this->withServerVariables(['REMOTE_ADDR' => '10.1.0.'.($i + 1)])
+                ->lookup(['query' => 'SMK-202611-OWNER123', 'nik_last4' => $guess])->assertNotFound();
+        }
+
+        $this->withServerVariables(['REMOTE_ADDR' => '10.1.0.99'])
+            ->lookup(['query' => 'SMK-202611-OWNER123', 'nik_last4' => '4321'])->assertStatus(429);
+    }
+
+    public function test_public_mutations_require_ownership_token_or_nik(): void
+    {
+        $file = \Illuminate\Http\UploadedFile::fake()->image('proof.jpg');
+
+        $this->postJson(route('portal.simaksi.upload_proof'), [
+            'registration_code' => 'SMK-202611-OWNER123',
+            'payment_proof' => $file,
+        ])->assertStatus(403);
+
+        $this->postJson(route('portal.simaksi.upload_ktp'), [
+            'registration_code' => 'SMK-202611-OWNER123',
+            'leader_ktp' => $file,
+        ])->assertStatus(403);
+
+        $this->postJson(route('portal.simaksi.upload_group_photo'), [
+            'registration_code' => 'SMK-202611-OWNER123',
+            'group_photo' => $file,
+        ])->assertStatus(403);
+
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $this->postJson(route('portal.simaksi.upload_proof'), [
+            'registration_code' => 'SMK-202611-OWNER123',
+            'access_token' => $this->reg->access_token,
+            'payment_proof' => $file,
+        ])->assertOk();
     }
 
     public function test_phone_lookup_without_nik_is_rejected_and_leaks_no_code(): void

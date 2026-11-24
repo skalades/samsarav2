@@ -19,19 +19,39 @@ use Illuminate\Support\Str;
 class CodeGenerator
 {
     /**
-     * Generate unique SIMAKSI Registration Code: SMK-YYYYMM-XXXXXXXX
-     * 8 karakter (36^8 ≈ 2,8 triliun kombinasi/bulan): kode adalah satu-satunya kunci akses tiket publik,
-     * sehingga harus tahan tebak (brute-force) walau endpoint dibatasi rate-limit.
-     * Contoh: SMK-202611-A8F2K9QX
+     * Alfabet aman-baca (tanpa 0/O, 1/I/L) agar tidak tertukar saat diketik manual.
+     */
+    private const READABLE_ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+
+    /**
+     * Generate unique SIMAKSI Registration Code: SMK-YYMM-XXXXX (14 karakter).
+     * Contoh: SMK-2611-K8F2Q
+     * Muat 1 baris di printer thermal 58mm mode wide (maks 16 char) dan QR V1-M (maks 20 char).
+     * Keamanan akses publik dijaga oleh access_token (128-bit) dan/atau verifikasi 4 digit NIK ketua.
      */
     public static function simaksiCode(): string
     {
-        $prefix = 'SMK-'.date('Ym').'-';
+        $prefix = 'SMK-'.date('ym').'-';
+        $alphabet = self::READABLE_ALPHABET;
+        $maxIdx = strlen($alphabet) - 1;
+
         do {
-            $code = $prefix.strtoupper(Str::random(8));
+            $suffix = '';
+            for ($i = 0; $i < 5; $i++) {
+                $suffix .= $alphabet[random_int(0, $maxIdx)];
+            }
+            $code = $prefix.$suffix;
         } while (SimaksiRegistration::where('registration_code', $code)->exists());
 
         return $code;
+    }
+
+    /**
+     * Generate 128-bit cryptographic access token untuk tautan e-tiket, PDF, dan aksi publik.
+     */
+    public static function ticketAccessToken(): string
+    {
+        return bin2hex(random_bytes(16));
     }
 
     /**

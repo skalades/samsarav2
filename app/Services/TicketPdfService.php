@@ -41,7 +41,7 @@ class TicketPdfService
             default => '#d97706', // Amber
         };
 
-        $qrVerificationUrl = route('portal.simaksi.ticket', $registration->registration_code);
+        $qrVerificationUrl = $registration->publicTicketUrl();
 
         $data = [
             'registration' => $registration,

@@ -118,7 +118,7 @@ class BasecampLocationAndQrScanValidationTest extends TestCase
         ]);
 
         // Download PDF
-        $response = $this->get(route('portal.simaksi.ticket_pdf', $reg->registration_code));
+        $response = $this->get($reg->publicPdfUrl());
         $response->assertOk();
         $this->assertSame('application/pdf', $response->headers->get('Content-Type'));
 

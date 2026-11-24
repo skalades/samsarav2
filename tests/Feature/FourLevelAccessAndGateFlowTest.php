@@ -244,8 +244,8 @@ class FourLevelAccessAndGateFlowTest extends TestCase
         $this->assertSame('6281234567890', $msg->phone);
         $this->assertSame('skipped', $msg->status);
         $this->assertStringContainsString($reg->registration_code, $msg->message);
-        $this->assertStringContainsString(route('portal.simaksi.ticket', $reg->registration_code), $msg->message);
-        $this->assertStringContainsString(route('portal.simaksi.ticket_pdf', $reg->registration_code), $msg->message);
+        $this->assertStringContainsString($reg->publicTicketUrl(), $msg->message);
+        $this->assertStringContainsString($reg->publicPdfUrl(), $msg->message);
 
         // Konfirmasi ulang tidak mengirim pesan ganda
         $this->actingAs($this->kasir)->post(route('management.simaksi.paid', $reg->id), ['payment_method' => 'cash_pos']);

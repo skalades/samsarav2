@@ -110,7 +110,10 @@ class SimaksiProductionReadinessTest extends TestCase
             'emergency_contact_phone' => '081234567821',
         ]);
 
-        $response = $this->getJson(route('portal.simaksi.lookup', ['code' => 'SMK-202611-999']));
+        $response = $this->getJson(route('portal.simaksi.lookup', [
+            'code' => 'SMK-202611-999',
+            'nik_last4' => '0020',
+        ]));
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
@@ -247,7 +250,10 @@ class SimaksiProductionReadinessTest extends TestCase
             'payment_method' => 'cash_pos',
         ]);
 
-        $response = $this->getJson(route('portal.simaksi.lookup', ['code' => 'SMK-202611-PDPTEST']));
+        $response = $this->getJson(route('portal.simaksi.lookup', [
+            'code' => 'SMK-202611-PDPTEST',
+            'nik_last4' => '7890',
+        ]));
         $response->assertStatus(200);
 
         // NIK and Emergency Phone must be masked for UU PDP compliance

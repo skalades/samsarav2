@@ -69,7 +69,7 @@
                 <span>Screenshot</span>
             </button>
 
-            <a href="{{ route('portal.simaksi.ticket_pdf', $registration->registration_code) }}" class="inline-flex items-center gap-2 text-xs font-mono-tech font-bold text-black bg-[#FF5722] hover:bg-[#F4511E] px-4 py-2.5 rounded-xl shadow-lg shadow-[#FF5722]/20 transition transform active:scale-95">
+            <a href="{{ $registration->publicPdfUrl() }}" class="inline-flex items-center gap-2 text-xs font-mono-tech font-bold text-black bg-[#FF5722] hover:bg-[#F4511E] px-4 py-2.5 rounded-xl shadow-lg shadow-[#FF5722]/20 transition transform active:scale-95">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                 <span>Unduh PDF Resmi</span>
             </a>
@@ -289,7 +289,7 @@
                             @php
                                 $mountainTitle = $profile['mountain_name'] ?? 'Gunung Cikuray';
                                 $expeditionTitle = $profile['expedition_name'] ?? 'SAMSARA EXPEDITION';
-                                $waText = rawurlencode("Halo! Rombongan pendakian {$registration->leader_name} ({$registration->total_climbers} Orang) telah resmi check-in di {$expeditionTitle} - {$mountainTitle} pada " . date('d M Y') . ". Foto regu & e-tiket resmi kami dapat dipantau di: " . route('portal.simaksi.ticket', $registration->registration_code));
+                                $waText = rawurlencode("Halo! Rombongan pendakian {$registration->leader_name} ({$registration->total_climbers} Orang) telah resmi check-in di {$expeditionTitle} - {$mountainTitle} pada " . date('d M Y') . ". Foto regu & e-tiket resmi kami dapat dipantau di: " . $registration->publicTicketUrl());
                             @endphp
                             <a href="https://api.whatsapp.com/send?text={{ $waText }}" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-sm">
                                 <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.861.173.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.044.072.044.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.158.572 4.183 1.571 5.928l-1.637 5.981 6.136-1.61c1.683.923 3.618 1.444 5.679 1.444 6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z"/></svg>
@@ -500,6 +500,7 @@
 
     <script>
         const REGISTRATION_CODE = "{{ $registration->registration_code }}";
+        const ACCESS_TOKEN = "{{ $registration->access_token }}";
         const UPLOAD_URL = "{{ route('portal.simaksi.upload_group_photo') }}";
 
         function triggerPhotoUpload() {
@@ -572,6 +573,7 @@
                         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                         const formData = new FormData();
                         formData.append('registration_code', REGISTRATION_CODE);
+                        formData.append('access_token', ACCESS_TOKEN);
                         formData.append('group_photo', blob, 'group_photo.webp');
                         formData.append('_token', csrfToken);
 

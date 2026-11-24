@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\CodeGenerator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -50,8 +51,13 @@ class SimaksiRegistration extends Model
         'needs_revision' => 'warning',
     ];
 
+    protected $hidden = [
+        'access_token',
+    ];
+
     protected $fillable = [
         'registration_code',
+        'access_token',
         'leader_name',
         'leader_nik',
         'leader_phone',
@@ -305,5 +311,44 @@ class SimaksiRegistration extends Model
         };
 
         return ['bg' => $bg, 'label' => strtoupper($this->statusLabel()), 'tone' => $this->statusTone()];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (SimaksiRegistration $registration): void {
+            if (empty($registration->access_token)) {
+                $registration->access_token = CodeGenerator::ticketAccessToken();
+            }
+        });
+    }
+
+    public function matchesAccessToken(?string $token): bool
+    {
+        $token = trim((string) $token);
+
+        return $token !== ''
+            && ! empty($this->access_token)
+            && hash_equals($this->access_token, $token);
+    }
+
+    public function publicTicketUrl(): string
+    {
+        return route('portal.simaksi.ticket', [
+            'code' => $this->registration_code,
+            'token' => $this->access_token,
+        ]);
+    }
+
+    public function publicPdfUrl(): string
+    {
+        return route('portal.simaksi.ticket_pdf', [
+            'code' => $this->registration_code,
+            'token' => $this->access_token,
+        ]);
+    }
+
+    public function publicPortalUrl(): string
+    {
+        return url('/?code='.urlencode($this->registration_code).'&token='.urlencode((string) $this->access_token));
     }
 }

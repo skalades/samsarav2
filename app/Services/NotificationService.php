@@ -49,7 +49,7 @@ class NotificationService
         $mountain = AppSetting::get('mountain_name', 'GUNUNG CIKURAY');
         $elevation = AppSetting::get('mountain_elevation', '2.821 MDPL');
         $basecamp = AppSetting::get('basecamp_name', 'Basecamp SAMSARA');
-        $portalUrl = url('/?code='.$reg->registration_code);
+        $portalUrl = $reg->publicPortalUrl();
 
         return <<<TEXT
 *{$expedition} — {$mountain} {$elevation}*
@@ -93,7 +93,7 @@ TEXT;
      */
     public static function revisionRequestedMessage(SimaksiRegistration $reg, string $notes): string
     {
-        $portalUrl = url('/?code='.$reg->registration_code);
+        $portalUrl = $reg->publicPortalUrl();
 
         return <<<TEXT
 *SAMSARA EXPEDITION — INSTRUKSI PERBAIKAN BERKAS*

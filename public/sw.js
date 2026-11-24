@@ -4,7 +4,7 @@
  * Versi: 1.0.0
  */
 
-const CACHE_VERSION = 'v1.0.1';
+const CACHE_VERSION = 'v1.0.2';
 const STATIC_CACHE_NAME = `samsara-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE_NAME = `samsara-runtime-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline.html';

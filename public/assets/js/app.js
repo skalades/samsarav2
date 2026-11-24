@@ -147,8 +147,18 @@ const App = {
       };
     },
 
-    async fetchTicketByCode(code) {
-      const response = await fetch('/api/simaksi/lookup?query=' + encodeURIComponent(code), {
+    async fetchTicketByCode(code, token = null) {
+      const params = new URLSearchParams({ query: code });
+      const resolvedToken = token || App.wizard?.lastSavedToken || App.ticket?.getStoredToken(code);
+      if (resolvedToken) {
+        params.set('token', resolvedToken);
+      } else {
+        const nikLast4 = document.getElementById('searchNikLast4')?.value.trim() || '';
+        if (/^\d{4}$/.test(nikLast4)) {
+          params.set('nik_last4', nikLast4);
+        }
+      }
+      const response = await fetch('/api/simaksi/lookup?' + params.toString(), {
         headers: { 'Accept': 'application/json' },
         cache: 'no-store'
       });
@@ -183,9 +193,13 @@ const App = {
       this.nav.switchTab('sec-beranda');
     }
 
-    // Deep-link check: #cek-tiket or ?ticket=SMK-...
+    // Deep-link check: #cek-tiket, ?ticket=SMK-..., or ?code=SMK-...&token=...
     const urlParams = new URLSearchParams(window.location.search);
-    const ticketParam = urlParams.get('ticket');
+    const ticketParam = urlParams.get('ticket') || urlParams.get('code');
+    const tokenParam = urlParams.get('token');
+    if (ticketParam && tokenParam) {
+      this.ticket.rememberToken(ticketParam, tokenParam);
+    }
     if (ticketParam || window.location.hash === '#cek-tiket') {
       setTimeout(() => {
         if (ticketParam) {
@@ -1353,6 +1367,7 @@ const App = {
 
         // Success! Populate Step 5 View
         this.lastSavedCode = result.registration_code;
+        this.lastSavedToken = result.access_token || null;
         this.applyResultView(result);
 
         const syncNote = document.getElementById('wzStatusSyncNote');
@@ -1379,9 +1394,12 @@ const App = {
         // Go to Step 5 (Ticket Ready)
         this.goTo(5);
 
-        // Clean up completed draft & store last ticket code
+        // Clean up completed draft & store last ticket code + access token
         localStorage.removeItem(App.draft.STORAGE_KEY);
         localStorage.setItem('samsara_last_ticket', result.registration_code);
+        if (result.access_token) {
+          App.ticket.rememberToken(result.registration_code, result.access_token);
+        }
         App.draft.dismiss();
 
         // Automatically open WhatsApp to send full details to Admin
@@ -1464,9 +1482,11 @@ const App = {
       const btnDigital = document.getElementById('btnViewDigitalTicket');
       const btnPdf = document.getElementById('btnDownloadTicketPdf');
       const code = data.registration_code || this.lastSavedCode;
+      if (data.access_token) this.lastSavedToken = data.access_token;
+      const tokenQuery = this.lastSavedToken ? `?token=${encodeURIComponent(this.lastSavedToken)}` : '';
       if (code) {
-        if (btnDigital) btnDigital.href = data.ticket_url || `/simaksi/ticket/${encodeURIComponent(code)}`;
-        if (btnPdf) btnPdf.href = data.pdf_download_url || `/simaksi/ticket/${encodeURIComponent(code)}/pdf`;
+        if (btnDigital) btnDigital.href = data.ticket_url || `/simaksi/ticket/${encodeURIComponent(code)}${tokenQuery}`;
+        if (btnPdf) btnPdf.href = data.pdf_download_url || `/simaksi/ticket/${encodeURIComponent(code)}/pdf${tokenQuery}`;
       }
     },
 
@@ -1827,6 +1847,33 @@ Halo Admin ${SAMSARA_CONFIG.expedition.basecampName || 'Basecamp SAMSARA'}, saya
   ticket: {
     selectedProofFile: null,
     selectedKtpFile: null,
+    currentTicketCode: null,
+    currentTicketToken: null,
+
+    rememberToken(code, token) {
+      if (!code || !token) return;
+      const upper = String(code).trim().toUpperCase();
+      this.currentTicketCode = upper;
+      this.currentTicketToken = token;
+      try {
+        localStorage.setItem('samsara_last_ticket_token', JSON.stringify({ code: upper, token }));
+      } catch (e) {}
+    },
+
+    getStoredToken(code) {
+      if (!code) return null;
+      const upper = String(code).trim().toUpperCase();
+      if (this.currentTicketCode === upper && this.currentTicketToken) {
+        return this.currentTicketToken;
+      }
+      try {
+        const saved = JSON.parse(localStorage.getItem('samsara_last_ticket_token') || 'null');
+        if (saved && saved.code === upper && saved.token) {
+          return saved.token;
+        }
+      } catch (e) {}
+      return null;
+    },
 
     openModal() {
       App.modal.open('ticketModal');
@@ -1834,9 +1881,10 @@ Halo Admin ${SAMSARA_CONFIG.expedition.basecampName || 'Basecamp SAMSARA'}, saya
       
       const last = localStorage.getItem('samsara_last_ticket');
       const input = document.getElementById('searchTicketInput');
-      if (input && last && (!input.value || input.value === 'SMK-202611-001')) {
+      if (input && last && !input.value) {
         input.value = last;
       }
+      this.toggleNikField();
       this.search();
     },
 
@@ -1862,14 +1910,15 @@ Halo Admin ${SAMSARA_CONFIG.expedition.basecampName || 'Basecamp SAMSARA'}, saya
       this.search();
     },
 
-    // Kueri berupa nomor HP (bukan kode SMK-) → tampilkan kolom 4 digit terakhir NIK
+    // Kueri berupa nomor HP (bukan kode SMK-)
     isPhoneQuery(query) {
       return !/^SMK-/i.test(query) && /^\+?[\d\s\-().]{9,20}$/.test(query);
     },
 
     toggleNikField() {
       const query = document.getElementById('searchTicketInput')?.value.trim() || '';
-      document.getElementById('searchNikWrap')?.classList.toggle('hidden', !this.isPhoneQuery(query));
+      const hasToken = query && !this.isPhoneQuery(query) && !!this.getStoredToken(query);
+      document.getElementById('searchNikWrap')?.classList.toggle('hidden', !query || hasToken);
     },
 
     escapeHtml(value) {
@@ -1923,20 +1972,23 @@ Halo Admin ${SAMSARA_CONFIG.expedition.basecampName || 'Basecamp SAMSARA'}, saya
       if (!query) {
         res.innerHTML = `
           <div class="text-center py-6 text-stone-500 text-xs font-mono-tech space-y-1">
-            <p>Ketik Kode SIMAKSI (contoh: <strong class="text-stone-300">SMK-202611-A8F2K9QX</strong>) atau No. WhatsApp Ketua Tim.</p>
+            <p>Ketik Kode SIMAKSI (contoh: <strong class="text-stone-300">SMK-2611-K8F2Q</strong>) atau No. WhatsApp Ketua Tim.</p>
           </div>
         `;
         return;
       }
 
       const params = new URLSearchParams({ query });
-      if (this.isPhoneQuery(query)) {
+      const storedToken = !this.isPhoneQuery(query) ? this.getStoredToken(query) : null;
+      if (storedToken) {
+        params.set('token', storedToken);
+      } else {
         const nikLast4 = document.getElementById('searchNikLast4')?.value.trim() || '';
         if (!/^\d{4}$/.test(nikLast4)) {
           this.toggleNikField();
           res.innerHTML = `
             <div class="p-4 bg-[#121418] border border-amber-500/30 rounded-xl text-xs font-mono-tech text-center text-amber-300">
-              Masukkan 4 digit terakhir NIK ketua untuk mencari tiket dengan nomor WhatsApp.
+              Masukkan 4 digit terakhir NIK ketua untuk verifikasi kepemilikan tiket.
             </div>
           `;
           document.getElementById('searchNikLast4')?.focus();
@@ -1962,6 +2014,9 @@ Halo Admin ${SAMSARA_CONFIG.expedition.basecampName || 'Basecamp SAMSARA'}, saya
 
         if (response.ok && json.success && json.data) {
           const reg = json.data;
+          if (reg.access_token) {
+            this.rememberToken(reg.registration_code, reg.access_token);
+          }
           this.renderTicketDetail(reg);
         } else {
           // Fallback to SAMSARA_CONFIG.mockTickets if available
@@ -2433,6 +2488,13 @@ Halo Admin ${baseName}, mohon bantuan konfirmasi verifikasi status tiket permoho
       try {
         const formData = new FormData();
         formData.append('registration_code', code);
+        const token = this.getStoredToken(code);
+        if (token) {
+          formData.append('access_token', token);
+        } else {
+          const nikLast4 = document.getElementById('searchNikLast4')?.value.trim() || '';
+          if (nikLast4) formData.append('nik_last4', nikLast4);
+        }
         formData.append('leader_ktp', this.selectedKtpFile);
 
         const response = await fetch('/api/simaksi/upload-ktp', {
@@ -2478,6 +2540,13 @@ Halo Admin ${baseName}, mohon bantuan konfirmasi verifikasi status tiket permoho
       try {
         const formData = new FormData();
         formData.append('registration_code', code);
+        const token = this.getStoredToken(code);
+        if (token) {
+          formData.append('access_token', token);
+        } else {
+          const nikLast4 = document.getElementById('searchNikLast4')?.value.trim() || '';
+          if (nikLast4) formData.append('nik_last4', nikLast4);
+        }
         formData.append('payment_proof', this.selectedProofFile);
 
         const response = await fetch('/api/simaksi/upload-proof', {

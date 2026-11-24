@@ -244,7 +244,7 @@ class PublicSimaksiController extends Controller
                 $proofPath = $file->storeAs('payments', $filename, 'public');
             }
 
-            // Generate Registration Code: SMK-YYYYMM-XXXX (High-Entropy Anti-Collision)
+            // Generate short readable Registration Code: SMK-YYMM-XXXXX (access_token auto-generated on model boot)
             $code = CodeGenerator::simaksiCode();
 
             // Address resolution (supports full address)
@@ -327,6 +327,7 @@ class PublicSimaksiController extends Controller
             return response()->json([
                 'success' => true,
                 'registration_code' => $code,
+                'access_token' => $reg->access_token,
                 'leader_name' => $reg->leader_name,
                 'total_climbers' => $totalClimbers,
                 'hiking_date' => $hikingDate->format('d M Y'),
@@ -346,8 +347,8 @@ class PublicSimaksiController extends Controller
                 'status' => $reg->status,
                 'payment_due_at' => $paymentDueAt?->toIso8601String(),
                 'payment_due_label' => $paymentDueAt?->translatedFormat('d M Y H:i').($paymentDueAt ? ' WIB' : ''),
-                'ticket_url' => route('portal.simaksi.ticket', $code),
-                'pdf_download_url' => route('portal.simaksi.ticket_pdf', $code),
+                'ticket_url' => $reg->publicTicketUrl(),
+                'pdf_download_url' => $reg->publicPdfUrl(),
                 'message' => 'Pendaftaran SIMAKSI berhasil dikirim. Kode tiket Anda adalah '.$code,
             ]);
         });
@@ -355,7 +356,8 @@ class PublicSimaksiController extends Controller
 
     /**
      * Public Ticket Lookup & Tracking
-     * Allows climbers to track status by Registration Code (SMK-...) or WhatsApp Phone Number
+     * Allows climbers to track status by Registration Code (SMK-...) or WhatsApp Phone Number.
+     * Ownership is verified via 128-bit access_token OR 4 last digits of leader NIK (rate-limited).
      */
     public function lookup(Request $request)
     {
@@ -377,16 +379,57 @@ class PublicSimaksiController extends Controller
         $isPhoneQuery = ! str_starts_with(strtoupper($query), 'SMK-') && strlen($cleanPhone) >= 10;
 
         if (! $isPhoneQuery) {
-            // Kode registrasi: kode 8 karakter acak berperan sebagai kunci akses tiket
-            $reg = SimaksiRegistration::with('members')
-                ->where('registration_code', strtoupper($query))
-                ->first();
+            $code = strtoupper($query);
+            $token = trim((string) ($request->input('token') ?? $request->input('access_token') ?? ''));
 
-            return $reg ? $this->lookupResponse($reg) : $notFound();
+            if ($token !== '') {
+                $tokenKey = 'simaksi-lookup-token:'.$code;
+                if (RateLimiter::tooManyAttempts($tokenKey, 10)) {
+                    $minutes = (int) ceil(RateLimiter::availableIn($tokenKey) / 60);
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Terlalu banyak percobaan token untuk kode ini. Coba lagi dalam {$minutes} menit.",
+                    ], 429);
+                }
+
+                $reg = SimaksiRegistration::with('members')
+                    ->where('registration_code', $code)
+                    ->first();
+
+                if (! $reg || ! $reg->matchesAccessToken($token)) {
+                    RateLimiter::hit($tokenKey, 30 * 60);
+
+                    return $notFound();
+                }
+
+                RateLimiter::clear($tokenKey);
+
+                return $this->lookupResponse($reg);
+            }
+
+            // Tanpa token, kode pendek wajib diverifikasi dengan 4 digit terakhir NIK ketua
+            $nikLast4 = (string) $request->input('nik_last4', '');
+            if (! preg_match('/^\d{4}$/', $nikLast4)) {
+                return response()->json([
+                    'success' => false,
+                    'requires_nik' => true,
+                    'message' => 'Demi keamanan data, pencarian tiket wajib disertai 4 digit terakhir NIK ketua rombongan.',
+                ], 422);
+            }
+
+            return $this->verifyNikOwnership(
+                attemptKey: 'simaksi-lookup-code:'.$code,
+                finder: fn () => SimaksiRegistration::with('members')
+                    ->where('registration_code', $code)
+                    ->first(),
+                nikLast4: $nikLast4,
+                notFound: $notFound,
+                tooManyMessage: fn (int $minutes) => "Terlalu banyak percobaan untuk kode ini. Coba lagi dalam {$minutes} menit."
+            );
         }
 
         // Nomor WhatsApp mudah diketahui orang lain → wajib bukti kepemilikan: 4 digit terakhir NIK ketua.
-        // Tanpa ini siapa pun yang tahu nomor HP pendaki bisa mendapat kode tiket lalu mengganti KTP/bukti bayarnya.
         $nikLast4 = (string) $request->input('nik_last4', '');
         if (! preg_match('/^\d{4}$/', $nikLast4)) {
             return response()->json([
@@ -396,27 +439,46 @@ class PublicSimaksiController extends Controller
             ], 422);
         }
 
-        // Batasi tebakan NIK per nomor (lintas IP): 5 kegagalan / 30 menit
         $phone = BookingGuardService::normalizePhone($cleanPhone);
-        $attemptKey = 'simaksi-lookup-phone:'.$phone;
+
+        return $this->verifyNikOwnership(
+            attemptKey: 'simaksi-lookup-phone:'.$phone,
+            finder: fn () => SimaksiRegistration::with('members')
+                ->where('leader_phone', 'like', '%'.substr($phone, -9))
+                ->where('leader_nik', 'like', '%'.$nikLast4)
+                ->latest()
+                ->get()
+                ->first(fn ($r) => BookingGuardService::normalizePhone($r->leader_phone) === $phone
+                    && str_ends_with((string) $r->leader_nik, $nikLast4)),
+            nikLast4: $nikLast4,
+            notFound: $notFound,
+            tooManyMessage: fn (int $minutes) => "Terlalu banyak percobaan untuk nomor ini. Coba lagi dalam {$minutes} menit atau gunakan Kode SIMAKSI."
+        );
+    }
+
+    /**
+     * Verifikasi kepemilikan berbasis 4 digit terakhir NIK ketua dengan rate-limit 5 gagal / 30 menit (lintas IP).
+     */
+    private function verifyNikOwnership(
+        string $attemptKey,
+        callable $finder,
+        string $nikLast4,
+        callable $notFound,
+        callable $tooManyMessage,
+    ) {
         if (RateLimiter::tooManyAttempts($attemptKey, 5)) {
             $minutes = (int) ceil(RateLimiter::availableIn($attemptKey) / 60);
 
             return response()->json([
                 'success' => false,
-                'message' => "Terlalu banyak percobaan untuk nomor ini. Coba lagi dalam {$minutes} menit atau gunakan Kode SIMAKSI.",
+                'message' => $tooManyMessage($minutes),
             ], 429);
         }
 
-        $reg = SimaksiRegistration::with('members')
-            ->where('leader_phone', 'like', '%'.substr($phone, -9))
-            ->where('leader_nik', 'like', '%'.$nikLast4)
-            ->latest()
-            ->get()
-            ->first(fn ($r) => BookingGuardService::normalizePhone($r->leader_phone) === $phone
-                && str_ends_with((string) $r->leader_nik, $nikLast4));
+        /** @var SimaksiRegistration|null $reg */
+        $reg = $finder();
 
-        if (! $reg) {
+        if (! $reg || ! str_ends_with((string) $reg->leader_nik, $nikLast4)) {
             RateLimiter::hit($attemptKey, 30 * 60);
 
             return $notFound();
@@ -477,6 +539,7 @@ class PublicSimaksiController extends Controller
             'data' => [
                 'id' => $reg->id,
                 'registration_code' => $reg->registration_code,
+                'access_token' => $reg->access_token,
                 'leader_name' => $reg->leader_name,
                 'leader_nik' => $maskNik($reg->leader_nik),
                 'leader_phone' => $maskPhone($reg->leader_phone),
@@ -515,8 +578,8 @@ class PublicSimaksiController extends Controller
                 'payment_proof_url' => $proofUrl,
                 'trash_deposit_status' => $reg->trash_deposit_status,
                 'trash_deposit_amount' => $reg->trash_deposit_amount,
-                'ticket_url' => route('portal.simaksi.ticket', $reg->registration_code),
-                'pdf_download_url' => route('portal.simaksi.ticket_pdf', $reg->registration_code),
+                'ticket_url' => $reg->publicTicketUrl(),
+                'pdf_download_url' => $reg->publicPdfUrl(),
                 'qr_data_uri' => \App\Support\QrCode::pngDataUri($reg->registration_code, 8, 4),
                 'can_download_ticket' => in_array($reg->status, \App\Models\SimaksiRegistration::REVENUE_STATUSES),
                 'created_at' => $reg->created_at->format('d M Y H:i WIB'),
@@ -538,6 +601,55 @@ class PublicSimaksiController extends Controller
     }
 
     /**
+     * Verifikasi kepemilikan tiket sebelum endpoint mutasi publik (upload bukti, KTP, atau foto regu).
+     * Menerima access_token (128-bit) atau nik_last4 (4 digit terakhir NIK ketua, dengan rate-limit).
+     *
+     * @return array{0: ?SimaksiRegistration, 1: ?\Illuminate\Http\JsonResponse}
+     */
+    private function authorizeMutationByCode(Request $request, string $code): array
+    {
+        $token = trim((string) ($request->input('access_token') ?? $request->input('token') ?? ''));
+        $nikLast4 = (string) $request->input('nik_last4', '');
+
+        if ($token === '' && ! preg_match('/^\d{4}$/', $nikLast4)) {
+            return [null, response()->json([
+                'success' => false,
+                'message' => 'Verifikasi kepemilikan tiket (token akses atau 4 digit terakhir NIK ketua) wajib disertakan.',
+            ], 403)];
+        }
+
+        $attemptKey = 'simaksi-mutation:'.$code;
+        if (RateLimiter::tooManyAttempts($attemptKey, 5)) {
+            $minutes = (int) ceil(RateLimiter::availableIn($attemptKey) / 60);
+
+            return [null, response()->json([
+                'success' => false,
+                'message' => "Terlalu banyak percobaan verifikasi untuk tiket ini. Coba lagi dalam {$minutes} menit.",
+            ], 429)];
+        }
+
+        $reg = SimaksiRegistration::where('registration_code', $code)->first();
+
+        $authorized = $reg && (
+            ($token !== '' && $reg->matchesAccessToken($token))
+            || ($nikLast4 !== '' && str_ends_with((string) $reg->leader_nik, $nikLast4))
+        );
+
+        if (! $authorized) {
+            RateLimiter::hit($attemptKey, 30 * 60);
+
+            return [null, response()->json([
+                'success' => false,
+                'message' => 'Tiket registrasi SIMAKSI '.$code.' tidak ditemukan atau verifikasi kepemilikan tidak valid.',
+            ], 403)];
+        }
+
+        RateLimiter::clear($attemptKey);
+
+        return [$reg, null];
+    }
+
+    /**
      * Upload Payment Proof Susulan (Anti-terclose recovery)
      * For climbers who closed the window to pay and return to upload proof later
      */
@@ -549,13 +661,9 @@ class PublicSimaksiController extends Controller
         ]);
 
         $code = strtoupper(trim($request->input('registration_code')));
-        $reg = SimaksiRegistration::where('registration_code', $code)->first();
-
-        if (! $reg) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tiket registrasi SIMAKSI '.$code.' tidak ditemukan.',
-            ], 404);
+        [$reg, $error] = $this->authorizeMutationByCode($request, $code);
+        if ($error) {
+            return $error;
         }
 
         // Booking yang sudah dibatalkan (mis. kedaluwarsa) tidak bisa dihidupkan lagi lewat unggah bukti
@@ -613,13 +721,9 @@ class PublicSimaksiController extends Controller
         ]);
 
         $code = strtoupper(trim($request->input('registration_code')));
-        $reg = SimaksiRegistration::where('registration_code', $code)->first();
-
-        if (! $reg) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tiket registrasi SIMAKSI '.$code.' tidak ditemukan.',
-            ], 404);
+        [$reg, $error] = $this->authorizeMutationByCode($request, $code);
+        if ($error) {
+            return $error;
         }
 
         $file = $request->file('leader_ktp');
@@ -667,13 +771,9 @@ class PublicSimaksiController extends Controller
         ]);
 
         $code = strtoupper(trim($request->input('registration_code')));
-        $reg = SimaksiRegistration::where('registration_code', $code)->first();
-
-        if (! $reg) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tiket registrasi SIMAKSI '.$code.' tidak ditemukan.',
-            ], 404);
+        [$reg, $error] = $this->authorizeMutationByCode($request, $code);
+        if ($error) {
+            return $error;
         }
 
         try {
@@ -707,14 +807,34 @@ class PublicSimaksiController extends Controller
     }
 
     /**
-     * Interactive Responsive Digital Web Ticket View
+     * Ambil tiket untuk halaman publik/PDF dengan validasi token akses atau sesi petugas.
      */
-    public function ticketView(string $code)
+    private function findAuthorizedTicketForView(Request $request, string $code): SimaksiRegistration
     {
         $code = strtoupper(trim($code));
+        $token = trim((string) ($request->query('token') ?? ''));
+
+        if (! auth()->check() && $token === '') {
+            abort(403, 'Akses e-tiket memerlukan tautan bertoken resmi.');
+        }
+
         $registration = SimaksiRegistration::with(['members', 'reviewer', 'checkInOfficer'])
             ->where('registration_code', $code)
-            ->firstOrFail();
+            ->first();
+
+        if (! $registration || (! auth()->check() && ! $registration->matchesAccessToken($token))) {
+            abort(404);
+        }
+
+        return $registration;
+    }
+
+    /**
+     * Interactive Responsive Digital Web Ticket View
+     */
+    public function ticketView(Request $request, string $code)
+    {
+        $registration = $this->findAuthorizedTicketForView($request, $code);
 
         $profile = AppSetting::getExpeditionProfile();
         $members = $registration->members;
@@ -739,12 +859,9 @@ class PublicSimaksiController extends Controller
     /**
      * Download Official SIMAKSI Ticket as PDF
      */
-    public function downloadTicketPdf(string $code, TicketPdfService $pdfService)
+    public function downloadTicketPdf(Request $request, string $code, TicketPdfService $pdfService)
     {
-        $code = strtoupper(trim($code));
-        $registration = SimaksiRegistration::with(['members', 'reviewer', 'checkInOfficer'])
-            ->where('registration_code', $code)
-            ->firstOrFail();
+        $registration = $this->findAuthorizedTicketForView($request, $code);
 
         $pdf = $pdfService->generate($registration);
         $filename = 'E-Tiket_SIMAKSI_'.$registration->registration_code.'.pdf';

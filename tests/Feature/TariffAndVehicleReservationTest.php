@@ -205,8 +205,11 @@ class TariffAndVehicleReservationTest extends TestCase
         $this->assertEquals($fullAddress, $reg->leader_address);
         $this->assertEquals($fullAddress, $reg->leader_city);
 
-        // Verify lookup API also returns leader_address
-        $lookupResponse = $this->getJson(route('portal.simaksi.lookup', ['code' => $reg->registration_code]));
+        // Verify lookup API also returns leader_address when verified with token or NIK
+        $lookupResponse = $this->getJson(route('portal.simaksi.lookup', [
+            'code' => $reg->registration_code,
+            'token' => $reg->access_token,
+        ]));
         $lookupResponse->assertStatus(200);
         $lookupResponse->assertJsonPath('data.leader_address', $fullAddress);
     }

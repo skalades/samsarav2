@@ -189,6 +189,7 @@ class BookingAntiFraudTest extends TestCase
 
         $this->postJson(route('portal.simaksi.upload_proof'), [
             'registration_code' => $res->json('registration_code'),
+            'access_token' => $res->json('access_token'),
             'payment_proof' => UploadedFile::fake()->image('telat.jpg'),
         ])->assertStatus(422);
     }

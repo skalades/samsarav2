@@ -67,10 +67,14 @@ class GoLiveHardeningTest extends TestCase
         $this->assertTrue(Hash::check('Rahasia-Kuat-2026!', $admin->password), 'Seeder ulang tidak boleh menimpa password.');
     }
 
-    public function test_simaksi_code_has_brute_force_resistant_entropy(): void
+    public function test_simaksi_code_is_compact_readable_and_token_is_high_entropy(): void
     {
         $code = CodeGenerator::simaksiCode();
-        $this->assertMatchesRegularExpression('/^SMK-\d{6}-[A-Z0-9]{8}$/', $code);
+        $this->assertMatchesRegularExpression('/^SMK-\d{4}-[2-9A-HJ-KM-NP-Z]{5}$/', $code);
+        $this->assertLessThanOrEqual(16, strlen($code), 'Kode harus muat 1 baris di printer thermal 58mm wide.');
+
+        $token = CodeGenerator::ticketAccessToken();
+        $this->assertSame(32, strlen($token));
     }
 
     public function test_currency_sanitizer_leaves_passwords_and_account_numbers_untouched(): void
@@ -108,11 +112,14 @@ class GoLiveHardeningTest extends TestCase
             'total_amount' => 25000,
         ]);
 
-        $this->get(route('portal.simaksi.ticket', $reg->registration_code))->assertOk()
+        $this->get($reg->publicTicketUrl())->assertOk()
             ->assertDontSee('081234567890')
             ->assertSee('0812****890');
 
-        $this->getJson(route('portal.simaksi.lookup', ['code' => $reg->registration_code]))->assertOk()
+        $this->getJson(route('portal.simaksi.lookup', [
+            'code' => $reg->registration_code,
+            'token' => $reg->access_token,
+        ]))->assertOk()
             ->assertJsonPath('data.leader_address', 'Garut')
             ->assertDontSee('Jl. Rahasia');
     }

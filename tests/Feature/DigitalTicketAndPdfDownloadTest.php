@@ -103,7 +103,7 @@ class DigitalTicketAndPdfDownloadTest extends TestCase
      */
     public function test_can_view_interactive_digital_ticket_web_page(): void
     {
-        $response = $this->get(route('portal.simaksi.ticket', $this->registration->registration_code));
+        $response = $this->get($this->registration->publicTicketUrl());
 
         $response->assertStatus(200);
         $response->assertSee('SMK-202611-TEST1');
@@ -114,11 +114,27 @@ class DigitalTicketAndPdfDownloadTest extends TestCase
     }
 
     /**
+     * Test public access without valid token is denied.
+     */
+    public function test_public_ticket_and_pdf_require_valid_access_token(): void
+    {
+        $this->get(route('portal.simaksi.ticket', $this->registration->registration_code))
+            ->assertStatus(403);
+        $this->get(route('portal.simaksi.ticket_pdf', $this->registration->registration_code))
+            ->assertStatus(403);
+
+        $this->get(route('portal.simaksi.ticket', ['code' => $this->registration->registration_code, 'token' => 'wrong-token']))
+            ->assertStatus(404);
+        $this->get(route('portal.simaksi.ticket_pdf', ['code' => $this->registration->registration_code, 'token' => 'wrong-token']))
+            ->assertStatus(404);
+    }
+
+    /**
      * Test public download of the official SIMAKSI PDF.
      */
     public function test_can_download_simaksi_pdf_ticket_publicly(): void
     {
-        $response = $this->get(route('portal.simaksi.ticket_pdf', $this->registration->registration_code));
+        $response = $this->get($this->registration->publicPdfUrl());
 
         $response->assertStatus(200);
         $response->assertHeader('content-type', 'application/pdf');
@@ -174,11 +190,14 @@ class DigitalTicketAndPdfDownloadTest extends TestCase
      */
     public function test_lookup_endpoint_returns_ticket_urls(): void
     {
-        $response = $this->getJson(route('portal.simaksi.lookup', ['code' => $this->registration->registration_code]));
+        $response = $this->getJson(route('portal.simaksi.lookup', [
+            'code' => $this->registration->registration_code,
+            'nik_last4' => '0001',
+        ]));
 
         $response->assertStatus(200);
-        $response->assertJsonPath('data.ticket_url', route('portal.simaksi.ticket', $this->registration->registration_code));
-        $response->assertJsonPath('data.pdf_download_url', route('portal.simaksi.ticket_pdf', $this->registration->registration_code));
+        $response->assertJsonPath('data.ticket_url', $this->registration->publicTicketUrl());
+        $response->assertJsonPath('data.pdf_download_url', $this->registration->publicPdfUrl());
         $response->assertJsonPath('data.can_download_ticket', true);
     }
 
@@ -187,10 +206,10 @@ class DigitalTicketAndPdfDownloadTest extends TestCase
      */
     public function test_invalid_ticket_code_returns_404(): void
     {
-        $response1 = $this->get(route('portal.simaksi.ticket', 'SMK-NONEXISTENT'));
+        $response1 = $this->get(route('portal.simaksi.ticket', ['code' => 'SMK-NONEXISTENT', 'token' => 'any-token']));
         $response1->assertStatus(404);
 
-        $response2 = $this->get(route('portal.simaksi.ticket_pdf', 'SMK-NONEXISTENT'));
+        $response2 = $this->get(route('portal.simaksi.ticket_pdf', ['code' => 'SMK-NONEXISTENT', 'token' => 'any-token']));
         $response2->assertStatus(404);
     }
 

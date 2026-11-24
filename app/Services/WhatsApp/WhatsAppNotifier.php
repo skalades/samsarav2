@@ -132,9 +132,9 @@ class WhatsAppNotifier
 
         $lines[] = '';
         $lines[] = '*E-SIMAKSI / E-TIKET*';
-        $lines[] = route('portal.simaksi.ticket', $reg->registration_code);
+        $lines[] = $reg->publicTicketUrl();
         $lines[] = 'Unduh PDF:';
-        $lines[] = route('portal.simaksi.ticket_pdf', $reg->registration_code);
+        $lines[] = $reg->publicPdfUrl();
         $lines[] = '';
         $lines[] = '*DARURAT*';
         $lines[] = "• Hotline basecamp: {$profile['emergency_hotline']}";
