@@ -233,11 +233,11 @@
                     </div>
                     <p class="text-[11px] text-stone-400">Tunjukkan kode ini kepada petugas pendaftaran di Pos Gerbang Basecamp untuk otentikasi cepat.</p>
                 </div>
-                <div class="bg-white p-2.5 rounded-xl shadow-md border border-stone-300 text-center flex-shrink-0 flex flex-col items-center">
-                    <div class="p-1 bg-white rounded flex items-center justify-center">
-                        <img src="{{ \App\Support\QrCode::pngDataUri($registration->registration_code, 4, 1) }}" width="84" height="84" alt="QR Code" class="block">
+                <div class="bg-white p-3 rounded-xl shadow-md border border-stone-300 text-center flex-shrink-0 flex flex-col items-center">
+                    <div class="p-1.5 bg-white rounded-lg flex items-center justify-center">
+                        <img src="{{ \App\Support\QrCode::pngDataUri($registration->registration_code, 8, 4) }}" width="128" height="128" alt="QR Code" class="block w-28 h-28 sm:w-32 sm:h-32" style="image-rendering: pixelated;">
                     </div>
-                    <div class="font-mono-tech font-black text-black text-xs tracking-widest px-2.5 py-0.5 bg-stone-100 rounded border border-stone-300 mt-1">
+                    <div class="font-mono-tech font-black text-black text-xs tracking-widest px-2.5 py-0.5 bg-stone-100 rounded border border-stone-300 mt-1.5">
                         *{{ $registration->registration_code }}*
                     </div>
                     <div class="text-[9px] font-mono-tech font-bold text-stone-600 mt-1 uppercase tracking-wider">Valid Basecamp SAMSARA</div>

@@ -68,16 +68,16 @@
 
   {{-- 3. Center Viewfinder --}}
   <div class="flex-1 flex flex-col items-center justify-center p-4 relative min-h-0">
-    <div class="relative w-full max-w-xs sm:max-w-sm aspect-square rounded-2xl overflow-hidden bg-black border-2 border-emerald-500/50 shadow-2xl flex items-center justify-center">
+    <div class="relative w-full max-w-xs sm:max-w-sm rounded-2xl overflow-hidden bg-black border-2 border-emerald-500/50 shadow-2xl">
       
       {{-- Viewport target element for Html5Qrcode --}}
-      <div id="qrReaderViewport" class="w-full h-full object-cover"></div>
+      <div id="qrReaderViewport" class="w-full min-h-[260px]"></div>
 
       {{-- Laser Scanning Bar Animation --}}
       <div class="pointer-events-none absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_12px_#34d399] animate-[scannerBeam_2.2s_ease-in-out_infinite]"></div>
 
       {{-- Corner Target Reticles --}}
-      <div class="pointer-events-none absolute inset-3 border-2 border-transparent">
+      <div class="pointer-events-none absolute inset-4 border-2 border-transparent">
         <span class="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-emerald-400 rounded-tl-lg"></span>
         <span class="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-emerald-400 rounded-tr-lg"></span>
         <span class="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-emerald-400 rounded-bl-lg"></span>
@@ -128,6 +128,11 @@
   0%, 100% { top: 6%; opacity: 0.3; }
   50% { top: 92%; opacity: 1; }
 }
+#qrReaderViewport video {
+  width: 100% !important;
+  height: auto !important;
+  display: block;
+}
 </style>
 
 @push('scripts')
@@ -145,6 +150,7 @@
   let availableCameras = [];
   let currentCameraIndex = 0;
   let isTorchActive = false;
+  let isHandlingScan = false;
   let audioContext = null;
 
   const targetFormId = @json($formId);
@@ -184,6 +190,7 @@
   window.openQrScanner = function () {
     const overlay = document.getElementById('qrScannerOverlay');
     if (!overlay) return;
+    isHandlingScan = false;
     overlay.classList.remove('hidden');
 
     if (html5QrCode && html5QrCode.isScanning) {
@@ -207,6 +214,65 @@
     }
   };
 
+  function populateCameraDropdown(devices, activeId) {
+    const select = document.getElementById('qrCameraSelect');
+    if (!select) return;
+    select.innerHTML = '';
+    availableCameras = devices || [];
+
+    if (availableCameras.length === 0) {
+      const opt = document.createElement('option');
+      opt.value = 'environment';
+      opt.text = 'Kamera Belakang (Otomatis)';
+      select.appendChild(opt);
+      return;
+    }
+
+    let selectedIdx = 0;
+    availableCameras.forEach((dev, index) => {
+      const opt = document.createElement('option');
+      opt.value = dev.id;
+
+      let label = dev.label ? dev.label.trim() : `Kamera ${index + 1}`;
+      if (/back|rear|environment/i.test(label)) {
+        label = `📷 Belakang [${index + 1}]: ` + label.replace(/camera|back|rear/gi, '').trim();
+      } else if (/front|user|selfie/i.test(label)) {
+        label = `🤳 Depan [${index + 1}]: ` + label.replace(/camera|front|user/gi, '').trim();
+      } else {
+        label = `📷 Kamera ${index + 1}: ` + label;
+      }
+
+      opt.text = label;
+      select.appendChild(opt);
+
+      if (activeId && dev.id === activeId) {
+        selectedIdx = index;
+      }
+    });
+
+    select.selectedIndex = selectedIdx;
+    currentCameraIndex = selectedIdx;
+  }
+
+  function pickPreferredRearCameraIndex(devices) {
+    const savedCamId = localStorage.getItem(STORAGE_KEY_CAM);
+    if (savedCamId) {
+      const savedIdx = devices.findIndex(d => d.id === savedCamId);
+      if (savedIdx !== -1) return savedIdx;
+    }
+    // Prefer standard rear camera (avoid ultrawide/macro/tele lenses that cannot focus close-up)
+    const primaryRearIdx = devices.findIndex(d =>
+      /back|rear|environment/i.test(d.label || '') &&
+      !/wide|ultra|macro|tele|depth|0\.5/i.test(d.label || '')
+    );
+    if (primaryRearIdx !== -1) return primaryRearIdx;
+
+    const anyRearIdx = devices.findIndex(d => /back|rear|environment/i.test(d.label || ''));
+    if (anyRearIdx !== -1) return anyRearIdx;
+
+    return -1;
+  }
+
   // 4. Enumerate Available Cameras and Populate Dropdown
   function initCamerasAndStart() {
     if (typeof Html5Qrcode === 'undefined') {
@@ -215,80 +281,50 @@
     }
 
     Html5Qrcode.getCameras().then(devices => {
-      const select = document.getElementById('qrCameraSelect');
-      select.innerHTML = '';
-
       if (!devices || devices.length === 0) {
-        // Fallback: Environment facingMode
-        const opt = document.createElement('option');
-        opt.value = 'environment';
-        opt.text = 'Kamera Default (Otomatis)';
-        select.appendChild(opt);
-        startScannerWithConfig({ facingMode: 'environment' });
+        populateCameraDropdown([], null);
+        startScannerWithConfig({ facingMode: 'environment' }, true);
         return;
       }
 
-      availableCameras = devices;
-      const savedCamId = localStorage.getItem(STORAGE_KEY_CAM);
-      let targetIndex = 0;
+      const preferredIdx = pickPreferredRearCameraIndex(devices);
+      if (preferredIdx === -1) {
+        // Labels may be hidden before camera permission is granted; open rear camera via facingMode first
+        populateCameraDropdown(devices, null);
+        startScannerWithConfig({ facingMode: 'environment' }, true);
+        return;
+      }
 
-      devices.forEach((dev, index) => {
-        const opt = document.createElement('option');
-        opt.value = dev.id;
-
-        let label = dev.label ? dev.label.trim() : `Kamera ${index + 1}`;
-        // Clean label names for field clarity
-        if (/back|rear|environment/i.test(label)) {
-          label = `📷 Belakang [${index + 1}]: ` + label.replace(/camera|back|rear/gi, '').trim();
-        } else if (/front|user|selfie/i.test(label)) {
-          label = `🤳 Depan [${index + 1}]: ` + label.replace(/camera|front|user/gi, '').trim();
-        } else {
-          label = `📷 Kamera ${index + 1}: ` + label;
-        }
-
-        opt.text = label;
-        select.appendChild(opt);
-
-        if (savedCamId && dev.id === savedCamId) {
-          targetIndex = index;
-        }
-      });
-
-      select.selectedIndex = targetIndex;
-      currentCameraIndex = targetIndex;
-
-      startScannerWithConfig(devices[targetIndex].id);
+      populateCameraDropdown(devices, devices[preferredIdx].id);
+      startScannerWithConfig(devices[preferredIdx].id, false);
     }).catch(err => {
       console.warn('Gagal membaca kamera via getCameras():', err);
-      // Fallback: facingMode environment
-      startScannerWithConfig({ facingMode: 'environment' });
+      startScannerWithConfig({ facingMode: 'environment' }, true);
     });
   }
 
   // 5. Start Scanner with Camera ID or Constraint Object
-  function startScannerWithConfig(cameraConfig) {
+  function startScannerWithConfig(cameraConfig, refreshLabelsAfterStart = false) {
     setStatus('Mengaktifkan lensa kamera…');
     turnOffTorchUi();
 
     if (!html5QrCode) {
-      // Initialize with support for standard QR and 1D Barcodes
+      const formats = (typeof Html5QrcodeSupportedFormats !== 'undefined')
+        ? [Html5QrcodeSupportedFormats.QR_CODE, Html5QrcodeSupportedFormats.CODE_128]
+        : undefined;
+
       html5QrCode = new Html5Qrcode('qrReaderViewport', {
+        formatsToSupport: formats,
         experimentalFeatures: {
-          useBarCodeDetectorIfSupported: true
+          useBarCodeDetectorIfSupported: false
         },
         verbose: false
       });
     }
 
     const scanConfig = {
-      fps: 15, // Smooth 15 frames per second for high-responsiveness
-      qrbox: function(viewfinderWidth, viewfinderHeight) {
-        // Dynamic responsive scan box: min 200px, max 280px
-        const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-        const boxSize = Math.max(180, Math.min(minEdge * 0.78, 280));
-        return { width: Math.floor(boxSize), height: Math.floor(boxSize) };
-      },
-      aspectRatio: 1.0
+      fps: 12,
+      disableFlip: true
     };
 
     html5QrCode.start(
@@ -297,7 +333,22 @@
       onCodeDetected,
       () => {} // silent on frame without barcode
     ).then(() => {
-      setStatus('Kamera aktif · Arahkan ke barcode / QR tiket');
+      setStatus('Kamera aktif · Arahkan ke QR / barcode tiket');
+
+      // Enable continuous autofocus when supported by the mobile camera track
+      try {
+        const caps = html5QrCode.getRunningTrackCapabilities ? html5QrCode.getRunningTrackCapabilities() : {};
+        if (caps && Array.isArray(caps.focusMode) && caps.focusMode.includes('continuous')) {
+          html5QrCode.applyVideoConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
+        }
+      } catch (e) {}
+
+      if (refreshLabelsAfterStart) {
+        Html5Qrcode.getCameras().then(devices => {
+          const activeDeviceId = html5QrCode.getRunningTrackSettings ? html5QrCode.getRunningTrackSettings().deviceId : null;
+          populateCameraDropdown(devices, activeDeviceId);
+        }).catch(() => {});
+      }
     }).catch(err => {
       console.error('Gagal menjalankan kamera:', err);
       setStatus('Izin kamera ditolak atau lensa sibuk. Gunakan input manual.');
@@ -384,7 +435,8 @@
 
   // 9. Successfully Scanned & Decoded Handler
   function onCodeDetected(decodedText) {
-    if (!decodedText) return;
+    if (!decodedText || isHandlingScan) return;
+    isHandlingScan = true;
 
     // Trigger visual flash
     const flash = document.getElementById('qrSuccessFlash');

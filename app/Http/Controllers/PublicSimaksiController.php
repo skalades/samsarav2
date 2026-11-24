@@ -517,6 +517,7 @@ class PublicSimaksiController extends Controller
                 'trash_deposit_amount' => $reg->trash_deposit_amount,
                 'ticket_url' => route('portal.simaksi.ticket', $reg->registration_code),
                 'pdf_download_url' => route('portal.simaksi.ticket_pdf', $reg->registration_code),
+                'qr_data_uri' => \App\Support\QrCode::pngDataUri($reg->registration_code, 8, 4),
                 'can_download_ticket' => in_array($reg->status, \App\Models\SimaksiRegistration::REVENUE_STATUSES),
                 'created_at' => $reg->created_at->format('d M Y H:i WIB'),
                 'members' => $reg->members->map(function ($m) use ($maskNik) {

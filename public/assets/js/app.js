@@ -15,6 +15,151 @@ const App = {
     activeNav: 'sec-booking'
   },
 
+  /**
+   * Shared, modular status icon & badge resolver for SIMAKSI verification states.
+   */
+  statusUi: {
+    VERIFIED_STATUSES: ['approved', 'paid', 'gate_cleared', 'checked_in', 'returned', 'active_hiking', 'completed'],
+    VERIFYING_STATUSES: ['pending', 'submitted'],
+    REVISION_STATUSES: ['needs_revision', 'revision_needed'],
+
+    escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[c]));
+    },
+
+    hourglassSvg(sizeClass = 'w-7 h-7') {
+      return `<svg class="${sizeClass} samsara-hourglass" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6.5 3.5h11M6.5 20.5h11" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+        <path d="M8 3.5v3.1c0 2.3 2.5 4.2 4 5.4-1.5 1.2-4 3.1-4 5.4v3.1h8v-3.1c0-2.3-2.5-4.2-4-5.4 1.5-1.2 4-3.1 4-5.4V3.5H8z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        <polygon class="samsara-hourglass-sand-top" points="9.2,5.6 14.8,5.6 12,11.1" fill="#FF5722"/>
+        <polygon class="samsara-hourglass-sand-bottom" points="12,12.9 9.2,18.4 14.8,18.4" fill="#FF5722"/>
+        <line class="samsara-hourglass-stream" x1="12" y1="11.5" x2="12" y2="18.2" stroke="#FF5722" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>`;
+    },
+
+    checkSvg(sizeClass = 'w-8 h-8') {
+      return `<svg class="${sizeClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>`;
+    },
+
+    warningSvg(sizeClass = 'w-7 h-7') {
+      return `<svg class="${sizeClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
+    },
+
+    crossSvg(sizeClass = 'w-7 h-7') {
+      return `<svg class="${sizeClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>`;
+    },
+
+    resolveTicketMeta(data = {}) {
+      const status = String(data.status || 'pending').toLowerCase();
+      const hasProof = Boolean(data.has_proof) || data.payment_status === 'paid';
+
+      if (status === 'rejected') {
+        return {
+          state: 'rejected',
+          isVerifying: false,
+          isVerified: false,
+          iconWrapClass: 'w-14 h-14 mx-auto rounded-full bg-rose-500/15 border-2 border-rose-500/70 flex items-center justify-center text-rose-400',
+          iconHtml: this.crossSvg('w-7 h-7'),
+          badgeText: data.status_label || 'DITOLAK / DIBATALKAN',
+          badgeClass: 'text-[10px] text-rose-400 font-bold px-2.5 py-0.5 bg-rose-500/10 border border-rose-500/30 rounded uppercase tracking-wider font-mono-tech',
+          ticketPillClass: 'bg-rose-500/10 border-rose-500/30 text-rose-400',
+          title: 'RESERVASI DIBATALKAN',
+          subtitle: 'Pendaftaran ini dibatalkan atau kedaluwarsa. Hubungi admin Basecamp SAMSARA atau lakukan pendaftaran ulang.'
+        };
+      }
+
+      if (this.REVISION_STATUSES.includes(status)) {
+        const note = data.revision_notes ? `Catatan petugas: ${data.revision_notes}` : 'Petugas meminta perbaikan berkas. Silakan buka Cek Tiket untuk mengunggah ulang dokumen.';
+        return {
+          state: 'needs_revision',
+          isVerifying: false,
+          isVerified: false,
+          iconWrapClass: 'w-14 h-14 mx-auto rounded-full bg-amber-500/15 border-2 border-amber-500/70 flex items-center justify-center text-amber-400',
+          iconHtml: this.warningSvg('w-7 h-7'),
+          badgeText: data.status_label || 'PERLU PERBAIKAN BERKAS',
+          badgeClass: 'text-[10px] text-amber-400 font-bold px-2.5 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded uppercase tracking-wider font-mono-tech',
+          ticketPillClass: 'bg-rose-500/10 border-rose-500/30 text-rose-400',
+          title: 'PERLU PERBAIKAN BERKAS',
+          subtitle: note
+        };
+      }
+
+      if (this.VERIFIED_STATUSES.includes(status)) {
+        const isHiking = status === 'checked_in' || status === 'active_hiking';
+        const isCompleted = status === 'completed';
+        const badgeColor = isHiking
+          ? 'text-[#FF5722] bg-[#FF5722]/10 border-[#FF5722]/30'
+          : (isCompleted
+            ? 'text-stone-300 bg-stone-500/10 border-stone-500/30'
+            : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30');
+        const iconRingColor = isHiking
+          ? 'bg-[#FF5722]/20 border-[#FF5722] text-[#FF5722]'
+          : 'bg-emerald-500/20 border-emerald-500 text-emerald-400';
+
+        return {
+          state: isCompleted ? 'completed' : (isHiking ? 'active' : 'verified'),
+          isVerifying: false,
+          isVerified: true,
+          iconWrapClass: `w-14 h-14 mx-auto rounded-full border-2 flex items-center justify-center ${iconRingColor}`,
+          iconHtml: this.checkSvg('w-8 h-8'),
+          badgeText: data.status_label || 'LUNAS / SIAP CHECK-IN',
+          badgeClass: `text-[10px] font-bold px-2.5 py-0.5 border rounded uppercase tracking-wider font-mono-tech ${badgeColor}`,
+          ticketPillClass: badgeColor,
+          title: isCompleted ? 'PENDAKIAN TELAH SELESAI' : (isHiking ? 'ROMBONGAN AKTIF DI JALUR' : 'TIKET RESMI TERVERIFIKASI'),
+          subtitle: 'Status SIMAKSI telah terverifikasi. Tunjukkan kode registrasi atau e-tiket ini kepada petugas Basecamp SAMSARA.'
+        };
+      }
+
+      if (hasProof) {
+        return {
+          state: 'verifying',
+          isVerifying: true,
+          isVerified: false,
+          iconWrapClass: 'w-14 h-14 mx-auto rounded-full bg-amber-500/15 border-2 border-amber-500/60 flex items-center justify-center text-amber-400 samsara-status-ring--verifying',
+          iconHtml: this.hourglassSvg('w-7 h-7'),
+          badgeText: 'MENUNGGU VERIFIKASI KASIR',
+          badgeClass: 'text-[10px] text-amber-400 font-bold px-2.5 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded uppercase tracking-wider font-mono-tech',
+          ticketPillClass: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
+          title: 'RESERVASI BERHASIL DIREKAM',
+          subtitle: 'Pembayaran & berkas sedang diverifikasi kasir. Tekan Perbarui Status secara berkala atau simpan kode SIMAKSI Anda.'
+        };
+      }
+
+      return {
+        state: 'awaiting_payment',
+        isVerifying: true,
+        isVerified: false,
+        iconWrapClass: 'w-14 h-14 mx-auto rounded-full bg-amber-500/15 border-2 border-amber-500/60 flex items-center justify-center text-amber-400 samsara-status-ring--verifying',
+        iconHtml: this.hourglassSvg('w-7 h-7'),
+        badgeText: data.payment_due_label
+          ? `BELUM BAYAR · BAYAR SEBELUM ${data.payment_due_label} (OTOMATIS BATAL)`
+          : 'MENUNGGU PEMBAYARAN / VERIFIKASI',
+        badgeClass: 'text-[10px] text-rose-400 font-bold px-2.5 py-0.5 bg-rose-500/10 border border-rose-500/30 rounded uppercase tracking-wider font-mono-tech',
+        ticketPillClass: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
+        title: 'RESERVASI BERHASIL DIREKAM',
+        subtitle: 'Selesaikan pembayaran atau tunjukkan kode registrasi ke kasir loket, lalu tekan Perbarui Status untuk memantau verifikasi.'
+      };
+    },
+
+    async fetchTicketByCode(code) {
+      const response = await fetch('/api/simaksi/lookup?query=' + encodeURIComponent(code), {
+        headers: { 'Accept': 'application/json' },
+        cache: 'no-store'
+      });
+      const json = await response.json();
+      if (!response.ok || !json.success || !json.data) {
+        throw new Error(json.message || 'Gagal memuat status terbaru dari server.');
+      }
+      return json.data;
+    }
+  },
+
   init() {
     this.bindEvents();
     this.renderTelemetry();
@@ -1208,38 +1353,16 @@ const App = {
 
         // Success! Populate Step 5 View
         this.lastSavedCode = result.registration_code;
-        const codeEl = document.getElementById('wzResultCode');
-        const leaderEl = document.getElementById('wzResultLeader');
-        const climbersEl = document.getElementById('wzResultClimbers');
-        const dateEl = document.getElementById('wzResultDate');
-        const totalEl = document.getElementById('wzResultTotal');
-        const methodEl = document.getElementById('wzResultMethod');
-        const statusEl = document.getElementById('wzResultStatusBadge');
+        this.applyResultView(result);
 
-        if (codeEl) codeEl.innerText = result.registration_code;
-        if (leaderEl) leaderEl.innerText = result.leader_name;
-        if (climbersEl) climbersEl.innerText = `${result.total_climbers} ORANG`;
-        if (dateEl) dateEl.innerText = result.hiking_date;
-        if (totalEl) totalEl.innerText = `Rp ${Number(result.total_amount).toLocaleString('id-ID')}`;
-        if (methodEl) {
-          const uniqueNote = result.unique_code > 0 ? ` (+KODE UNIK ${result.unique_code})` : '';
-          methodEl.innerText = `${result.payment_method}${uniqueNote} ${result.has_proof ? '(BUKTI TERUNGGAH)' : '(BELUM BAYAR)'}`;
+        const syncNote = document.getElementById('wzStatusSyncNote');
+        if (syncNote) {
+          syncNote.innerText = '';
+          syncNote.classList.add('hidden');
         }
-        if (statusEl) {
-          statusEl.innerText = (result.has_proof)
-            ? 'MENUNGGU VERIFIKASI KASIR'
-            : `BELUM BAYAR · BAYAR SEBELUM ${result.payment_due_label || '-'} (OTOMATIS BATAL)`;
-          statusEl.className = result.has_proof
-            ? 'text-[10px] text-amber-400 font-bold px-2.5 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded uppercase tracking-wider'
-            : 'text-[10px] text-rose-400 font-bold px-2.5 py-0.5 bg-rose-500/10 border border-rose-500/30 rounded uppercase tracking-wider';
-        }
-
-        const btnDigital = document.getElementById('btnViewDigitalTicket');
-        const btnPdf = document.getElementById('btnDownloadTicketPdf');
-        if (btnDigital) btnDigital.href = `/simaksi/ticket/${result.registration_code}`;
-        if (btnPdf) btnPdf.href = `/simaksi/ticket/${result.registration_code}/pdf`;
 
         // Cache into SAMSARA_CONFIG mockTickets for instant ticket lookup
+        const meta = App.statusUi.resolveTicketMeta(result);
         SAMSARA_CONFIG.mockTickets[result.registration_code] = {
           id: result.registration_code,
           leader: result.leader_name,
@@ -1247,8 +1370,8 @@ const App = {
           members: result.total_climbers,
           date: result.hiking_date,
           ojek: this.ojekCount > 0 ? `${this.ojekCount} Armada Ojek Trail` : 'Tidak Menggunakan Ojek',
-          status: result.has_proof ? 'MENUNGGU VERIFIKASI KASIR' : 'MENUNGGU PEMBAYARAN',
-          statusClass: result.has_proof ? 'text-amber-400 border-amber-500/30 bg-amber-500/10' : 'text-rose-400 border-rose-500/30 bg-rose-500/10',
+          status: meta.badgeText,
+          statusClass: meta.ticketPillClass,
           totalPaid: `Rp ${Number(result.total_amount).toLocaleString('id-ID')} (${result.payment_method})`,
           checkInTime: '06:00 - 10:00 WIB'
         };
@@ -1295,6 +1418,98 @@ const App = {
         if (btn) btn.disabled = false;
         if (txt) txt.innerText = 'KIRIM & BUAT TIKET';
         if (spinner) spinner.classList.add('hidden');
+      }
+    },
+
+    applyResultView(data) {
+      if (!data) return;
+      const meta = App.statusUi.resolveTicketMeta(data);
+
+      const iconWrap = document.getElementById('wzResultIconWrap');
+      const statusEl = document.getElementById('wzResultStatusBadge');
+      const titleEl = document.getElementById('wzResultTitle');
+      const subtitleEl = document.getElementById('wzResultSubtitle');
+      const codeEl = document.getElementById('wzResultCode');
+      const leaderEl = document.getElementById('wzResultLeader');
+      const climbersEl = document.getElementById('wzResultClimbers');
+      const dateEl = document.getElementById('wzResultDate');
+      const totalEl = document.getElementById('wzResultTotal');
+      const methodEl = document.getElementById('wzResultMethod');
+
+      if (iconWrap) {
+        iconWrap.className = meta.iconWrapClass;
+        iconWrap.innerHTML = meta.iconHtml;
+      }
+      if (statusEl) {
+        statusEl.innerText = meta.badgeText;
+        statusEl.className = meta.badgeClass;
+      }
+      if (titleEl) titleEl.innerText = meta.title;
+      if (subtitleEl) subtitleEl.innerText = meta.subtitle;
+
+      if (codeEl && data.registration_code) codeEl.innerText = data.registration_code;
+      if (leaderEl && data.leader_name) leaderEl.innerText = data.leader_name;
+      if (climbersEl && data.total_climbers != null) climbersEl.innerText = `${data.total_climbers} ORANG`;
+      if (dateEl && data.hiking_date) dateEl.innerText = data.hiking_date;
+      if (totalEl && data.total_amount != null) totalEl.innerText = `Rp ${Number(data.total_amount).toLocaleString('id-ID')}`;
+
+      if (methodEl && data.payment_method) {
+        const uniqueNote = data.unique_code > 0 ? ` (+KODE UNIK ${data.unique_code})` : '';
+        const proofLabel = data.payment_status === 'paid' && meta.isVerified
+          ? '(LUNAS)'
+          : (data.has_proof ? '(BUKTI TERUNGGAH)' : '(BELUM BAYAR)');
+        methodEl.innerText = `${data.payment_method}${uniqueNote} ${proofLabel}`;
+      }
+
+      const btnDigital = document.getElementById('btnViewDigitalTicket');
+      const btnPdf = document.getElementById('btnDownloadTicketPdf');
+      const code = data.registration_code || this.lastSavedCode;
+      if (code) {
+        if (btnDigital) btnDigital.href = data.ticket_url || `/simaksi/ticket/${encodeURIComponent(code)}`;
+        if (btnPdf) btnPdf.href = data.pdf_download_url || `/simaksi/ticket/${encodeURIComponent(code)}/pdf`;
+      }
+    },
+
+    async refreshStatus() {
+      const code = this.lastSavedCode || document.getElementById('wzResultCode')?.innerText.trim();
+      if (!code) return;
+
+      const btn = document.getElementById('wzRefreshStatusBtn');
+      const icon = document.getElementById('wzRefreshStatusIcon');
+      const txt = document.getElementById('wzRefreshStatusText');
+      const note = document.getElementById('wzStatusSyncNote');
+
+      if (btn) btn.disabled = true;
+      if (icon) icon.classList.add('animate-spin');
+      if (txt) txt.innerText = 'MEMERIKSA...';
+
+      try {
+        const reg = await App.statusUi.fetchTicketByCode(code);
+        this.applyResultView(reg);
+
+        const meta = App.statusUi.resolveTicketMeta(reg);
+        if (SAMSARA_CONFIG.mockTickets[code]) {
+          SAMSARA_CONFIG.mockTickets[code].status = meta.badgeText;
+          SAMSARA_CONFIG.mockTickets[code].statusClass = meta.ticketPillClass;
+        }
+
+        if (note) {
+          const nowTime = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          note.innerText = `Diperbarui ${nowTime} WIB • ${meta.badgeText}`;
+          note.className = meta.isVerified
+            ? 'text-[10px] font-mono-tech text-emerald-400 font-semibold'
+            : 'text-[10px] font-mono-tech text-stone-400';
+        }
+      } catch (err) {
+        console.error('Wizard refresh status error:', err);
+        if (note) {
+          note.innerText = err.message || 'Gagal memeriksa status. Coba sesaat lagi.';
+          note.className = 'text-[10px] font-mono-tech text-rose-400';
+        }
+      } finally {
+        if (btn) btn.disabled = false;
+        if (icon) icon.classList.remove('animate-spin');
+        if (txt) txt.innerText = 'PERBARUI STATUS';
       }
     },
 
@@ -1658,7 +1873,45 @@ Halo Admin ${SAMSARA_CONFIG.expedition.basecampName || 'Basecamp SAMSARA'}, saya
     },
 
     escapeHtml(value) {
-      return String(value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      return App.statusUi.escapeHtml(value);
+    },
+
+    async refreshStatus(code) {
+      const targetCode = code || document.getElementById('searchTicketInput')?.value.trim().toUpperCase();
+      if (!targetCode) return;
+
+      const btn = document.getElementById('ticketRefreshStatusBtn');
+      const icon = document.getElementById('ticketRefreshStatusIcon');
+      const txt = document.getElementById('ticketRefreshStatusText');
+
+      if (btn) btn.disabled = true;
+      if (icon) icon.classList.add('animate-spin');
+      if (txt) txt.innerText = 'MEMERIKSA...';
+
+      try {
+        const reg = await App.statusUi.fetchTicketByCode(targetCode);
+        this.renderTicketDetail(reg);
+        const note = document.getElementById('ticketRefreshNote');
+        if (note) {
+          const nowTime = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          note.innerText = `Diperbarui ${nowTime} WIB`;
+          note.className = 'text-[9px] text-stone-400 mt-1 block';
+        }
+      } catch (err) {
+        console.error('Ticket refresh error:', err);
+        const note = document.getElementById('ticketRefreshNote');
+        if (note) {
+          note.innerText = err.message || 'Gagal memeriksa status.';
+          note.className = 'text-[9px] text-rose-400 mt-1 block';
+        }
+      } finally {
+        const latestBtn = document.getElementById('ticketRefreshStatusBtn');
+        const latestIcon = document.getElementById('ticketRefreshStatusIcon');
+        const latestTxt = document.getElementById('ticketRefreshStatusText');
+        if (latestBtn) latestBtn.disabled = false;
+        if (latestIcon) latestIcon.classList.remove('animate-spin');
+        if (latestTxt) latestTxt.innerText = 'PERBARUI STATUS';
+      }
     },
 
     async search() {
@@ -1747,22 +2000,16 @@ Halo Admin ${SAMSARA_CONFIG.expedition.basecampName || 'Basecamp SAMSARA'}, saya
       const res = document.getElementById('ticketSearchResult');
       if (!res) return;
 
-      // Status pill styling
-      let statusBg = 'bg-amber-500/10 border-amber-500/30 text-amber-400';
-      if (reg.status === 'paid' || reg.status === 'approved') {
-        statusBg = 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400';
-      } else if (reg.status === 'checked_in' || reg.status === 'active_hiking') {
-        statusBg = 'bg-[#FF5722]/10 border-[#FF5722]/30 text-[#FF5722]';
-      } else if (reg.status === 'needs_revision' || reg.status === 'revision_needed' || reg.status === 'rejected') {
-        statusBg = 'bg-rose-500/10 border-rose-500/30 text-rose-400';
-      } else if (reg.status === 'completed') {
-        statusBg = 'bg-stone-500/10 border-stone-500/30 text-stone-300';
-      }
+      const meta = App.statusUi.resolveTicketMeta(reg);
+      const statusBg = meta.ticketPillClass;
+      const statusIconHtml = meta.isVerifying
+        ? App.statusUi.hourglassSvg('w-3.5 h-3.5 shrink-0')
+        : (meta.isVerified ? App.statusUi.checkSvg('w-3.5 h-3.5 shrink-0') : '');
 
       // Step progress state
       const step1 = true;
       const step2 = reg.has_proof || reg.payment_status === 'paid';
-      const step3 = ['approved', 'paid', 'checked_in', 'active_hiking', 'completed'].includes(reg.status);
+      const step3 = App.statusUi.VERIFIED_STATUSES.includes(reg.status);
       const step4 = ['checked_in', 'active_hiking', 'completed'].includes(reg.status);
 
       // Manifest members list
@@ -1883,14 +2130,24 @@ Halo Admin ${baseName}, mohon bantuan konfirmasi verifikasi status tiket permoho
           
           <!-- Top Ticket Header Banner -->
           <div class="p-3.5 bg-[#16191F] border border-[#2A303C] rounded-xl space-y-2">
-            <div class="flex items-center justify-between border-b border-[#222731] pb-2">
+            <div class="flex items-start justify-between gap-2 border-b border-[#222731] pb-2">
               <div>
                 <span class="text-[9px] text-stone-500 uppercase block">KODE REGISTRASI RESMI</span>
                 <span class="text-base font-bold text-[#FF5722] tracking-wider">${reg.registration_code}</span>
               </div>
-              <span class="px-2.5 py-1 rounded text-[9px] font-bold border uppercase tracking-wider ${statusBg}">
-                ${reg.status_label || reg.status}
-              </span>
+              <div class="text-right space-y-1.5">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[9px] font-bold border uppercase tracking-wider ${statusBg}">
+                  ${statusIconHtml}
+                  <span>${reg.status_label || reg.status}</span>
+                </span>
+                <div>
+                  <button type="button" id="ticketRefreshStatusBtn" onclick="App.ticket.refreshStatus('${reg.registration_code}')" class="tap-active inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#121418] hover:bg-[#1E232D] border border-[#2D3340] hover:border-[#FF5722] text-[9px] font-bold text-stone-200 hover:text-white uppercase tracking-wider transition">
+                    <svg id="ticketRefreshStatusIcon" class="w-3 h-3 text-[#FF5722]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    <span id="ticketRefreshStatusText">PERBARUI STATUS</span>
+                  </button>
+                  <span id="ticketRefreshNote" class="hidden"></span>
+                </div>
+              </div>
             </div>
 
             <!-- Pipeline Visual HUD -->
@@ -1903,8 +2160,9 @@ Halo Admin ${baseName}, mohon bantuan konfirmasi verifikasi status tiket permoho
                 <div class="py-1 rounded ${step2 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'}">
                   2. BUKTI
                 </div>
-                <div class="py-1 rounded ${step3 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-[#181B22] text-stone-600'}">
-                  3. VERIFIKASI
+                <div class="py-1 rounded flex items-center justify-center gap-1 ${step3 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : (meta.isVerifying ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' : 'bg-[#181B22] text-stone-600')}">
+                  ${!step3 && meta.isVerifying ? App.statusUi.hourglassSvg('w-2.5 h-2.5 shrink-0') : ''}
+                  <span>3. VERIFIKASI</span>
                 </div>
                 <div class="py-1 rounded ${step4 ? 'bg-[#FF5722]/20 text-[#FF5722] border border-[#FF5722]/40' : 'bg-[#181B22] text-stone-600'}">
                   4. DI JALUR
@@ -1913,7 +2171,7 @@ Halo Admin ${baseName}, mohon bantuan konfirmasi verifikasi status tiket permoho
             </div>
 
             <!-- Interactive QR Code for Basecamp Gate Check-in -->
-            ${(reg.status === 'paid' || reg.status === 'approved' || reg.status === 'checked_in' || reg.status === 'completed') ? `
+            ${App.statusUi.VERIFIED_STATUSES.includes(reg.status) ? `
               <div class="mt-2 p-2.5 bg-[#0E1014] border border-emerald-500/30 rounded-xl flex items-center justify-between gap-3">
                 <div class="space-y-0.5 min-w-0">
                   <span class="text-[10px] text-emerald-400 font-bold uppercase flex items-center gap-1.5">
@@ -1924,8 +2182,8 @@ Halo Admin ${baseName}, mohon bantuan konfirmasi verifikasi status tiket permoho
                     Tunjukkan barcode QR ini kepada ranger di Gerbang Basecamp untuk proses check-in otomatis 1 detik.
                   </p>
                 </div>
-                <div class="p-1 bg-white rounded-lg shrink-0 shadow-lg">
-                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=2&data=${encodeURIComponent(reg.registration_code)}" alt="QR Code Tiket" class="w-16 h-16 block" loading="lazy">
+                <div class="p-1.5 bg-white rounded-xl shrink-0 shadow-lg">
+                  <img src="${reg.qr_data_uri || ('https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=4&data=' + encodeURIComponent(reg.registration_code))}" alt="QR Code Tiket" class="w-24 h-24 block" style="image-rendering: pixelated;" loading="lazy">
                 </div>
               </div>
             ` : ''}

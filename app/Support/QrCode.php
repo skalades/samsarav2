@@ -269,7 +269,7 @@ class QrCode
     /**
      * Generate pure SVG string of QR Code.
      */
-    public static function svg(string $text, int $displaySize = 100, int $quietZone = 2, string $darkColor = '#000000', string $lightColor = '#ffffff'): string
+    public static function svg(string $text, int $displaySize = 100, int $quietZone = 4, string $darkColor = '#000000', string $lightColor = '#ffffff'): string
     {
         $grid = static::matrixV1M($text);
         $matrixSize = count($grid);
@@ -301,7 +301,7 @@ class QrCode
     /**
      * Generate Base64 PNG Data URI (100% compatible with DomPDF and all PDF renderers).
      */
-    public static function pngDataUri(string $text, int $scale = 4, int $quietZone = 2): string
+    public static function pngDataUri(string $text, int $scale = 8, int $quietZone = 4): string
     {
         $grid = static::matrixV1M($text);
         $size = count($grid);
@@ -337,7 +337,7 @@ class QrCode
     /**
      * Generate Base64 Data URI SVG for HTML img tag.
      */
-    public static function dataUri(string $text, int $displaySize = 100, int $quietZone = 2, string $darkColor = '#000000', string $lightColor = '#ffffff'): string
+    public static function dataUri(string $text, int $displaySize = 100, int $quietZone = 4, string $darkColor = '#000000', string $lightColor = '#ffffff'): string
     {
         $svg = static::svg($text, $displaySize, $quietZone, $darkColor, $lightColor);
         return 'data:image/svg+xml;base64,' . base64_encode($svg);

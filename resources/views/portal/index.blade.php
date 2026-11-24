@@ -640,18 +640,31 @@
         <!-- STEP 5: HASIL TIKET RESMI TERBIT               -->
         <!-- ============================================== -->
         <div id="wizardStep5" class="hidden text-center py-2 space-y-4">
-          <div class="w-14 h-14 mx-auto rounded-full bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center text-emerald-400">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+          <div id="wzResultIconWrap" class="w-14 h-14 mx-auto rounded-full bg-amber-500/15 border-2 border-amber-500/60 flex items-center justify-center text-amber-400 samsara-status-ring--verifying">
+            <svg class="w-7 h-7 samsara-hourglass" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6.5 3.5h11M6.5 20.5h11" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+              <path d="M8 3.5v3.1c0 2.3 2.5 4.2 4 5.4-1.5 1.2-4 3.1-4 5.4v3.1h8v-3.1c0-2.3-2.5-4.2-4-5.4 1.5-1.2 4-3.1 4-5.4V3.5H8z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              <polygon class="samsara-hourglass-sand-top" points="9.2,5.6 14.8,5.6 12,11.1" fill="#FF5722"/>
+              <polygon class="samsara-hourglass-sand-bottom" points="12,12.9 9.2,18.4 14.8,18.4" fill="#FF5722"/>
+              <line class="samsara-hourglass-stream" x1="12" y1="11.5" x2="12" y2="18.2" stroke="#FF5722" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
           </div>
           
           <div>
             <span id="wzResultStatusBadge" class="text-[10px] text-amber-400 font-bold px-2.5 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded uppercase tracking-wider font-mono-tech">
               MENUNGGU VERIFIKASI KASIR
             </span>
-            <h4 class="font-display font-black text-xl text-white mt-1.5">RESERVASI BERHASIL DIREKAM</h4>
-            <p class="text-xs text-stone-400 mt-1 max-w-xs mx-auto">
+            <h4 id="wzResultTitle" class="font-display font-black text-xl text-white mt-1.5">RESERVASI BERHASIL DIREKAM</h4>
+            <p id="wzResultSubtitle" class="text-xs text-stone-400 mt-1 max-w-xs mx-auto">
               Simpan kode registrasi SIMAKSI berikut untuk ditunjukkan ke petugas loket Basecamp SAMSARA.
             </p>
+            <div class="pt-3 flex flex-col items-center gap-1.5">
+              <button type="button" id="wzRefreshStatusBtn" onclick="App.wizard.refreshStatus()" class="tap-active inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-raised hover:bg-hover border border-line-strong hover:border-brand text-stone-200 hover:text-white font-mono-tech font-bold text-[11px] uppercase tracking-wider transition">
+                <svg id="wzRefreshStatusIcon" class="w-3.5 h-3.5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                <span id="wzRefreshStatusText">PERBARUI STATUS</span>
+              </button>
+              <span id="wzStatusSyncNote" class="hidden text-[10px] font-mono-tech text-stone-400"></span>
+            </div>
           </div>
 
           <!-- Ticket Box -->
