@@ -56,9 +56,9 @@
     <x-ui.card title="Alat dibawa turun" subtitle="Pastikan tenda & alat tidak ditinggal di jalur" icon="checklist">
       <div class="flex flex-wrap gap-2">
         @foreach($gearItems->where('checked_up', true) as $item)
-          <label class="cursor-pointer select-none">
-            <input type="checkbox" name="gear_down[{{ $item->id }}]" value="1" class="peer sr-only gear-check" onchange="evaluate()" @checked(old('gear_down.'.$item->id))>
-            <span class="inline-flex items-center gap-2 h-11 px-4 rounded-xl text-sm font-medium ring-1 ring-line-strong bg-raised text-muted peer-checked:bg-emerald-500/15 peer-checked:text-emerald-200 peer-checked:ring-emerald-500/40 transition">
+          <label class="relative inline-flex cursor-pointer select-none">
+            <input type="checkbox" name="gear_down[{{ $item->id }}]" value="1" class="peer absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10 gear-check" onchange="evaluate()" @checked(old('gear_down.'.$item->id))>
+            <span class="inline-flex items-center gap-2 h-11 px-4 rounded-xl text-sm font-medium ring-1 ring-line-strong bg-raised text-muted peer-checked:bg-emerald-500/15 peer-checked:text-emerald-200 peer-checked:ring-emerald-500/40 transition pointer-events-none">
               <x-ui.icon name="check" class="w-4 h-4 opacity-40" /> {{ $item->name }}
             </span>
           </label>

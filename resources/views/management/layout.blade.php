@@ -17,14 +17,14 @@
   $initials = collect(explode(' ', (string) $authUser?->name))->filter()->take(2)->map(fn ($p) => mb_strtoupper(mb_substr($p, 0, 1)))->implode('');
 @endphp
 <!DOCTYPE html>
-<html lang="id" class="h-full">
+<html lang="id" class="h-full overflow-hidden">
 <head>
   @include('management.partials.head')
   <title>@yield('title', 'Sistem Manajemen Operasional') — {{ $profile['expedition'] }}</title>
 </head>
-<body class="h-full antialiased selection:bg-brand selection:text-white">
+<body class="h-full overflow-hidden antialiased selection:bg-brand selection:text-white">
 
-<div id="appShell" class="relative h-full flex overflow-hidden bg-canvas">
+<div id="appShell" class="relative h-full h-[100dvh] flex overflow-hidden bg-canvas">
 
   <!-- Backdrop drawer (mobile) -->
   <div id="mgmtBackdrop" onclick="toggleMgmtSidebar(false)" class="lg:hidden absolute inset-0 z-30 bg-black/70 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200"></div>
@@ -286,6 +286,13 @@
     update();
     window.addEventListener('resize', update);
   })();
+
+  // Kunci scroll window/document agar appShell dan bottom nav tidak pernah terdorong naik
+  window.addEventListener('scroll', function () {
+    if (window.scrollY !== 0 || window.scrollX !== 0) {
+      window.scrollTo(0, 0);
+    }
+  }, { passive: true });
 
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeProofModal(); toggleMgmtSidebar(false); } });
 

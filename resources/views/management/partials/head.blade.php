@@ -55,8 +55,21 @@
 </script>
 
 <style>
-  html, body { background-color: #0B0D10; }
-  body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; color: #ECEFF3; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    background-color: #0B0D10;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+  }
+  body {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    color: #ECEFF3;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+  }
   .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; }
   .font-code { font-family: 'JetBrains Mono', ui-monospace, monospace; letter-spacing: -0.01em; }
   /* Gaya lama "terminal" kini memakai Inter + angka tabular agar lebih mudah dibaca */
@@ -83,6 +96,21 @@
   details > summary::-webkit-details-marker { display: none; }
 
   /* Mode mobile dipaksa di layar lebar: bingkai selebar ponsel di tengah */
-  html.force-mobile body { background-color: #050607; }
-  html.force-mobile #appShell { width: 100%; max-width: 440px; margin-left: auto; margin-right: auto; border-left: 1px solid #232932; border-right: 1px solid #232932; box-shadow: 0 0 80px rgba(0, 0, 0, .7); }
+  html.force-mobile, html.force-mobile body {
+    background-color: #050607;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+  }
+  html.force-mobile #appShell {
+    width: 100%;
+    max-width: 440px;
+    height: 100%;
+    height: 100dvh;
+    margin-left: auto;
+    margin-right: auto;
+    border-left: 1px solid #232932;
+    border-right: 1px solid #232932;
+    box-shadow: 0 0 80px rgba(0, 0, 0, .7);
+  }
 </style>

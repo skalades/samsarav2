@@ -82,9 +82,9 @@
         <label class="label">Level akses</label>
         <div class="grid grid-cols-2 gap-2">
           @foreach($roles as $key => $role)
-            <label class="cursor-pointer">
-              <input type="radio" name="role" value="{{ $key }}" class="peer sr-only role-radio" @checked($key === 'kasir')>
-              <span class="block p-3 rounded-xl ring-1 ring-line-strong bg-raised peer-checked:ring-brand peer-checked:bg-brand/10">
+            <label class="relative cursor-pointer select-none">
+              <input type="radio" name="role" value="{{ $key }}" class="peer absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10 role-radio" @checked($key === 'kasir')>
+              <span class="block p-3 rounded-xl ring-1 ring-line-strong bg-raised peer-checked:ring-brand peer-checked:bg-brand/10 pointer-events-none">
                 <span class="block text-sm font-semibold text-ink">{{ $role['label'] }}</span>
                 <span class="block text-[11px] text-muted leading-snug mt-0.5">{{ $role['description'] }}</span>
               </span>

@@ -76,7 +76,7 @@
           <span class="text-sm font-semibold text-ink">{{ $existingPhoto ? 'Ambil foto baru (opsional)' : 'Ambil foto tim' }}</span>
           <span class="text-xs text-muted">Kamera ponsel akan terbuka</span>
         </span>
-        <input type="file" name="team_photo" accept="image/*" capture="environment" class="sr-only" onchange="previewTeamPhoto(this)">
+        <input type="file" name="team_photo" accept="image/*" capture="environment" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10" onchange="previewTeamPhoto(this)">
       </label>
     </div>
   </x-ui.card>
@@ -87,10 +87,10 @@
     <div class="flex flex-wrap gap-2" id="gearList">
       @foreach($template['gear'] as $i => $gear)
         @php $checked = $oldGear ? !empty($oldGear[$i]['checked']) : false; @endphp
-        <label class="cursor-pointer select-none">
+        <label class="relative inline-flex cursor-pointer select-none">
           <input type="hidden" name="gear[{{ $i }}][name]" value="{{ $gear }}">
-          <input type="checkbox" name="gear[{{ $i }}][checked]" value="1" class="peer sr-only gear-check" @checked($checked)>
-          <span class="inline-flex items-center gap-2 h-11 px-4 rounded-xl text-sm font-medium ring-1 ring-line-strong bg-raised text-muted peer-checked:bg-emerald-500/15 peer-checked:text-emerald-200 peer-checked:ring-emerald-500/40 transition">
+          <input type="checkbox" name="gear[{{ $i }}][checked]" value="1" class="peer absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10 gear-check" @checked($checked)>
+          <span class="inline-flex items-center gap-2 h-11 px-4 rounded-xl text-sm font-medium ring-1 ring-line-strong bg-raised text-muted peer-checked:bg-emerald-500/15 peer-checked:text-emerald-200 peer-checked:ring-emerald-500/40 transition pointer-events-none">
             <x-ui.icon name="check" class="w-4 h-4 opacity-40" /> {{ $gear }}
           </span>
         </label>
