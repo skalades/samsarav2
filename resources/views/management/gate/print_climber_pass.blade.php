@@ -230,9 +230,11 @@
 
       <!-- Emergency Hotline & Safety Rules -->
       <div class="stamp-box">
-        <div class="font-bold">HOTLINE RESCUE & FREKUENSI RADIO</div>
+        <div class="font-bold">HOTLINE RESCUE & INFORMASI SAR</div>
         <div>SAR BASECAMP: {{ $profile['emergency_hotline'] ?? '+62 821-2233-4455' }}</div>
-        <div>FREKUENSI HT: {{ $profile['sar_frequency'] ?? '149.250 MHz' }}</div>
+        @if(!empty($profile['sar_radio_enabled']) && !empty($profile['sar_frequency']))
+          <div>FREKUENSI HT: {{ $profile['sar_frequency'] }}</div>
+        @endif
         <div style="margin-top: 4px; font-style: italic;">
           Simpan surat jalan ini di saku/ransel. Tunjukkan ke ranger di setiap Pos/Shelter pendakian.
         </div>

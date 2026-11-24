@@ -63,7 +63,7 @@
         @if($sel->isTektok())
           Tektok: wajib kembali ke basecamp sebelum pukul {{ $trailConfig['tektok_max_checkout_hour'] }}:00 dan dilarang mendirikan tenda.
         @else
-          Camp: tenda hanya di Pos 2 (mata air) atau Pos 3 (camp atas).
+          Camp: tenda hanya di Pos 2 (Batu Gendrung) atau Pos 3 (Thun 30), disarankan Pos 3. Puncak dilarang camp.
         @endif
       </p>
 
@@ -132,13 +132,23 @@
     </ul>
   </x-ui.card>
 
-  <div class="flex items-start gap-3 p-4 rounded-2xl bg-amber-500/5 ring-1 ring-amber-500/20 text-sm">
-    <span class="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-300 flex items-center justify-center shrink-0"><x-ui.icon name="radio" class="w-5 h-5" /></span>
-    <div>
-      <p class="font-semibold text-ink">Ponsel mati? Lapor via HT {{ $sar }}</p>
-      <p class="text-xs text-muted mt-0.5">Sebutkan pos, 3 digit terakhir kode tiket, dan arah. Gatekeeper di basecamp akan mencatatnya.</p>
+  @if(\App\Models\AppSetting::isSarRadioEnabled())
+    <div class="flex items-start gap-3 p-4 rounded-2xl bg-amber-500/5 ring-1 ring-amber-500/20 text-sm">
+      <span class="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-300 flex items-center justify-center shrink-0"><x-ui.icon name="radio" class="w-5 h-5" /></span>
+      <div>
+        <p class="font-semibold text-ink">Ponsel mati? Lapor via HT {{ $sar }}</p>
+        <p class="text-xs text-muted mt-0.5">Sebutkan pos, 3 digit terakhir kode tiket, dan arah. Gatekeeper di basecamp akan mencatatnya.</p>
+      </div>
     </div>
-  </div>
+  @else
+    <div class="flex items-start gap-3 p-4 rounded-2xl bg-stone-500/5 ring-1 ring-line text-sm">
+      <span class="w-9 h-9 rounded-xl bg-surface ring-1 ring-line text-brand flex items-center justify-center shrink-0"><x-ui.icon name="phone" class="w-5 h-5" /></span>
+      <div>
+        <p class="font-semibold text-ink">Ponsel kendala? Hubungi Posko Basecamp</p>
+        <p class="text-xs text-muted mt-0.5">Sebutkan pos, kode pendaftaran, dan arah rombongan. Gatekeeper akan mencatatnya manual.</p>
+      </div>
+    </div>
+  @endif
 </div>
 
 @include('management.partials.qr_scanner', ['formId' => 'rangerSearchForm', 'inputId' => 'rangerCodeInput', 'autoOpen' => false])

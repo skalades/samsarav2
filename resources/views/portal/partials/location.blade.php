@@ -14,7 +14,7 @@
         </span>
       </div>
       <h2 class="font-display font-bold text-xl md:text-2xl text-ink mt-2">Lokasi resmi {{ $bcName }}</h2>
-      <p class="text-sm text-muted mt-1.5">{{ $profile['basecamp_location'] ?? 'Kecamatan Cilawu / Bayongbong, Garut, Jawa Barat' }} · {{ $profile['basecamp_elevation'] ?? '1.450 MDPL' }}</p>
+      <p class="text-sm text-muted mt-1.5">{{ $profile['basecamp_location'] ?? 'Kecamatan Cilawu / Bayongbong, Garut, Jawa Barat' }} · {{ $profile['basecamp_elevation'] ?? '1.245 MDPL' }}</p>
 
       <div class="mt-4 flex items-center justify-between gap-2 p-3 rounded-xl bg-raised/60 ring-1 ring-line">
         <div class="min-w-0">

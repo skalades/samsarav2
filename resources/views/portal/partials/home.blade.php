@@ -1,6 +1,7 @@
 {{-- Beranda / landing page portal publik --}}
 @php
   $trailCfg = \App\Models\AppSetting::getTrailConfig();
+  $trailLast = collect(\App\Models\AppSetting::getTrailRoute())->last();
   $checklist = \App\Support\InspectionTemplate::get();
   $rp = fn ($v) => 'Rp '.number_format((float) $v, 0, ',', '.');
   $status = $trailCondition->status ?? 'open';
@@ -15,13 +16,6 @@
   $mountain = $profile['mountain_name'] ?? 'Gunung Cikuray';
   $basecamp = $profile['basecamp_name'] ?? 'Basecamp SAMSARA';
 
-  $route = array_merge(
-    [['name' => 'Basecamp', 'elevation' => $profile['basecamp_elevation'] ?? '1.450 MDPL', 'note' => 'Registrasi, gate & parkir']],
-    collect($trailCfg['checkpoints'])->map(fn ($p, $k) => ['name' => str_replace('_', ' ', ucwords(strtolower($k), '_')), 'elevation' => $p['elevation'], 'note' => preg_replace('/^[^(]*\(|\)$/', '', $p['name'])])->values()->all()
-  );
-  $route[count($route) - 1]['name'] = 'Puncak';
-  $elevNums = collect($route)->map(fn ($r) => (int) preg_replace('/\D/', '', $r['elevation']));
-  $minE = $elevNums->min(); $maxE = max($elevNums->max(), $minE + 1);
 
   $steps = [
     ['icon' => 'ticket', 'title' => 'Daftar & bayar online', 'text' => 'Pilih tanggal, isi data rombongan dan KTP ketua, lalu bayar via transfer, QRIS, atau tunai di basecamp.'],
@@ -95,8 +89,8 @@
     @foreach([
       [$profile['mountain_elevation_num'] ?? '2.821', 'mdpl', 'Ketinggian puncak'],
       [$maxQuota, 'orang/hari', 'Kuota konservasi'],
-      ['6,2', 'km', 'Panjang jalur'],
-      ['6–8', 'jam', 'Basecamp → puncak'],
+      [number_format($trailLast['cum']['dist_m'] / 1000, 1, ',', '.'), 'km', 'Panjang jalur'],
+      ['±'.round($trailLast['cum']['up_min'] / 60, 1), 'jam', 'Basecamp → puncak'],
     ] as [$val, $unit, $label])
       <div class="rounded-2xl bg-surface ring-1 ring-line p-4">
         <p class="font-display font-bold text-2xl md:text-3xl text-ink tabular-nums">{{ is_numeric($val) && $val >= 1000 ? number_format($val, 0, ',', '.') : $val }} <span class="text-sm font-medium text-muted">{{ $unit }}</span></p>
@@ -160,53 +154,30 @@
     </div>
   </section>
 
-  {{-- ================= RUTE ================= --}}
-  <section class="rounded-3xl bg-surface ring-1 ring-line p-5 md:p-7">
-    <div class="flex items-end justify-between gap-4">
+  {{-- ================= RUTE & PETA ================= --}}
+  <section class="rounded-3xl bg-surface ring-1 ring-line p-4 md:p-7">
+    <div class="flex items-end justify-between gap-4 mb-4">
       <div>
-        <p class="text-xs font-semibold uppercase tracking-wider text-brand">Rute</p>
+        <p class="text-xs font-semibold uppercase tracking-wider text-brand">Peta jalur</p>
         <h2 class="font-display font-bold text-2xl md:text-3xl text-ink mt-1">Pos & ketinggian</h2>
+        <p class="text-sm text-muted mt-1">Pilih segmen untuk melihat jarak, waktu tempuh, kemiringan, dan fasilitas. Atur jam mulai untuk perkiraan tiba.</p>
       </div>
-      <button type="button" onclick="App.nav.switchTab('sec-waypoints')" class="text-sm font-semibold text-brand-soft hover:text-brand flex items-center gap-1 shrink-0">Detail rute <x-ui.icon name="chevron-right" class="w-4 h-4" /></button>
+      <button type="button" onclick="App.nav.switchTab('sec-waypoints')" class="hidden sm:flex text-sm font-semibold text-brand-soft hover:text-brand items-center gap-1 shrink-0">Detail rute <x-ui.icon name="chevron-right" class="w-4 h-4" /></button>
     </div>
 
-    {{-- Profil elevasi (desktop) --}}
-    <div class="hidden md:flex items-end gap-2 h-44 mt-8">
-      @foreach($route as $i => $pt)
-        @php $h = 18 + round((($elevNums[$i] - $minE) / ($maxE - $minE)) * 82); @endphp
-        <div class="flex-1 flex flex-col items-center justify-end h-full">
-          <span class="text-xs font-semibold text-ink tabular-nums mb-1.5">{{ $pt['elevation'] }}</span>
-          <div class="w-full rounded-t-xl {{ $loop->last ? 'bg-brand' : 'bg-raised ring-1 ring-inset ring-line-strong' }}" style="height: {{ $h }}%"></div>
-        </div>
-      @endforeach
-    </div>
-    <div class="hidden md:grid gap-2 mt-3" style="grid-template-columns: repeat({{ count($route) }}, minmax(0, 1fr))">
-      @foreach($route as $pt)
-        <div class="text-center">
-          <p class="text-sm font-semibold text-ink">{{ $pt['name'] }}</p>
-          <p class="text-xs text-muted">{{ $pt['note'] }}</p>
-        </div>
-      @endforeach
-    </div>
+    @include('portal.partials.trail-map', ['mapId' => 'trailMapHome'])
 
-    {{-- Timeline (mobile) --}}
-    <ol class="md:hidden mt-5 relative">
-      @foreach($route as $pt)
-        <li class="relative flex gap-4 pb-5 last:pb-0">
-          @unless($loop->last)<span class="absolute left-[11px] top-6 bottom-0 w-0.5 bg-line-strong"></span>@endunless
-          <span class="relative w-6 h-6 rounded-full shrink-0 flex items-center justify-center {{ $loop->last ? 'bg-brand' : 'bg-raised ring-2 ring-line-strong' }}">
-            <span class="w-2 h-2 rounded-full {{ $loop->last ? 'bg-white' : 'bg-muted' }}"></span>
-          </span>
-          <div class="flex-1 flex items-start justify-between gap-3 -mt-0.5">
-            <div>
-              <p class="text-sm font-semibold text-ink">{{ $pt['name'] }}</p>
-              <p class="text-xs text-muted">{{ $pt['note'] }}</p>
-            </div>
-            <span class="text-xs font-semibold text-ink tabular-nums shrink-0">{{ $pt['elevation'] }}</span>
-          </div>
-        </li>
-      @endforeach
-    </ol>
+    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <div class="flex gap-3 p-3.5 rounded-2xl bg-emerald-500/10 ring-1 ring-emerald-500/25">
+        <x-ui.icon name="refresh" class="w-5 h-5 text-emerald-300 shrink-0 mt-0.5" />
+        <p class="text-sm text-muted"><strong class="text-ink">Pos 1–3:</strong> air melimpah, toilet, mushola, dan shelter.</p>
+      </div>
+      <div class="flex gap-3 p-3.5 rounded-2xl bg-sky-500/10 ring-1 ring-sky-500/25">
+        <x-ui.icon name="home" class="w-5 h-5 text-sky-300 shrink-0 mt-0.5" />
+        <p class="text-sm text-muted"><strong class="text-ink">Camp:</strong> Pos 2 atau Pos 3, disarankan Pos 3 karena paling dekat ke puncak. <strong class="text-rose-300">Puncak dilarang camp.</strong></p>
+      </div>
+    </div>
+    <button type="button" onclick="App.nav.switchTab('sec-waypoints')" class="sm:hidden mt-3 w-full h-11 rounded-xl bg-raised ring-1 ring-line text-sm font-semibold text-ink flex items-center justify-center gap-1">Detail semua pos <x-ui.icon name="chevron-right" class="w-4 h-4" /></button>
   </section>
 
   {{-- ================= KENAPA SAMSARA ================= --}}
@@ -216,8 +187,8 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
       @foreach([
         ['mountain', 'Lautan awan & bayangan segitiga', 'Puncak kerucut Cikuray memproyeksikan bayangan segitiga raksasa di atas samudera awan saat matahari terbit.'],
-        ['pin', 'Hutan lumut & mata air Pos 2', 'Koridor hutan yang teduh dengan mata air jernih — titik isi ulang air terakhir sebelum puncak.'],
-        ['bolt', 'Ojek kebun teh & SAR 24 jam', 'Hemat ±2 jam lewat ojek resmi ke Pos 1, dengan radio jalur dan tim SAR yang siaga sepanjang hari.'],
+        ['pin', 'Air melimpah di Pos 1–3', 'Koridor hutan yang teduh dengan air, toilet, mushola, dan shelter di tiga pos pertama. Pos 3 jadi titik isi ulang terakhir.'],
+        ['bolt', 'Ojek kebun teh & SAR 24 jam', 'Hemat ±2 jam lewat ojek resmi ke Pos 1, dengan posko siaga dan tim SAR yang siaga sepanjang hari.'],
       ] as [$icon, $title, $text])
         <div class="rounded-2xl bg-surface ring-1 ring-line p-5">
           <span class="w-11 h-11 rounded-xl bg-raised ring-1 ring-line text-brand flex items-center justify-center"><x-ui.icon :name="$icon" class="w-5 h-5" /></span>
@@ -250,16 +221,9 @@
     </div>
     <div class="lg:col-span-3 rounded-3xl bg-surface ring-1 ring-line p-5 md:p-7">
       <p class="text-xs font-semibold uppercase tracking-wider text-brand">Fasilitas basecamp</p>
-      <h2 class="font-display font-bold text-xl md:text-2xl text-ink mt-1">Siap melayani 24 jam</h2>
+      <h2 class="font-display font-bold text-xl md:text-2xl text-ink mt-1">Lengkap, siap melayani 24 jam</h2>
       <div class="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-2">
-        @foreach([
-          ['home', 'Mushola', 'Air wudhu pegunungan'],
-          ['gate', 'Parkir dijaga', 'Motor & mobil'],
-          ['shield', 'Posko SAR & P3K', 'Siaga 24 jam'],
-          ['bolt', 'Ojek resmi', 'Basecamp ⇄ Pos 1'],
-          ['box', 'Sewa alat', 'Tenda, matras, kompor'],
-          ['radio', 'Radio jalur', $profile['sar_frequency'] ?? '149.250 MHz'],
-        ] as [$icon, $title, $text])
+        @foreach(\App\Models\AppSetting::getBasecampFacilities() as [$icon, $title, $text])
           <div class="p-3.5 rounded-2xl bg-raised/60 ring-1 ring-line">
             <x-ui.icon :name="$icon" class="w-5 h-5 text-brand" />
             <p class="text-sm font-semibold text-ink mt-2.5">{{ $title }}</p>
@@ -282,7 +246,9 @@
         ['Di mana saya menerima e-tiket?', 'Setelah pembayaran diverifikasi kasir, e-SIMAKSI dan info pendakian lengkap dikirim ke nomor WhatsApp ketua rombongan. Anda juga bisa membukanya kapan saja lewat menu Cek tiket.'],
         ['Kenapa logistik dihitung di gerbang?', 'Agar tidak ada sampah tertinggal di gunung. Jumlah barang seperti botol dan bungkus makanan dicatat saat naik, lalu dicocokkan dengan yang dibawa turun.'],
         ['Bagaimana data KTP saya diperlakukan?', 'Foto KTP ketua hanya dipakai untuk verifikasi petugas dan dihapus permanen otomatis setelah pendakian selesai, sesuai UU Pelindungan Data Pribadi.'],
-        ['Bolehkah mendirikan tenda di mana saja?', 'Tidak. Tenda hanya boleh di area camp resmi (Pos 2 dan Pos 3). Pendaki tektok dilarang bermalam.'],
+        ['Bolehkah mendirikan tenda di mana saja?', 'Tidak. Tenda hanya boleh di area camp resmi, yaitu Pos 2 Batu Gendrung dan Pos 3 Thun 30. Puncak dilarang untuk camp, dan pendaki tektok dilarang bermalam.'],
+        ['Sebaiknya camp di Pos 2 atau Pos 3?', 'Keduanya boleh, tapi kami sarankan Pos 3 Thun 30 karena paling dekat ke puncak. Dirikan tenda dan tinggalkan perlengkapan di Pos 3, lalu summit attack dini hari cukup membawa daypack, air, headlamp, dan jaket.'],
+        ['Di mana ada air dan toilet di jalur?', 'Pos 1, Pos 2, dan Pos 3 punya air melimpah, toilet, mushola, dan shelter. Pos 4 sampai puncak tidak ada sumber air, jadi isi penuh botol di Pos 3.'],
       ] as [$q, $a])
         <details class="group rounded-2xl bg-surface ring-1 ring-line open:ring-line-strong">
           <summary class="flex items-center justify-between gap-4 px-5 py-4 cursor-pointer">

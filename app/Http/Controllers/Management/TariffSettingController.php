@@ -62,6 +62,7 @@ class TariffSettingController extends Controller
             'admin_whatsapp' => 'nullable|string|max:30',
             'admin_whatsapp_display' => 'nullable|string|max:30',
             'emergency_hotline' => 'nullable|string|max:30',
+            'sar_radio_enabled' => 'nullable|in:0,1',
             'sar_frequency' => 'nullable|string|max:50',
             'basecamp_location' => 'nullable|string|max:255',
             'basecamp_maps_url' => 'nullable|url|max:500',
@@ -189,6 +190,9 @@ class TariffSettingController extends Controller
         if ($request->filled('emergency_hotline')) {
             AppSetting::set('emergency_hotline', (string) $request->input('emergency_hotline'), 'Hotline Darurat Basecamp', 'string', 'contact');
         }
+        $sarRadioEnabled = $request->boolean('sar_radio_enabled');
+        AppSetting::set('sar_radio_enabled', $sarRadioEnabled, 'Status Radio HT SAR Basecamp', 'boolean', 'contact');
+
         if ($request->filled('sar_frequency')) {
             AppSetting::set('sar_frequency', (string) $request->input('sar_frequency'), 'Frekuensi Radio SAR Basecamp', 'string', 'contact');
         }

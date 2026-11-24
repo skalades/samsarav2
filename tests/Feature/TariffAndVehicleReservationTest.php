@@ -241,6 +241,7 @@ class TariffAndVehicleReservationTest extends TestCase
             'admin_whatsapp' => '6281234567890',
             'admin_whatsapp_display' => '+62 812-3456-7890',
             'emergency_hotline' => '+62 812-3456-7890',
+            'sar_radio_enabled' => 1,
             'sar_frequency' => '151.400 MHz',
             'payment_bank_name' => 'BANK MANDIRI',
             'payment_bank_account' => '130-00-1234567-8',
@@ -415,5 +416,47 @@ class TariffAndVehicleReservationTest extends TestCase
 
         // q3 was closed, remains closed
         $this->assertTrue((bool) $q3->fresh()->is_closed);
+    }
+
+    public function test_sar_emergency_radio_can_be_disabled_and_defaults_to_disabled(): void
+    {
+        $superadmin = User::factory()->create([
+            'role' => 'superadmin',
+            'status' => 'active',
+        ]);
+
+        // Default should be disabled
+        AppSetting::set('sar_radio_enabled', false, 'Status Radio HT SAR Basecamp', 'boolean', 'contact');
+        AppSetting::set('sar_frequency', '149.250 MHz', 'Frekuensi Radio SAR Basecamp', 'string', 'contact');
+        AppSetting::set('emergency_hotline', '+62 821-2233-4455', 'Hotline Darurat Basecamp', 'string', 'contact');
+
+        $this->assertFalse(AppSetting::isSarRadioEnabled());
+
+        $portalResponse = $this->get(route('portal.home'));
+        $portalResponse->assertStatus(200);
+        $portalResponse->assertSee('Hotline Darurat SAR: +62 821-2233-4455');
+        $portalResponse->assertDontSee('Radio Darurat: 149.250 MHz');
+        $portalResponse->assertSee('Hotline SAR 24 Jam');
+        $portalResponse->assertDontSee('Radio jalur');
+
+        // Toggle enabled via management tariffs settings
+        $response = $this->actingAs($superadmin)->post(route('management.settings.tariffs.update'), [
+            'simaksi_fee_per_person' => 25000,
+            'ojek_fee_per_trip' => 30000,
+            'parking_motor_fee' => 10000,
+            'parking_car_fee' => 25000,
+            'trash_deposit_amount' => 50000,
+            'sar_radio_enabled' => 1,
+            'sar_frequency' => '149.250 MHz',
+            'emergency_hotline' => '+62 821-2233-4455',
+        ]);
+
+        $response->assertSessionHas('success');
+        $this->assertTrue(AppSetting::isSarRadioEnabled());
+
+        $portalResponseEnabled = $this->get(route('portal.home'));
+        $portalResponseEnabled->assertStatus(200);
+        $portalResponseEnabled->assertSee('Radio Darurat: 149.250 MHz');
+        $portalResponseEnabled->assertSee('Radio jalur');
     }
 }

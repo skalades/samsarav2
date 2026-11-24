@@ -1160,7 +1160,7 @@ const App = {
 
         // Build FormData
         const formData = new FormData();
-        const plannedCampsite = document.querySelector('input[name="wzCampsite"]:checked')?.value || 'POS_2';
+        const plannedCampsite = document.querySelector('input[name="wzCampsite"]:checked')?.value || 'POS_3';
         formData.append('hiking_category', this.category || 'camp');
         formData.append('planned_campsite', this.category === 'camp' ? plannedCampsite : '');
         formData.append('hiking_date', document.getElementById('wzHikingDate')?.value);

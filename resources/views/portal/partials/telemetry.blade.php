@@ -36,7 +36,7 @@
   {{-- Metrik --}}
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
     @foreach([
-      ['telemetryWaterStatus', 'Mata air Pos 2', $t ? $t->pos2_water_status : 'Melimpah (12 L/mnt)', 'Sumber air terakhir sebelum puncak', 'refresh', 'text-sky-300'],
+      ['telemetryWaterStatus', 'Air di jalur', $t ? $t->pos2_water_status : 'Melimpah (12 L/mnt)', 'Tersedia di Pos 1–3, terakhir di Pos 3', 'refresh', 'text-sky-300'],
       ['telemetryNightTemp', 'Suhu dini hari', $t ? $t->night_temp_celsius : '9°C', 'Bawa jaket windproof & sleeping bag', 'mountain', 'text-amber-300'],
       ['telemetrySoilStatus', 'Kondisi tanah', $t ? $t->soil_condition : 'Padat & kering', 'Grip sepatu trekking optimal', 'pin', 'text-ink'],
       [null, 'Cuaca', $t ? $t->weather_condition : 'Cerah berawan', $t && $t->wind_speed ? 'Angin '.$t->wind_speed : 'Pantau perubahan cuaca', 'bolt', 'text-ink'],
@@ -68,7 +68,9 @@
       <span class="w-11 h-11 rounded-xl bg-rose-500/10 ring-1 ring-rose-500/25 text-rose-300 flex items-center justify-center"><x-ui.icon name="shield" class="w-5 h-5" /></span>
       <h3 class="font-display font-bold text-lg text-ink mt-4">Komunikasi darurat SAR</h3>
       <dl class="mt-3 divide-y divide-line text-sm">
-        <div class="flex items-center justify-between gap-3 py-2.5"><dt class="text-muted">Frekuensi radio HT</dt><dd class="font-code text-ink">{{ $profile['sar_frequency'] ?? '149.250 MHz' }}</dd></div>
+        @if(!empty($profile['sar_radio_enabled']) && !empty($profile['sar_frequency']))
+          <div class="flex items-center justify-between gap-3 py-2.5"><dt class="text-muted">Frekuensi radio HT</dt><dd class="font-code text-ink">{{ $profile['sar_frequency'] }}</dd></div>
+        @endif
         <div class="flex items-center justify-between gap-3 py-2.5"><dt class="text-muted">Hotline ranger</dt><dd><a href="tel:{{ $hotlineTel }}" class="font-semibold text-brand-soft hover:text-brand">{{ $hotline }}</a></dd></div>
         <div class="flex items-center justify-between gap-3 py-2.5"><dt class="text-muted">Evakuasi medis</dt><dd class="text-emerald-300 font-semibold">Pos 00 Basecamp</dd></div>
       </dl>

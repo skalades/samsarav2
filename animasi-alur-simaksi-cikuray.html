@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Alur SIMAKSI Cikuray</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE everyday guide, calm and clear, for pendaki pemula
+   IDEA peta jalur pendakian: tiap langkah pendaftaran adalah satu pos menuju puncak
+   PICTURE Gunung Cikuray saat fajar, pendaki berjalan dari pos ke pos, di sampingnya layar HP yang mengisi form langkah itu
+   COLOUR tanah vulkanik #0B0D10, lereng batu, hutan hijau, langit fajar, aksen jaket koral #ff6b4a
+   TYPE Archivo 800 + Inter
+   LAYOUT laptop: gunung kiri lebar, HP kanan; ponsel: judul, gunung, keterangan, HP */
+:root{color-scheme:dark;--bg:#0B0D10;--ink:#eef0f2;--mut:#a9b0b8;--pan:#141920;--line:#262d36;--acc:#ff6b4a;--grn:#3fa37a;--scr:#f6f5f1;--sink:#16191d}
+:root[data-theme=light],:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+.band{padding-block:clamp(24px,3.5vw,56px);padding-left:max(5vw,16px);padding-right:max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+h1,h2,h3{font-family:Archivo,Inter,sans-serif;letter-spacing:-.02em;line-height:1.05;margin:0;text-wrap:balance}
+h1{font-size:clamp(30px,4.2vw,48px);font-weight:800;max-width:22ch}
+.lede{color:var(--mut);max-width:62ch;margin:12px 0 0}
+.top{padding-bottom:12px}
+.stage{display:grid;gap:clamp(18px,3vw,40px);grid-template-columns:minmax(0,1fr)}
+@media(min-width:680px){.stage{grid-template-columns:minmax(0,1.45fr) minmax(250px,1fr);align-items:start}}
+.scene{border-radius:18px;overflow:hidden;background:#141a2e;aspect-ratio:1000/620}
+.scene svg{display:block;width:100%;height:100%}
+.st{cursor:pointer}
+.st circle{transition:fill .3s,stroke .3s}
+.st text{font:800 19px Archivo,sans-serif;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.cap{margin-top:16px;min-height:150px}
+.k{display:flex;gap:10px;align-items:center;color:var(--mut);font-size:14px;font-weight:600}
+.tag{background:color-mix(in srgb,var(--acc) 18%,transparent);color:#ffb6a3;padding:2px 10px;border-radius:99px}
+.cap h2{font-size:clamp(24px,2.6vw,32px);font-weight:800;margin:8px 0 6px}
+.cap p{margin:0;color:#d4d8dd;max-width:62ch}
+.prog{height:3px;background:var(--line);border-radius:3px;margin-top:14px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--acc)}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+button{font:600 15px Inter,sans-serif;color:var(--ink);background:var(--pan);border:1px solid var(--line);border-radius:12px;min-height:44px;padding:0 16px;cursor:pointer}
+button:hover{border-color:#3c4652}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+#pl{background:var(--acc);border-color:var(--acc);color:#1a0b06;min-width:110px}
+.dots{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.dots button{min-width:44px;padding:0;font-family:Archivo,sans-serif}
+.dots button[aria-current=step]{background:var(--ink);color:var(--bg)}
+.dots button.done{border-color:var(--acc);color:#ffb6a3}
+.phone{max-width:360px;margin:0 auto;background:#1d232b;border-radius:38px;padding:12px;border:1px solid #333c47;box-shadow:0 24px 0 -12px #05060a}
+.scr{background:var(--scr);color:var(--sink);border-radius:28px;height:600px;overflow:hidden;display:flex;flex-direction:column}
+.sb{display:flex;justify-content:space-between;font-size:13px;font-weight:600;padding:12px 22px 6px}
+.ah{padding:6px 18px 12px;border-bottom:1px solid #e3e1da}
+.ah small{display:block;color:#6d6a62;font-size:13px}
+.ah b{font:800 19px Archivo,sans-serif;letter-spacing:-.01em}
+.bd{padding:12px 18px;display:grid;gap:10px;align-content:start;flex:1;overflow:hidden}
+.row{opacity:0;transform:translateY(10px);animation:in .45s ease calc(var(--i)*.5s) forwards}
+@keyframes in{to{opacity:1;transform:none}}
+.lb{font-size:13px;color:#6d6a62;font-weight:500;margin-bottom:3px}
+.fld{border:1.5px solid #d8d5cc;border-radius:10px;padding:8px 10px;min-height:38px;font-size:14px;font-weight:500;background:#fff}
+.fld.on{border-color:var(--acc)}
+.tv::after{content:"";display:inline-block;width:2px;height:1em;background:var(--acc);vertical-align:-2px;margin-left:1px;animation:bl 1s steps(1) infinite}
+.tv.end::after{display:none}
+@keyframes bl{50%{opacity:0}}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1.5px solid #d8d5cc;border-radius:99px;padding:5px 11px;font-size:13px;font-weight:600;background:#fff}
+.chip.sel{animation:pick .3s ease calc(var(--i)*.5s + .7s) forwards}
+@keyframes pick{to{background:var(--acc);border-color:var(--acc);color:#fff}}
+.btn{background:var(--sink);color:#fff;border-radius:12px;text-align:center;padding:11px;font-weight:700;font-size:14px}
+.btn.go{animation:in .45s ease calc(var(--i)*.5s) forwards,tap .5s ease calc(var(--i)*.5s + .9s)}
+@keyframes tap{50%{transform:scale(.95);background:var(--acc)}}
+.note{background:#ecebe5;border-radius:10px;padding:8px 10px;font-size:13px}
+.note b{display:block;font-size:14px}
+.meter{height:8px;background:#e1dfd7;border-radius:8px;overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--grn);animation:fill 1.2s ease calc(var(--i)*.5s + .3s) forwards}
+@keyframes fill{to{width:var(--w)}}
+.up{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:600}
+.up+.meter i{background:var(--acc)}
+.ck{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;font-weight:500}
+.ck span{flex:none;width:18px;height:18px;border:1.5px solid #bdb9ae;border-radius:5px;margin-top:1px;display:grid;place-items:center;color:#fff;font-size:12px}
+.ck span{animation:tick .3s ease calc(var(--i)*.5s + .4s) forwards}
+@keyframes tick{to{background:var(--grn);border-color:var(--grn)}}
+.sum{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.sum b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.sum.big{border-top:1.5px dashed #cfcbc0;padding-top:8px;font-weight:700}
+.sum.big b{color:#c2391a;font-size:17px}
+.tk{background:var(--sink);color:#fff;border-radius:14px;padding:14px}
+.tk small{color:#a9b0b8;font-size:13px}
+.tk .code{font:800 24px Archivo,sans-serif;letter-spacing:.01em;margin:2px 0 8px}
+.stt{display:inline-block;font-size:12.5px;font-weight:700;padding:3px 9px;border-radius:99px;background:#5b4a12;color:#ffe08a}
+.stt.ok{background:var(--grn);color:#fff}
+.wa{background:#d9f5d0;border-radius:12px 12px 12px 2px;padding:9px 11px;font-size:13.5px;max-width:92%}
+.wa b{display:block;font-size:12.5px;color:#1f7a3f}
+.log{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;padding:6px 0;border-bottom:1px solid #e3e1da}
+.log em{font-style:normal;font-size:12.5px;padding:2px 9px;border-radius:99px;background:#e1dfd7;color:#5d5a52}
+.log em.ok{background:#d3efe2;color:#1d6b49}
+.log em.camp{background:#ffe1d8;color:#b23517}
+.steps{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));margin-top:20px;padding:0;list-style:none}
+.steps li{background:var(--pan);border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer}
+.steps li:hover,.steps li.cur{border-color:var(--acc)}
+.steps h3{font-size:19px;margin:4px 0 6px}
+.steps .n{color:#ffb6a3;font-weight:700;font-size:13px}
+.steps p{margin:0;color:#c9ced4;font-size:15px}
+.sec h2{font-size:clamp(26px,3vw,36px)}
+.info{display:grid;gap:clamp(18px,3vw,36px);grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));margin-top:20px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+td{padding:10px 0;border-bottom:1px solid var(--line);vertical-align:top}
+td+td{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600;padding-left:12px}
+td small{display:block;color:var(--mut);font-weight:400;white-space:normal}
+.warn{border-left:3px solid var(--acc);padding:8px 12px;background:var(--pan);border-radius:0 10px 10px 0;font-size:14.5px;margin-top:14px}
+.gear{display:flex;flex-wrap:wrap;gap:8px;padding:0;list-style:none;margin:12px 0 0}
+.gear li{background:var(--pan);border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:14.5px}
+.info h3{font-size:22px}
+.info p{color:#c9ced4;margin:8px 0 0}
+a{color:#ffb6a3}
+footer{color:var(--mut);font-size:14px;border-top:1px solid var(--line)}
+@media(max-width:679px){.phone{max-width:340px}.scr{height:560px}.cap{min-height:0}}
+@media(prefers-reduced-motion:reduce){.row,.chip.sel,.ck span,.meter i,.btn.go{animation-duration:.01s!important;animation-delay:0s!important}}
+</style>
+</head>
+<body>
+<header class="band top"><div class="wrap">
+<h1>Cara daftar SIMAKSI Gunung Cikuray, dari rumah sampai turun gunung</h1>
+<p class="lede">Sembilan langkah di portal Samsara Expedition, diputar otomatis seperti pendaki menuju puncak. Klik pos di jalur atau nomor langkah untuk melompat.</p>
+</div></header>
+
+<main class="band" style="padding-top:12px"><div class="wrap stage">
+<section>
+<div class="scene"><svg id="m" viewBox="0 0 1000 620" role="img" aria-label="Gunung Cikuray dengan jalur sembilan pos langkah pendaftaran"></svg></div>
+<div class="cap" aria-live="polite">
+<div class="prog"><i id="pg"></i></div>
+<div class="k" style="margin-top:12px"><span id="ck">Langkah 1 dari 9</span><span class="tag" id="cp">Online</span></div>
+<h2 id="ct">Buka portal</h2>
+<p id="cd"></p>
+</div>
+<div class="ctl"><button id="pv" type="button">‹ Sebelumnya</button><button id="pl" type="button">Jeda</button><button id="nx" type="button">Berikutnya ›</button></div>
+<div class="dots" id="dots"></div>
+</section>
+<section aria-label="Tampilan layar di HP">
+<div class="phone"><div class="scr"><div class="sb"><span>05:42</span><span>samsaracikuray.id</span></div><div class="ah"><small id="pa">Langkah 1</small><b id="pt">Beranda</b></div><div class="bd" id="bd"></div></div></div>
+</section>
+</div></main>
+
+<section class="band sec"><div class="wrap">
+<h2>Rincian setiap langkah</h2>
+<ol class="steps" id="list"></ol>
+</div></section>
+
+<section class="band sec"><div class="wrap info">
+<div>
+<h2>Biaya resmi</h2>
+<table><tbody>
+<tr><td>SIMAKSI<small>Tarif di form reservasi</small></td><td>Rp25.000/orang</td></tr>
+<tr><td>Ojek Basecamp ke Pos 1<small>1 motor untuk 1 pendaki</small></td><td>Rp20.000/trip</td></tr>
+<tr><td>Parkir motor</td><td>Rp10.000</td></tr>
+<tr><td>Parkir mobil</td><td>Rp30.000</td></tr>
+<tr><td>Porter<small>2 hari 1 malam, maks. 20 kg</small></td><td>Rp350.000/trip</td></tr>
+<tr><td>Deposit sampah</td><td>Gratis</td></tr>
+</tbody></table>
+<p class="warn">Bagian tarif di portal menulis SIMAKSI Rp35.000/orang, sedangkan form reservasi menghitung Rp25.000/orang. Pastikan nominal ke admin sebelum membayar.</p>
+</div>
+<div>
+<h2>Ketentuan penting</h2>
+<p>Kuota maksimal 300 pendaki per hari, rombongan solo sampai 15 orang. Tektok: check-in 03.00–07.00 WIB, turun di hari yang sama, tanpa tenda. Camp: buka mulai 07.00 WIB, tenda hanya di Pos 2 atau Pos 3.</p>
+<h3 style="margin-top:20px">Alat wajib yang dicek di gerbang</h3>
+<ul class="gear"><li>Tenda</li><li>Sleeping bag</li><li>Jaket</li><li>Headlamp</li><li>P3K</li><li>Kompor</li><li>Kantong sampah</li></ul>
+<p>Hotline ranger: <a href="tel:082187093648">0821-8709-3648</a> (0821 8709 3648).</p>
+</div>
+</div></section>
+
+<footer class="band"><div class="wrap">Panduan ini dirangkum dari isi <a href="https://samsaracikuray.id/">samsaracikuray.id</a> per 24 November 2026 dan bukan halaman resmi pengelola. Nama, NIK dan nomor di layar HP adalah contoh.</div></footer>
+
+<script>
+{
+const S=[
+{p:'Online',t:'Buka portal dan cek kuota',d:'Buka samsaracikuray.id, lihat sisa kuota harian (maksimal 300 pendaki), lalu tekan Pesan SIMAKSI. Kalau ada draf lama, pilih lanjutkan atau hapus draf.',h:'Beranda',r:[['note','Kuota hari ini','295 dari 300 slot tersisa'],['bar',.98],['note','Ada draf tersimpan?','Lanjutkan proses nanti, atau hapus draf'],['btn','Pesan SIMAKSI']]},
+{p:'Online',t:'Jadwal dan logistik',d:'Pilih kategori Tektok (1 hari, check-in 03.00–07.00) atau Camp (bermalam di Pos 2/3), tanggal naik dan estimasi turun, jumlah pendaki (1–15), serta layanan opsional: ojek, parkir, deposit sampah.',h:'Form 1 dari 4',r:[['c','Kategori',['Tektok','Camp'],[1]],['f','Tanggal naik','Sabtu, 5 Des 2026'],['f','Estimasi turun','Minggu, 6 Des 2026'],['f','Jumlah pendaki','4 orang'],['c','Layanan opsional',['Ojek','Parkir motor','Parkir mobil','Deposit sampah'],[0,1,3]],['btn','Lanjut']]},
+{p:'Online',t:'Data ketua rombongan',d:'Isi nama dan NIK 16 digit sesuai KTP, WhatsApp aktif, alamat domisili, unggah foto KTP asli (JPG/PNG/WebP), riwayat penyakit atau alergi, dan kontak darurat yang tidak ikut mendaki.',h:'Form 2 dari 4',r:[['f','Nama sesuai KTP','Raka Pratama'],['f','NIK (16 digit)','3205 0112 9001 0001'],['f','WhatsApp aktif','0812 5550 1234'],['up','Foto KTP ketua','ktp_raka.jpg'],['f','Riwayat penyakit / alergi','Asma ringan'],['f','Kontak darurat (tidak ikut)','Siti, orang tua, 0813 5550 9876']]},
+{p:'Online',t:'Manifest anggota',d:'Tulis nama dan NIK setiap anggota. Ketua otomatis tercatat sebagai Anggota #1, sisanya diisi sesuai jumlah pendaki di langkah pertama.',h:'Form 3 dari 4',r:[['note','Anggota #1 (ketua)','Raka Pratama, NIK ...0001'],['f','Anggota #2','Dimas Ardiansyah'],['f','Anggota #3','Nadia Putri'],['f','Anggota #4','Fajar Nugraha'],['btn','Lanjut ke pembayaran']]},
+{p:'Online',t:'Pembayaran dan konfirmasi',d:'Pilih QRIS, transfer BCA/Mandiri, atau tunai di loket. Transfer harus pas sampai 3 digit kode unik, lalu unggah bukti bayar (maks. 5 MB). Centang pernyataan SOP dan tekan Kirim & Buat Tiket.',h:'Form 4 dari 4',r:[['c','Metode bayar',['QRIS','Transfer BCA/Mandiri','Tunai di loket'],[1]],['sum','SIMAKSI 4 × Rp25.000','Rp100.000'],['sum','Kode unik','Rp348'],['sum','Total transfer','Rp100.348',1],['up','Bukti bayar','bukti_transfer.jpg'],['ck','Saya siap mematuhi SOP dan menjaga kebersihan jalur'],['btn','KIRIM & BUAT TIKET']]},
+{p:'Online',t:'Verifikasi dan e-SIMAKSI',d:'Sistem memberi kode registrasi dan membuka chat WhatsApp ke admin. Setelah pembayaran diverifikasi kasir, e-SIMAKSI dikirim ke WhatsApp ketua. Status bisa dicek di menu Cek tiket dengan kode atau nomor WA.',h:'Tiket kamu',r:[['tk','SMK-202611-005'],['wa','Admin Samsara','Pembayaran terverifikasi. Ini e-SIMAKSI dan info pendakian rombongan Raka.'],['note','Cek tiket','Masukkan kode registrasi atau no. WA ketua. Bukti bayar susulan bisa diunggah di sini.']]},
+{p:'Di basecamp',t:'Check-in di basecamp',d:'Tunjukkan kode registrasi ke kasir loket dan bawa KTP asli ketua. Di gerbang petugas mengecek anggota dan alat wajib, memotret tim, menghitung logistik sekali pakai, lalu kasir mencetak surat jalan dan voucher ojek.',h:'Loket & gerbang',r:[['ck','Kode registrasi ditunjukkan ke kasir'],['ck','KTP asli ketua dicocokkan dengan manifest'],['ck','Alat wajib lengkap: tenda, sleeping bag, jaket, headlamp, P3K, kompor, kantong sampah'],['ck','Foto tim di gerbang'],['ck','Logistik sekali pakai dihitung: botol, bungkus mi, kaleng, gas, snack'],['btn','Surat jalan + voucher ojek dicetak']]},
+{p:'Di jalur',t:'Selama pendakian',d:'Ranger mencatat rombongan di setiap pos. Tenda hanya boleh di Pos 2 atau Pos 3, dan pendaki tektok dilarang bermalam.',h:'Pencatatan pos',r:[['log','Basecamp','ok','Tercatat'],['log','Pos 1','ok','Tercatat'],['log','Pos 2','camp','Area camp'],['log','Pos 3','camp','Area camp'],['log','Puncak 2.821 mdpl','','Berikutnya'],['note','Aturan camp','Tenda hanya di Pos 2 / Pos 3. Tektok tidak boleh bermalam.']]},
+{p:'Di basecamp',t:'Check-out',d:'Logistik dicocokkan ulang di gerbang dan semua kemasan serta sampah wajib dibawa turun. Kasir menerbitkan izin keluar parkir, dan foto KTP dihapus permanen dari server.',h:'Check-out',r:[['ck','Logistik dicocokkan dengan catatan saat naik'],['ck','Semua sampah dan kemasan dibawa turun'],['ck','Izin keluar parkir diterbitkan kasir'],['ck','Foto KTP dihapus permanen dari server'],['note','Selesai','Terima kasih sudah menjaga Cikuray tetap bersih.']]}
+];
+const N=S.length,$=id=>document.getElementById(id),svg=$('m'),bd=$('bd');
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const TR='M160 578 C 300 566 390 545 335 505 S 300 452 425 440 S 535 410 448 372 S 398 322 492 302 S 566 270 503 232 S 466 192 530 170 S 574 132 543 116 S 556 96 560 90';
+/* scene */
+let s=7;const rnd=()=>(s=s*16807%2147483647)/2147483647;
+let trees=[];
+for(let k=0;k<160&&trees.length<85;k++){const y=410+rnd()*175,x=60+rnd()*880,l=40+(620-y)/320*290+18,r=1000-(620-y)/320*200-18;if(x>l&&x<r)trees.push([x,y])}
+trees.sort((a,b)=>a[1]-b[1]);
+const tr=trees.map(([x,y])=>{const h=14+(y-410)/175*26,w=h*.42,c=y>520?'#1f5a40':'#23493c';return `<path d="M${x} ${y-h}L${x+w} ${y}H${x-w}Z" fill="${c}"/><path d="M${x} ${y-h}L${x+w} ${y}H${x}Z" fill="#2f7354" opacity=".55"/>`}).join('');
+svg.innerHTML=`<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#151a2f"/><stop offset=".55" stop-color="#5a3f5e"/><stop offset="1" stop-color="#f08a62"/></linearGradient><radialGradient id="sun"><stop offset="0" stop-color="#ffd9b8"/><stop offset=".4" stop-color="#ffb08a" stop-opacity=".7"/><stop offset="1" stop-color="#ff9a73" stop-opacity="0"/></radialGradient></defs>
+<rect width="1000" height="620" fill="url(#sky)"/><circle cx="830" cy="330" r="150" fill="url(#sun)"/><circle cx="830" cy="330" r="38" fill="#ffe2c6"/>
+<path d="M0 410Q150 330 270 380T520 360T770 345T1000 385V620H0Z" fill="#4a3a5a" opacity=".8"/>
+<path d="M0 470Q180 410 330 455T700 440T1000 460V620H0Z" fill="#2e2a40"/>
+<path d="M40 620L330 300Q520 82 560 88Q600 82 800 300L1000 620Z" fill="#20252f"/>
+<path d="M560 88Q600 82 800 300L1000 620H660Q610 330 560 88Z" fill="#323a47"/>
+<path d="M560 88Q600 82 800 300L1000 620" fill="none" stroke="#f4a585" stroke-width="3" opacity=".55"/>
+<path d="M530 104Q560 84 592 104L575 130L556 116L540 132Z" fill="#454d5b"/>
+<ellipse cx="300" cy="392" rx="210" ry="16" fill="#fff" opacity=".07"/><ellipse cx="760" cy="430" rx="230" ry="18" fill="#fff" opacity=".06"/>
+${tr}
+<path d="M0 592Q250 570 500 596T1000 586V620H0Z" fill="#0B0D10"/>
+<g transform="translate(92 548)"><path d="M0 34V12L22 0L44 12V34Z" fill="#3a3f48"/><path d="M-6 14L22 -4L50 14" fill="none" stroke="#ff6b4a" stroke-width="6" stroke-linejoin="round"/><rect x="16" y="18" width="12" height="16" fill="#ffd9a8"/></g>
+<path d="${TR}" fill="none" stroke="#f6e7d8" stroke-width="3" stroke-dasharray="2 10" stroke-linecap="round" opacity=".6"/>
+<path id="dn" d="${TR}" fill="none" stroke="#ff6b4a" stroke-width="5" stroke-linecap="round"/>
+<g id="sts"></g>
+<g id="hk"><circle r="24" fill="#0B0D10" opacity=".35" cy="-14"/><rect x="-11" y="-30" width="9" height="15" rx="3" fill="#8a5a3a"/><path d="M-2 -32h9v18h-9z" fill="#ff6b4a"/><circle cx="2.5" cy="-38" r="5.5" fill="#ffd9b8"/><path d="M0 -14l-4 13M5 -14l5 13" stroke="#eef0f2" stroke-width="3.5" stroke-linecap="round"/><path d="M9 -26l7 24" stroke="#cfd5db" stroke-width="2"/></g>`;
+const path=$('dn'),L=path.getTotalLength(),P=[...Array(N)].map((_,i)=>path.getPointAtLength(L*i/(N-1)));
+path.style.strokeDasharray=L;
+$('sts').innerHTML=P.map((p,i)=>`<g class="st" data-i="${i}" transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})"><circle r="17" stroke-width="3"/><text>${i+1}</text></g>`).join('');
+$('dots').innerHTML=S.map((x,i)=>`<button type="button" data-i="${i}" aria-label="Langkah ${i+1}: ${x.t}">${i+1}</button>`).join('');
+$('list').innerHTML=S.map((x,i)=>`<li data-i="${i}" tabindex="0"><span class="n">Langkah ${i+1}, ${x.p.toLowerCase()}</span><h3>${x.t}</h3><p>${x.d}</p></li>`).join('');
+/* phone rows */
+const row=(r,i)=>{const t=r[0],o=`<div class="row" style="--i:${i}">`;
+if(t==='f')return o+`<div class="lb">${r[1]}</div><div class="fld"><span class="tv" data-v="${r[2]}" data-d="${i}"></span></div></div>`;
+if(t==='c')return o+`<div class="lb">${r[1]}</div><div class="chips">${r[2].map((c,k)=>`<span class="chip${r[3].includes(k)?' sel':''}" style="--i:${i}">${c}</span>`).join('')}</div></div>`;
+if(t==='btn')return `<div class="row btn go" style="--i:${i}">${r[1]}</div>`;
+if(t==='note')return o+`<div class="note"><b>${r[1]}</b>${r[2]}</div></div>`;
+if(t==='bar')return o+`<div class="meter"><i style="--w:${r[1]*100}%;--i:${i}"></i></div></div>`;
+if(t==='up')return o+`<div class="lb">${r[1]}</div><div class="up"><span>${r[2]}</span><span>terunggah</span></div><div class="meter" style="margin-top:4px"><i style="--w:100%;--i:${i}"></i></div></div>`;
+if(t==='ck')return o+`<div class="ck"><span style="--i:${i}">✓</span>${r[1]}</div></div>`;
+if(t==='sum')return o+`<div class="sum${r[3]?' big':''}"><span>${r[1]}</span><b>${r[2]}</b></div></div>`;
+if(t==='tk')return o+`<div class="tk"><small>Kode registrasi</small><div class="code">${r[1]}</div><span class="stt" id="stt">Menunggu verifikasi</span></div></div>`;
+if(t==='wa')return o+`<div class="wa"><b>${r[1]}</b>${r[2]}</div></div>`;
+if(t==='log')return `<div class="row log" style="--i:${i}"><span>${r[1]}</span><em class="${r[2]}">${r[3]}</em></div>`;
+return ''};
+let cur=0,len=0,raf=0,tm=[],auto=!RM,timer=0;
+const later=(f,ms)=>tm.push(setTimeout(f,ms));
+function type(el){const v=el.dataset.v,d=+el.dataset.d*500+500,f=el.parentNode;if(RM){el.textContent=v;el.classList.add('end');return}
+later(()=>{f.classList.add('on');let k=0;const st=()=>{el.textContent=v.slice(0,++k);if(k<v.length)later(st,38);else{el.classList.add('end');f.classList.remove('on')}};st()},d)}
+function walk(to){cancelAnimationFrame(raf);const from=len,t0=performance.now(),D=RM?0:1300;
+const step=now=>{const k=D?Math.min(1,(now-t0)/D):1,e=k<.5?2*k*k:1-((-2*k+2)**2)/2;len=from+(to-from)*e;const p=path.getPointAtLength(len);
+$('hk').setAttribute('transform',`translate(${p.x} ${p.y})`);path.style.strokeDashoffset=L-len;if(k<1)raf=requestAnimationFrame(step)};raf=requestAnimationFrame(step)}
+function go(n){cur=(n+N)%N;const x=S[cur];tm.forEach(clearTimeout);tm=[];clearTimeout(timer);
+$('ck').textContent=`Langkah ${cur+1} dari ${N}`;$('cp').textContent=x.p;$('ct').textContent=x.t;$('cd').textContent=x.d;
+$('pa').textContent=`Langkah ${cur+1}`;$('pt').textContent=x.h;bd.innerHTML=x.r.map(row).join('');
+bd.querySelectorAll('.tv').forEach(type);
+const sb=$('stt');if(sb)later(()=>{sb.textContent='Terverifikasi';sb.classList.add('ok')},RM?0:1600);
+document.querySelectorAll('.st').forEach((g,i)=>{const c=g.firstChild,t=g.lastChild;c.setAttribute('fill',i<cur?'#ff6b4a':i===cur?'#eef0f2':'#0B0D10');c.setAttribute('stroke',i<=cur?'#ff6b4a':'#eef0f2');t.setAttribute('fill',i<cur?'#1a0b06':i===cur?'#0B0D10':'#eef0f2')});
+document.querySelectorAll('.dots button').forEach((b,i)=>{b.toggleAttribute('aria-current',false);if(i===cur)b.setAttribute('aria-current','step');b.classList.toggle('done',i<cur)});
+document.querySelectorAll('#list li').forEach((li,i)=>li.classList.toggle('cur',i===cur));
+walk(L*cur/(N-1));schedule()}
+function schedule(){const pg=$('pg'),dur=Math.max(7000,S[cur].r.length*500+4500);pg.style.transition='none';pg.style.width='0';
+if(!auto){$('pl').textContent='Putar';return}$('pl').textContent='Jeda';
+requestAnimationFrame(()=>requestAnimationFrame(()=>{pg.style.transition=`width ${dur}ms linear`;pg.style.width='100%'}));timer=setTimeout(()=>go(cur+1),dur)}
+const pick=e=>{const g=e.target.closest('[data-i]');if(g){auto=false;go(+g.dataset.i)}};
+svg.addEventListener('click',pick);$('dots').addEventListener('click',pick);
+$('list').addEventListener('click',e=>{pick(e);if(e.target.closest('[data-i]'))document.querySelector('.stage').scrollIntoView({behavior:RM?'auto':'smooth'})});
+$('list').addEventListener('keydown',e=>{if(e.key==='Enter'){pick(e);document.querySelector('.stage').scrollIntoView()}});
+$('pv').onclick=()=>{auto=false;go(cur-1)};$('nx').onclick=()=>{auto=false;go(cur+1)};
+$('pl').onclick=()=>{auto=!auto;if(auto)go(cur+1===N?0:cur);else{clearTimeout(timer);schedule()}};
+addEventListener('keydown',e=>{if(e.target.closest('input,textarea'))return;if(e.key==='ArrowRight'){auto=false;go(cur+1)}if(e.key==='ArrowLeft'){auto=false;go(cur-1)}});
+go(0);
+}
+</script>
+</body>
+</html>

@@ -97,6 +97,7 @@ class SimaksiRegistration extends Model
         'group_photo_path',
         'group_photo_uploaded_at',
         'paid_at',
+        'payment_due_at',
         'trash_deposit_amount',
         'trash_deposit_status',
         'trash_bag_code',
@@ -122,6 +123,7 @@ class SimaksiRegistration extends Model
         'checked_in_at' => 'datetime',
         'checked_out_at' => 'datetime',
         'paid_at' => 'datetime',
+        'payment_due_at' => 'datetime',
         'gate_up_at' => 'datetime',
         'gate_photo_verified' => 'boolean',
         'released_at' => 'datetime',
@@ -143,6 +145,27 @@ class SimaksiRegistration extends Model
         'total_amount' => 'decimal:2',
         'trash_deposit_amount' => 'decimal:2',
     ];
+
+    /**
+     * Booking publik yang belum dibayar, belum unggah bukti, dan sudah lewat batas waktu bayar.
+     */
+    public function scopeOverdueUnpaid($query)
+    {
+        return $query->where('status', 'pending')
+            ->where('payment_status', '!=', 'paid')
+            ->whereNull('payment_proof_path')
+            ->whereNotNull('payment_due_at')
+            ->where('payment_due_at', '<=', now());
+    }
+
+    public function isOverdueUnpaid(): bool
+    {
+        return $this->status === 'pending'
+            && $this->payment_status !== 'paid'
+            && $this->payment_proof_path === null
+            && $this->payment_due_at !== null
+            && $this->payment_due_at->lte(now());
+    }
 
     public function members(): HasMany
     {

@@ -62,7 +62,11 @@
         Titik Kumpul: {{ $profile['basecamp_location'] ?? 'Kecamatan Cilawu / Bayongbong, Garut' }}
         • <a href="{{ $profile['basecamp_maps_url'] ?? 'https://maps.app.goo.gl/xGzRkQTTArmDxpQf9' }}" target="_blank" rel="noopener noreferrer" class="text-brand hover:underline font-bold inline-flex items-center gap-0.5">Google Maps ↗</a>
       </p>
-      <p>Radio Darurat: {{ $profile['sar_frequency'] ?? '149.250 MHz' }} • WhatsApp Admin: {{ $profile['admin_whatsapp_display'] ?? '+62 821-2233-4455' }}</p>
+      @if(!empty($profile['sar_radio_enabled']) && !empty($profile['sar_frequency']))
+        <p>Radio Darurat: {{ $profile['sar_frequency'] }} • WhatsApp Admin: {{ $profile['admin_whatsapp_display'] ?? '+62 821-2233-4455' }}</p>
+      @else
+        <p>Hotline Darurat SAR: {{ $profile['emergency_hotline'] ?? '+62 821-2233-4455' }} • WhatsApp Admin: {{ $profile['admin_whatsapp_display'] ?? '+62 821-2233-4455' }}</p>
+      @endif
       <p class="text-stone-500">© {{ date('Y') }} {{ strtoupper($profile['expedition_name'] ?? 'SAMSARA EXPEDITION') }}. LINDUNGI KELESTARIAN HUTAN {{ strtoupper($profile['mountain_name'] ?? 'CIKURAY') }}.</p>
     </footer>
 
@@ -142,7 +146,7 @@
                   <input type="radio" name="wzCategory" value="camp" checked class="accent-emerald-400" onchange="App.wizard.setCategory('camp')">
                   <span>CAMP (BERMALAM)</span>
                 </div>
-                <span class="text-[9px] text-stone-400 mt-1 leading-tight">Buka Gerbang: Mulai 07:00 WIB. Bebas camp di Pos 2 atau Pos 3.</span>
+                <span class="text-[9px] text-stone-400 mt-1 leading-tight">Buka Gerbang: Mulai 07:00 WIB. Camp di Pos 2 atau Pos 3 (disarankan Pos 3).</span>
               </label>
             </div>
           </div>
@@ -162,19 +166,19 @@
           <div id="wzCampsiteBox" class="p-2.5 rounded-lg bg-surface border border-line-strong space-y-1.5">
             <div class="flex items-center justify-between">
               <span class="text-[10px] text-stone-300 font-bold uppercase">RENCANA AREA CAMP RESMI</span>
-              <span class="text-[9px] text-emerald-400">*Bebas fleksibel di pos</span>
+              <span class="text-[9px] text-emerald-400">*Boleh pilih, disarankan Pos 3</span>
             </div>
             <div class="grid grid-cols-2 gap-2 text-xs text-stone-200">
               <label class="p-2 rounded bg-raised border border-line-strong flex items-center gap-2 cursor-pointer hover:border-emerald-500/40">
-                <input type="radio" name="wzCampsite" value="POS_2" checked class="accent-emerald-400">
-                <span>Pos 2 (Mata Air)</span>
+                <input type="radio" name="wzCampsite" value="POS_2" class="accent-emerald-400">
+                <span>Pos 2 Batu Gendrung</span>
               </label>
               <label class="p-2 rounded bg-raised border border-line-strong flex items-center gap-2 cursor-pointer hover:border-emerald-500/40">
-                <input type="radio" name="wzCampsite" value="POS_3" class="accent-emerald-400">
-                <span>Pos 3 (Camp Atas)</span>
+                <input type="radio" name="wzCampsite" value="POS_3" checked class="accent-emerald-400">
+                <span>Pos 3 Thun 30 <span class="ml-0.5 px-1 rounded bg-emerald-500/15 text-[9px] font-bold text-emerald-300">DISARANKAN</span></span>
               </label>
             </div>
-            <p class="text-[9px] text-stone-400 leading-tight">Pos 2 dan Pos 3 adalah tempat camp resmi yang dijaga ranger. Di luar kedua pos ini dilarang mendirikan tenda.</p>
+            <p class="text-[9px] text-stone-400 leading-tight">Pos 2 dan Pos 3 adalah camp resmi yang dijaga ranger, dengan air, toilet, mushola, dan shelter. Pos 3 disarankan karena paling dekat ke puncak. <strong class="text-rose-300">Dilarang camp di puncak</strong>: tinggalkan tenda dan perlengkapan di Pos 3 saat summit attack.</p>
           </div>
 
           <!-- Stepper Rombongan -->

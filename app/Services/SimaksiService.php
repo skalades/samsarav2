@@ -98,6 +98,56 @@ class SimaksiService
         });
     }
 
+    /**
+     * Batalkan otomatis booking yang melewati batas waktu pembayaran tanpa bayar
+     * dan tanpa bukti transfer, lalu kembalikan kuotanya. Mencegah kuota "disandera"
+     * oleh booking palsu. Opsional dibatasi ke satu tanggal pendakian.
+     *
+     * @return int jumlah booking yang dibatalkan
+     */
+    public function expireOverdueBookings(?string $hikingDate = null): int
+    {
+        $ids = SimaksiRegistration::query()
+            ->overdueUnpaid()
+            ->when($hikingDate, fn ($q) => $q->whereDate('hiking_date', $hikingDate))
+            ->pluck('id');
+
+        $expired = 0;
+        foreach ($ids as $id) {
+            $expired += DB::transaction(function () use ($id) {
+                $locked = SimaksiRegistration::where('id', $id)->lockForUpdate()->first();
+
+                // Cek ulang di dalam lock: bisa saja baru dibayar / unggah bukti barusan
+                if (! $locked || ! $locked->isOverdueUnpaid()) {
+                    return 0;
+                }
+
+                $locked->update([
+                    'status' => 'rejected',
+                    'reviewed_at' => Carbon::now(),
+                    'rejection_reason' => 'Dibatalkan otomatis: melewati batas waktu pembayaran.',
+                ]);
+
+                $quota = DailyQuota::whereDate('quota_date', $locked->hiking_date)->lockForUpdate()->first();
+                if ($quota && $quota->booked_quota > 0) {
+                    $quota->decrement('booked_quota', min($quota->booked_quota, $locked->total_climbers));
+                }
+
+                AuditService::log(
+                    action: 'EXPIRE_SIMAKSI',
+                    entityType: 'SimaksiRegistration',
+                    entityId: $locked->id,
+                    description: "SIMAKSI {$locked->registration_code} dibatalkan otomatis (tidak dibayar sampai ".$locked->payment_due_at?->format('d M Y H:i')."). Kuota {$locked->total_climbers} pendaki dikembalikan.",
+                    payload: ['status' => 'rejected', 'reason' => 'payment_timeout']
+                );
+
+                return 1;
+            });
+        }
+
+        return $expired;
+    }
+
     public function requestRevision(SimaksiRegistration $registration, int $officerId, string $notes): SimaksiRegistration
     {
         return DB::transaction(function () use ($registration, $officerId, $notes) {

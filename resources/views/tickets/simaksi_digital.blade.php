@@ -167,7 +167,8 @@
                     </div>
                     <div class="text-xs text-stone-300 bg-[#0A0B0D]/70 p-3 rounded-xl border border-emerald-500/20 font-mono-tech space-y-1">
                         <p class="text-emerald-300 font-semibold">• Jam Buka Jalur Masuk: <strong>Mulai pukul 07:00 WIB</strong>.</p>
-                        <p>• Area Camp Resmi: <strong>Hanya di Pos 2 (Mata Air) dan Pos 3 (Camp Atas)</strong>.</p>
+                        <p>• Area Camp Resmi: <strong>Hanya di Pos 2 (Batu Gendrung) dan Pos 3 (Thun 30)</strong>. Disarankan Pos 3, paling dekat ke puncak.</p>
+                        <p class="text-rose-300">• <strong>DILARANG camp di puncak.</strong> Tinggalkan tenda dan perlengkapan di Pos 3 saat summit attack.</p>
                         <p>• Status Lokasi Camp: <strong class="text-white">{{ $registration->camp_location ? 'Terkonfirmasi: ' . $registration->camp_location : ($registration->planned_campsite ? 'Rencana: ' . $registration->planned_campsite : 'Pos 2 / Pos 3 (Bebas)') }}</strong>.</p>
                     </div>
                 </div>
@@ -487,7 +488,11 @@
                 Lokasi Basecamp: <span class="text-stone-300">{{ $profile['basecamp_location'] ?? 'Garut, Jawa Barat' }}</span>
                 • <a href="{{ $profile['basecamp_maps_url'] ?? 'https://maps.app.goo.gl/xGzRkQTTArmDxpQf9' }}" target="_blank" rel="noopener noreferrer" class="text-[#FF5722] hover:underline font-bold inline-flex items-center gap-0.5">Google Maps ↗</a>
             </p>
-            <p>Frekuensi Radio Darurat SAR: <strong class="text-stone-300">{{ $profile['sar_frequency'] ?? '149.250 MHz' }}</strong> | Hotline SAR: <strong class="text-stone-300">{{ $profile['emergency_hotline'] ?? '+62 821-2233-4455' }}</strong></p>
+            @if(!empty($profile['sar_radio_enabled']) && !empty($profile['sar_frequency']))
+                <p>Frekuensi Radio Darurat SAR: <strong class="text-stone-300">{{ $profile['sar_frequency'] }}</strong> | Hotline SAR: <strong class="text-stone-300">{{ $profile['emergency_hotline'] ?? '+62 821-2233-4455' }}</strong></p>
+            @else
+                <p>Hotline Darurat SAR 24 Jam: <strong class="text-stone-300">{{ $profile['emergency_hotline'] ?? '+62 821-2233-4455' }}</strong></p>
+            @endif
             <p>© {{ date('Y') }} {{ $profile['expedition_name'] ?? 'SAMSARA' }} Portal. Dokumen sah terotentikasi digital.</p>
         </div>
 

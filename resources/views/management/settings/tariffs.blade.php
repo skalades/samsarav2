@@ -166,7 +166,7 @@
             Elevasi Basecamp / Titik Mulai
           </label>
           <input type="text" id="basecamp_elevation" name="basecamp_elevation"
-                 value="{{ old('basecamp_elevation', $profile['basecamp_elevation'] ?? '1.450 MDPL') }}" required
+                 value="{{ old('basecamp_elevation', $profile['basecamp_elevation'] ?? '1.245 MDPL') }}" required
                  class="w-full bg-surface border border-line-strong rounded-lg px-3 py-2 text-white font-mono-tech text-xs focus:outline-none focus:border-brand">
           <p class="text-[9px] text-stone-400">Ketinggian pos awal jalur pendakian.</p>
         </div>
@@ -441,11 +441,19 @@
 
         <!-- Frekuensi Radio SAR -->
         <div class="p-3.5 rounded-lg bg-raised border border-line-strong space-y-2">
-          <label for="sar_frequency" class="text-[10px] font-bold text-stone-300 uppercase block">
-            Frekuensi Radio HT SAR Basecamp
-          </label>
-          <input type="text" id="sar_frequency" name="sar_frequency" value="{{ old('sar_frequency', $profile['sar_frequency'] ?? '149.250 MHz') }}" required class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-purple-400">
-          <p class="text-[9px] text-stone-400">Frekuensi komunikasi siaga darurat ranger di lapangan.</p>
+          <div class="flex items-center justify-between">
+            <label for="sar_frequency" class="text-[10px] font-bold text-stone-300 uppercase block">
+              Frekuensi Radio HT SAR Basecamp
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" name="sar_radio_enabled" value="1" {{ !empty($profile['sar_radio_enabled']) ? 'checked' : '' }} class="w-3.5 h-3.5 rounded bg-surface border-line-strong text-purple-500 focus:ring-purple-400">
+              <span class="text-[9px] font-bold {{ !empty($profile['sar_radio_enabled']) ? 'text-emerald-400' : 'text-stone-400' }}">
+                {{ !empty($profile['sar_radio_enabled']) ? 'AKTIF' : 'NONAKTIF' }}
+              </span>
+            </label>
+          </div>
+          <input type="text" id="sar_frequency" name="sar_frequency" value="{{ old('sar_frequency', $profile['sar_frequency_raw'] ?? $profile['sar_frequency'] ?? '149.250 MHz') }}" class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-bold text-xs focus:outline-none focus:border-purple-400">
+          <p class="text-[9px] text-stone-400">Centang untuk mempublikasikan frekuensi radio HT ke pendaki. Saat nonaktif, sistem mengutamakan Hotline SAR.</p>
         </div>
       </div>
 

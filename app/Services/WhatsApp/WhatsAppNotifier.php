@@ -94,6 +94,9 @@ class WhatsAppNotifier
         if (! $isTektok && $reg->planned_campsite) {
             $lines[] = '• Rencana camp: *'.str_replace('_', ' ', strtoupper((string) $reg->planned_campsite)).'*';
         }
+        if (! $isTektok) {
+            $lines[] = '• Camp disarankan di *Pos 3* (terdekat ke puncak). *Dilarang camp di puncak*, tinggalkan tenda di Pos 3 saat summit attack.';
+        }
 
         $extras = [];
         if ((int) $reg->ojek_count > 0) {
@@ -135,7 +138,9 @@ class WhatsAppNotifier
         $lines[] = '';
         $lines[] = '*DARURAT*';
         $lines[] = "• Hotline basecamp: {$profile['emergency_hotline']}";
-        $lines[] = "• Frekuensi radio SAR: {$profile['sar_frequency']}";
+        if (! empty($profile['sar_radio_enabled']) && ! empty($profile['sar_frequency'])) {
+            $lines[] = "• Frekuensi radio SAR: {$profile['sar_frequency']}";
+        }
         $lines[] = '';
         $lines[] = 'Salam lestari, selamat sampai puncak dan kembali dengan selamat.';
         $lines[] = "*{$basecamp}*";

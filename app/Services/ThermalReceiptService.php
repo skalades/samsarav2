@@ -109,10 +109,14 @@ class ThermalReceiptService
             ->text('POS 3: [ ]Lewat [ ]CAMP')
             ->text('  Jam:______ Paraf:______')
             ->hr('=')
-            ->text('HOTLINE RESCUE & RADIO', 'center', true)
-            ->text('SAR: '.$this->setting('emergency_hotline', '+62 821-2233-4455'), 'center')
-            ->text('HT: '.$this->setting('sar_frequency', '149.250 MHz'), 'center')
-            ->text('Simpan surat jalan ini & tunjukkan ke ranger di setiap Pos/Shelter.', 'center')
+            ->text(\App\Models\AppSetting::isSarRadioEnabled() ? 'HOTLINE RESCUE & RADIO' : 'HOTLINE RESCUE SAR', 'center', true)
+            ->text('SAR: '.$this->setting('emergency_hotline', '+62 821-2233-4455'), 'center');
+
+        if (\App\Models\AppSetting::isSarRadioEnabled()) {
+            $this->text('HT: '.$this->setting('sar_frequency', '149.250 MHz'), 'center');
+        }
+
+        $this->text('Simpan surat jalan ini & tunjukkan ke ranger di setiap Pos/Shelter.', 'center')
             ->feed()
             ->text('Dicetak '.now()->format('d-m-Y H:i:s'), 'center');
 
@@ -275,10 +279,14 @@ class ThermalReceiptService
 
     private function header(string $title, ?string $subtitle = null): static
     {
+        $emergencyLine = \App\Models\AppSetting::isSarRadioEnabled()
+            ? 'SAR: '.$this->setting('sar_frequency', '149.250 MHz').' | WA: '.$this->setting('admin_whatsapp_display', '0821-2233-4455')
+            : 'SAR: '.$this->setting('emergency_hotline', '+62 821-2233-4455').' | WA: '.$this->setting('admin_whatsapp_display', '0821-2233-4455');
+
         $this->ops[] = ['op' => 'logo'];
         $this->text($this->setting('expedition_name', 'SAMSARA EXPEDITION'), 'center', true, 'wide')
             ->text('BASECAMP '.strtoupper($this->setting('mountain_name', 'CIKURAY')).' '.$this->setting('mountain_elevation', '2.821 MDPL'), 'center')
-            ->text('SAR: '.$this->setting('sar_frequency', '149.250 MHz').' | WA: '.$this->setting('admin_whatsapp_display', '0821-2233-4455'), 'center')
+            ->text($emergencyLine, 'center')
             ->hr('=')
             ->text($title, 'center', true);
         if ($subtitle) {

@@ -404,9 +404,9 @@
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 9px;">
         <thead>
             <tr style="background-color: #f3f4f6;">
-                <th style="border: 1px solid #d1d5db; padding: 4px; width: 33%; text-align: center;">POS 1 (Transit Ojek)</th>
-                <th style="border: 1px solid #d1d5db; padding: 4px; width: 34%; text-align: center;">POS 2 (Mata Air / Camp 1)</th>
-                <th style="border: 1px solid #d1d5db; padding: 4px; width: 33%; text-align: center;">POS 3 (Camp Area Atas)</th>
+                <th style="border: 1px solid #d1d5db; padding: 4px; width: 33%; text-align: center;">POS 1 (Tanjakan EOD)</th>
+                <th style="border: 1px solid #d1d5db; padding: 4px; width: 34%; text-align: center;">POS 2 (Batu Gendrung)</th>
+                <th style="border: 1px solid #d1d5db; padding: 4px; width: 33%; text-align: center;">POS 3 (Thun 30)</th>
             </tr>
         </thead>
         <tbody>
@@ -439,7 +439,11 @@
                     <ul class="sop-list">
                         <li><strong>Zero Waste:</strong> Seluruh logistik pembungkus wajib dilaporkan di gerbang dan dibawa turun utuh.</li>
                         <li><strong>Registrasi Ulang:</strong> Tunjukkan e-tiket ini kepada petugas Pos 1 / Gerbang Basecamp untuk validasi barcode.</li>
-                        <li><strong>Radio Darurat SAR:</strong> Frekuensi darurat resmi: <strong>{{ $profile['sar_frequency'] ?? '149.250 MHz' }}</strong>.</li>
+                        @if(!empty($profile['sar_radio_enabled']) && !empty($profile['sar_frequency']))
+                            <li><strong>Radio Darurat SAR:</strong> Frekuensi darurat resmi: <strong>{{ $profile['sar_frequency'] }}</strong>.</li>
+                        @else
+                            <li><strong>Hotline Darurat SAR:</strong> Hubungi nomor siaga resmi basecamp di <strong>{{ $profile['emergency_hotline'] ?? '+62 821-2233-4455' }}</strong>.</li>
+                        @endif
                         <li><strong>Dilarang Keras:</strong> Membuat api unggun terbuka di area vegetasi kering, memetik edelweiss, dan membuang sampah sembarangan.</li>
                     </ul>
                 </div>

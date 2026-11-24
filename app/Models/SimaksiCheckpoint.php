@@ -41,9 +41,9 @@ class SimaksiCheckpoint extends Model
     {
         return match ($this->pos_code) {
             'BASECAMP' => 'Basecamp Gerbang',
-            'POS_1' => 'Pos 1 (Transit Ojek)',
-            'POS_2' => 'Pos 2 (Mata Air / Camp)',
-            'POS_3' => 'Pos 3 (Camp Area)',
+            'POS_1' => 'Pos 1 (Tanjakan EOD)',
+            'POS_2' => 'Pos 2 (Batu Gendrung)',
+            'POS_3' => 'Pos 3 (Thun 30)',
             'PUNCAK' => 'Puncak Cikuray',
             default => $this->pos_code,
         };
