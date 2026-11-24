@@ -95,6 +95,8 @@
     <a href="{{ route('management.ojek.index') }}" class="btn-back">← KEMBALI KE DISPATCH</a>
   </div>
 
+  @include('management.partials.thermal_bt', ['doc' => app(\App\Services\ThermalReceiptService::class)->tripVoucher($trip), 'label' => 'CETAK TIKET VIA BLUETOOTH'])
+
   <div class="voucher-card" style="margin-top: 15px;">
     <!-- Header -->
     <div class="text-center border-b">

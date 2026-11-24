@@ -80,6 +80,7 @@
 
   <div class="no-print">
     <button onclick="window.print()" class="print-btn">CETAK BUKTI KAS KELUAR</button>
+    @include('management.partials.thermal_bt', ['doc' => app(\App\Services\ThermalReceiptService::class)->expense($expense), 'label' => 'CETAK VIA BLUETOOTH'])
   </div>
 
   <div class="text-center">

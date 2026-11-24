@@ -107,6 +107,10 @@
     <a href="{{ route('management.gate.index', ['code' => $registration->registration_code]) }}" class="btn-back">← KEMBALI KE GATE</a>
   </div>
 
+  @if(count($trips))
+    @include('management.partials.thermal_bt', ['doc' => app(\App\Services\ThermalReceiptService::class)->ojekVouchers($registration, collect($trips)), 'label' => 'CETAK ' . count($trips) . ' VOUCHER VIA BLUETOOTH'])
+  @endif
+
   <div class="vouchers-container" style="margin-top: 15px;">
     
     @forelse($trips as $index => $trip)

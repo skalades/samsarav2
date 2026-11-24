@@ -148,5 +148,7 @@
     <a href="{{ route('management.pos.history') }}" class="btn-back">RIWAYAT TRANSAKSI</a>
   </div>
 
+  @include('management.partials.thermal_bt', ['doc' => app(\App\Services\ThermalReceiptService::class)->posOrder($order), 'label' => 'CETAK STRUK VIA BLUETOOTH'])
+
 </body>
 </html>

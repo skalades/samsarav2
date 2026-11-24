@@ -251,6 +251,8 @@
     <a href="{{ route('management.gate.index', ['code' => $registration->registration_code]) }}" class="btn-back">KEMBALI KE POS GATE</a>
   </div>
 
+  @include('management.partials.thermal_bt', ['doc' => app(\App\Services\ThermalReceiptService::class)->climberPass($registration), 'label' => 'CETAK SURAT JALAN VIA BLUETOOTH'])
+
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('print') === '1') {

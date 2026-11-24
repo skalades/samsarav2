@@ -92,6 +92,8 @@
     <a href="{{ route('management.ojek.settlements') }}" class="btn-back">← KEMBALI KE REKONSILIASI</a>
   </div>
 
+  @include('management.partials.thermal_bt', ['doc' => app(\App\Services\ThermalReceiptService::class)->settlement($settlement), 'label' => 'CETAK SLIP VIA BLUETOOTH'])
+
   <div class="settlement-card" style="margin-top: 15px;">
     <!-- Header -->
     <div class="text-center border-b">

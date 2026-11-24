@@ -106,6 +106,8 @@
     <a href="{{ route('management.gate.index', ['code' => $registration->registration_code]) }}" class="btn-back">← KEMBALI KE GATE</a>
   </div>
 
+  @include('management.partials.thermal_bt', ['doc' => app(\App\Services\ThermalReceiptService::class)->parkingPass($registration, auth()->user()?->name), 'label' => 'CETAK GATE PASS VIA BLUETOOTH'])
+
   <div class="pass-box" style="margin-top: 15px;">
     
     <!-- Header -->
