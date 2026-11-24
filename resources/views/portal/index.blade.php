@@ -1443,23 +1443,31 @@
           </div>
 
           <!-- Method Details Panel: QRIS -->
-          <div id="methodDetailQris" class="p-3 bg-[#101216] border border-[#222731] rounded-xl space-y-2 text-center">
-            <span class="text-[10px] text-stone-400 block">SCAN QRIS RESMI {{ strtoupper($profile['basecamp_name'] ?? 'SAMSARA GARUT') }}:</span>
-            <!-- Visual QRIS Container -->
-            <div class="w-40 h-40 mx-auto bg-white p-2 rounded-lg flex items-center justify-center shadow-md">
+          <div id="methodDetailQris" class="p-3.5 bg-[#101216] border border-[#222731] rounded-xl space-y-3 text-center">
+            <span class="text-[10px] font-mono-tech tracking-wider text-stone-400 block uppercase">SCAN QRIS RESMI {{ strtoupper($profile['basecamp_name'] ?? 'SAMSARA GARUT') }}:</span>
+            
+            <!-- Visual QRIS Container (Bounded & Responsive, Anti-Overflow) -->
+            <div class="max-w-[240px] mx-auto bg-white p-2.5 rounded-2xl shadow-xl border border-stone-700 flex items-center justify-center overflow-hidden">
               @if(!empty($profile['payment_qris_image']))
-                <a href="{{ asset('storage/' . $profile['payment_qris_image']) }}" target="_blank" title="Klik untuk perbesar QRIS">
-                  <img src="{{ asset('storage/' . $profile['payment_qris_image']) }}" alt="QRIS Resmi {{ $profile['payment_qris_name'] ?? 'Basecamp' }}" class="w-full h-full object-contain cursor-pointer">
+                <a href="{{ asset('storage/' . $profile['payment_qris_image']) }}" target="_blank" title="Klik untuk memperbesar / simpan QRIS" class="flex items-center justify-center w-full max-h-[280px]">
+                  <img src="{{ asset('storage/' . $profile['payment_qris_image']) }}" alt="QRIS Resmi {{ $profile['payment_qris_name'] ?? 'Basecamp' }}" class="max-w-full max-h-[260px] w-auto h-auto object-contain rounded cursor-pointer transition hover:scale-[1.02]">
                 </a>
               @else
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=00020101021226600016ID.SAMSARA.GARUT01189360099900000000015204581253033605802ID5918SAMSARA+CIKURAY6005GARUT6304A1B2" alt="QRIS Samsara" class="w-full h-full object-contain" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'text-black text-[10px] font-bold\'>[QRIS RESMI]<br>NMID: {{ $profile['payment_qris_nmid'] ?? 'ID102026110099' }}</div>'">
+                <div class="w-44 h-44 flex items-center justify-center p-1">
+                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=00020101021226600016ID.SAMSARA.GARUT01189360099900000000015204581253033605802ID5918SAMSARA+CIKURAY6005GARUT6304A1B2" alt="QRIS Samsara" class="w-full h-full object-contain" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'text-black text-[10px] font-bold\'>[QRIS RESMI]<br>NMID: {{ $profile['payment_qris_nmid'] ?? 'ID102026110099' }}</div>'">
+                </div>
               @endif
             </div>
-            <div class="text-[9px] text-stone-400 space-y-0.5">
-              <span class="text-stone-300 block font-bold">NMID: {{ $profile['payment_qris_nmid'] ?? 'ID102026110099' }} — {{ $profile['payment_qris_name'] ?? 'PT SAMSARA ADVENTURE GARUT' }}</span>
-              <span>Mendukung: GoPay, OVO, Dana, ShopeePay, BCA, Livin, Mandiri, dll.</span>
+
+            <div class="text-[9px] font-mono-tech text-stone-400 space-y-1">
+              <span class="text-stone-200 block font-bold">NMID: {{ $profile['payment_qris_nmid'] ?? 'ID102026110099' }} — {{ $profile['payment_qris_name'] ?? 'PT SAMSARA ADVENTURE GARUT' }}</span>
+              <span class="text-stone-400 block text-[8.5px]">Mendukung: GoPay, OVO, Dana, ShopeePay, BCA, Livin, Mandiri, dll.</span>
               @if(!empty($profile['payment_qris_image']))
-                <a href="{{ asset('storage/' . $profile['payment_qris_image']) }}" target="_blank" class="text-[#FF5722] hover:underline block text-[9px] pt-0.5 font-bold">[LIHAT / SIMPAN QRIS FULL RESOLUSI]</a>
+                <div class="pt-1">
+                  <a href="{{ asset('storage/' . $profile['payment_qris_image']) }}" target="_blank" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#181B22] hover:bg-[#202530] text-[#FF5722] hover:text-white border border-[#FF5722]/40 rounded-lg text-[9px] font-bold transition shadow-sm">
+                    <span>[+] BUKA / SIMPAN QRIS FULL RESOLUSI</span>
+                  </a>
+                </div>
               @endif
             </div>
           </div>
