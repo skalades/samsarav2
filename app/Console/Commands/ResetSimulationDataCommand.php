@@ -112,16 +112,33 @@ class ResetSimulationDataCommand extends Command
             Schema::enableForeignKeyConstraints();
         }
 
-        // 7. Bersihkan berkas upload simulasi di storage
+        // 7. Bersihkan berkas upload simulasi di storage (KTP, bukti transfer, foto tim)
         $this->runStep('Membersihkan berkas KTP & foto simulasi di storage', function () {
-            // Local disk (KTP private)
-            Storage::disk('local')->deleteDirectory('ktp');
+            $targets = [
+                ['local', 'ktp'],
+                ['public', 'ktp'],
+                ['public', 'payments'],
+                ['public', 'group_photos'],
+                ['public', 'gate_photos'],
+            ];
 
-            // Public disk (bukti transfer, foto regu, dll)
-            Storage::disk('public')->deleteDirectory('ktp');
-            Storage::disk('public')->deleteDirectory('payments');
-            Storage::disk('public')->deleteDirectory('group_photos');
-            Storage::disk('public')->deleteDirectory('gate_photos');
+            $warnings = [];
+            foreach ($targets as [$disk, $dir]) {
+                try {
+                    if (Storage::disk($disk)->exists($dir)) {
+                        Storage::disk($disk)->deleteDirectory($dir);
+                    }
+                } catch (\Throwable $e) {
+                    $warnings[] = "{$disk}/{$dir}: " . $e->getMessage();
+                }
+            }
+
+            if (!empty($warnings)) {
+                $this->newLine();
+                $this->warn('  [Catatan Hak Akses File]');
+                $this->line('  Beberapa berkas dibuat oleh web server (user www). Jika ingin menghapus sisa file secara tuntas:');
+                $this->line('  sudo chown -R www:www storage && sudo chmod -R 775 storage');
+            }
         });
 
         $this->newLine();
