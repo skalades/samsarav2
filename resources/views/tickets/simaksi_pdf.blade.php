@@ -348,12 +348,12 @@
   <!-- Header Instansi & Verifikasi -->
   <table class="header-wrap">
     <tr>
-      <td style="width: 65%;">
-        <table class="w-full">
+      <td style="width: 66%;">
+        <table style="width: 100%; border-collapse: collapse;">
           <tr>
             @if(!empty($profile['app_logo']) && file_exists(public_path('storage/' . $profile['app_logo'])))
-              <td style="width: 48px; border: none; padding: 0 8px 0 0; vertical-align: middle;">
-                <img src="{{ public_path('storage/' . $profile['app_logo']) }}" style="max-height: 42px; max-width: 44px;" alt="Logo">
+              <td style="width: 52px; border: none; padding: 0 10px 0 0; vertical-align: middle;">
+                <img src="{{ public_path('storage/' . $profile['app_logo']) }}" style="max-height: 44px; max-width: 44px;" alt="Logo">
               </td>
             @endif
             <td style="border: none; padding: 0; vertical-align: middle;">
@@ -366,7 +366,7 @@
           </tr>
         </table>
       </td>
-      <td style="width: 35%; text-align: right;">
+      <td style="width: 34%; text-align: right;">
         <div class="ticket-code-badge">{{ $registration->registration_code }}</div><br>
         <span class="status-badge" style="background-color: {{ $statusColor }};">{{ $statusLabel }}</span>
       </td>
@@ -603,11 +603,13 @@
         <div style="margin-top: 4px;">Waktu Cetak: {{ $printedAt }} | Petugas Verifikator: {{ $registration->reviewer?->name ?: 'Sistem Otomatis Basecamp' }}</div>
       </td>
       <td style="width: 26%; text-align: right;">
-        <div style="font-weight: bold; font-size: 8.5px; margin-bottom: 3px; color: #111827;">SCAN VALIDASI GERBANG</div>
-        <div style="margin-bottom: 4px;">
-          <img src="{{ \App\Support\QrCode::pngDataUri($registration->registration_code, 6, 4) }}" width="86" height="86" alt="QR Code" style="display: inline-block; background: #ffffff; padding: 2px; border: 1px solid #e5e7eb; image-rendering: pixelated;">
+        <div style="display: inline-block; text-align: center;">
+          <div style="font-weight: bold; font-size: 8px; margin-bottom: 3px; color: #111827;">SCAN VALIDASI GERBANG</div>
+          <div style="margin-bottom: 4px;">
+            <img src="{{ \App\Support\QrCode::pngDataUri($registration->registration_code, 6, 4) }}" width="86" height="86" alt="QR Code" style="display: inline-block; background: #ffffff; padding: 2px; border: 1px solid #e5e7eb; image-rendering: pixelated;">
+          </div>
+          <div class="qr-code-tag">[ {{ $registration->registration_code }} ]</div>
         </div>
-        <div class="qr-code-tag">[ {{ $registration->registration_code }} ]</div>
       </td>
     </tr>
   </table>
