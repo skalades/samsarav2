@@ -133,7 +133,7 @@
 
   <div class="row" style="font-size: 13px;">
     <span class="font-bold">TOTAL KAS KELUAR:</span>
-    <span class="font-bold">Rp {{ number_format($expense->amount, 0, ',', '.') }}</span>
+    <span class="font-bold">{{ rupiah($expense->amount) }}</span>
   </div>
 
   <div class="divider"></div>

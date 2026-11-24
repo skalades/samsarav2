@@ -198,7 +198,7 @@
           </div>
           <div class="relative">
             <span class="absolute left-3 top-2.5 text-stone-500 font-bold">Rp</span>
-            <input type="number" id="simaksi_fee" name="simaksi_fee_per_person" value="{{ old('simaksi_fee_per_person', $tariffs['simaksi_fee_per_person']) }}" min="0" step="1000" required class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-brand">
+            <input type="text" inputmode="numeric" data-currency-input id="simaksi_fee" name="simaksi_fee_per_person" value="{{ format_nominal(old('simaksi_fee_per_person', $tariffs['simaksi_fee_per_person'])) }}" required class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-brand">
           </div>
           <p class="text-[9px] text-stone-400">Tarif izin resmi masuk kawasan konservasi {{ \App\Models\AppSetting::get('mountain_name', 'Gunung Cikuray') }} per pendaki.</p>
         </div>
@@ -213,7 +213,7 @@
           </div>
           <div class="relative">
             <span class="absolute left-3 top-2.5 text-stone-500 font-bold">Rp</span>
-            <input type="number" id="ojek_fee" name="ojek_fee_per_trip" value="{{ old('ojek_fee_per_trip', $tariffs['ojek_fee_per_trip']) }}" min="0" step="1000" required class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-brand">
+            <input type="text" inputmode="numeric" data-currency-input id="ojek_fee" name="ojek_fee_per_trip" value="{{ format_nominal(old('ojek_fee_per_trip', $tariffs['ojek_fee_per_trip'])) }}" required class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-brand">
           </div>
           <p class="text-[9px] text-stone-400">Tarif shuttle armada ojek warga kebun teh rute Basecamp → Pos 1 per armada.</p>
         </div>
@@ -228,7 +228,7 @@
           </div>
           <div class="relative">
             <span class="absolute left-3 top-2.5 text-stone-500 font-bold">Rp</span>
-            <input type="number" id="ojek_basecamp_share" name="ojek_basecamp_share" value="{{ old('ojek_basecamp_share', $tariffs['ojek_basecamp_share'] ?? 5000) }}" min="0" step="500" required class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-brand">
+            <input type="text" inputmode="numeric" data-currency-input id="ojek_basecamp_share" name="ojek_basecamp_share" value="{{ format_nominal(old('ojek_basecamp_share', $tariffs['ojek_basecamp_share'] ?? 5000)) }}" required class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-brand">
           </div>
           <p class="text-[9px] text-stone-400">Bagian kas pengelola jalur basecamp. Sisanya otomatis menjadi hak driver ojek.</p>
         </div>
@@ -255,7 +255,7 @@
           </div>
           <div class="relative">
             <span class="absolute left-3 top-2.5 text-stone-500 font-bold">Rp</span>
-            <input type="number" id="porter_fee" name="porter_fee_per_trip" value="{{ old('porter_fee_per_trip', $tariffs['porter_fee_per_trip'] ?? 350000) }}" min="0" step="10000" required class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-brand">
+            <input type="text" inputmode="numeric" data-currency-input id="porter_fee" name="porter_fee_per_trip" value="{{ format_nominal(old('porter_fee_per_trip', $tariffs['porter_fee_per_trip'] ?? 350000)) }}" required class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-brand">
           </div>
           <p class="text-[9px] text-stone-400">Estimasi tarif porter lokal (2H1M beban maks 20 KG hingga Pos 4 Camp).</p>
         </div>
@@ -287,7 +287,7 @@
           </div>
           <div class="relative">
             <span class="absolute left-3 top-2.5 text-stone-500 font-bold">Rp</span>
-            <input type="number" id="parking_motor" name="parking_motor_fee" value="{{ old('parking_motor_fee', $tariffs['parking_motor_fee']) }}" min="0" step="1000" required class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-brand">
+            <input type="text" inputmode="numeric" data-currency-input id="parking_motor" name="parking_motor_fee" value="{{ format_nominal(old('parking_motor_fee', $tariffs['parking_motor_fee'])) }}" required class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-brand">
           </div>
           <p class="text-[9px] text-stone-400">Dikenakan saat pendaki membawa sepeda motor ke basecamp selama pendakian.</p>
         </div>
@@ -302,7 +302,7 @@
           </div>
           <div class="relative">
             <span class="absolute left-3 top-2.5 text-stone-500 font-bold">Rp</span>
-            <input type="number" id="parking_car" name="parking_car_fee" value="{{ old('parking_car_fee', $tariffs['parking_car_fee']) }}" min="0" step="1000" required class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-brand">
+            <input type="text" inputmode="numeric" data-currency-input id="parking_car" name="parking_car_fee" value="{{ format_nominal(old('parking_car_fee', $tariffs['parking_car_fee'])) }}" required class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-brand">
           </div>
           <p class="text-[9px] text-stone-400">Dikenakan saat pendaki membawa mobil / minibus ke pelataran parkir basecamp.</p>
         </div>
@@ -348,7 +348,7 @@
             </label>
             <div class="relative">
               <span class="absolute left-3 top-2.5 text-stone-500 font-bold">Rp</span>
-              <input type="number" id="trash_amount" name="trash_deposit_amount" value="{{ old('trash_deposit_amount', $tariffs['trash_deposit_amount']) }}" min="0" step="5000" class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-emerald-500">
+              <input type="text" inputmode="numeric" data-currency-input id="trash_amount" name="trash_deposit_amount" value="{{ format_nominal(old('trash_deposit_amount', $tariffs['trash_deposit_amount'])) }}" class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-emerald-500">
             </div>
             <p class="text-[9px] text-stone-400">
               *Uang jaminan ini bersifat <em>refundable</em> (dikembalikan 100% tunai di Pos 00 Basecamp saat rombongan menyerahkan kantong sampah resmi).

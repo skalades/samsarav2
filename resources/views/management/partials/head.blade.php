@@ -114,3 +114,5 @@
     box-shadow: 0 0 80px rgba(0, 0, 0, .7);
   }
 </style>
+
+<script src="{{ asset('assets/js/currency-input.js') }}"></script>

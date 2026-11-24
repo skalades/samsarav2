@@ -261,7 +261,7 @@
         <label class="block text-[10px] text-stone-400 uppercase font-bold mb-1">Nominal Pengeluaran (Rp) *</label>
         <div class="relative">
           <span class="absolute left-3 top-2 text-stone-500 font-bold">Rp</span>
-          <input type="number" name="amount" min="1000" step="500" required placeholder="Contoh: 50000" class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-rose-500">
+          <input type="text" inputmode="numeric" data-currency-input name="amount" required placeholder="Contoh: 50.000" class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-rose-500">
         </div>
       </div>
 

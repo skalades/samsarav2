@@ -1768,6 +1768,7 @@
   </script>
 
   <!-- Modular JavaScript Scripts -->
+  <script src="{{ asset('assets/js/currency-input.js') }}"></script>
   <script src="{{ asset('assets/js/data.js') }}"></script>
   <script src="{{ asset('assets/js/app.js') }}"></script>
 </body>

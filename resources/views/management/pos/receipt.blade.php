@@ -101,8 +101,8 @@
         <div style="margin-bottom: 4px;">
           <div class="font-bold">{{ $item->item_name }}</div>
           <div class="row" style="color: #444;">
-            <span>{{ $item->quantity }} x Rp {{ number_format($item->unit_price, 0, ',', '.') }}</span>
-            <span class="font-bold text-right" style="color: #000;">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span>
+            <span>{{ $item->quantity }} x {{ rupiah($item->unit_price) }}</span>
+            <span class="font-bold text-right" style="color: #000;">{{ rupiah($item->subtotal) }}</span>
           </div>
         </div>
       @endforeach
@@ -112,7 +112,7 @@
     <div class="border-t" style="font-size: 11px;">
       <div class="row font-bold" style="font-size: 12px;">
         <span>TOTAL:</span>
-        <span>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
+        <span>{{ rupiah($order->total_amount) }}</span>
       </div>
       <div class="row" style="font-size: 10px; margin-top: 4px;">
         <span>METODE:</span>
@@ -121,11 +121,11 @@
       @if($order->payment_method === 'cash')
         <div class="row" style="font-size: 10px;">
           <span>TUNAI:</span>
-          <span>Rp {{ number_format($order->cash_tendered, 0, ',', '.') }}</span>
+          <span>{{ rupiah($order->cash_tendered) }}</span>
         </div>
         <div class="row" style="font-size: 10px;">
           <span>KEMBALIAN:</span>
-          <span>Rp {{ number_format($order->cash_change, 0, ',', '.') }}</span>
+          <span>{{ rupiah($order->cash_change) }}</span>
         </div>
       @endif
     </div>

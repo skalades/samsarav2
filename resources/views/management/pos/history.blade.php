@@ -32,27 +32,27 @@
       <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
         <div class="p-3 bg-raised border border-line rounded-lg">
           <span class="text-[9px] text-stone-400 block uppercase">TOTAL OMZET POS</span>
-          <span class="font-bold text-base text-brand block mt-0.5">Rp {{ number_format($shiftSummary['total_revenue'] ?? 0, 0, ',', '.') }}</span>
+          <span class="font-bold text-base text-brand block mt-0.5">{{ rupiah($shiftSummary['total_revenue'] ?? 0) }}</span>
           <span class="text-[9px] text-stone-500">{{ $shiftSummary['total_transactions'] ?? 0 }} Transaksi Sukses</span>
         </div>
         <div class="p-3 bg-raised border border-emerald-500/40 rounded-lg">
           <span class="text-[9px] text-emerald-400 block uppercase font-bold">KAS FISIK LACI (NET CASH)</span>
-          <span class="font-black text-base text-emerald-400 block mt-0.5">Rp {{ number_format($shiftSummary['net_cash_in_drawer'] ?? 0, 0, ',', '.') }}</span>
+          <span class="font-black text-base text-emerald-400 block mt-0.5">{{ rupiah($shiftSummary['net_cash_in_drawer'] ?? 0) }}</span>
           <span class="text-[9px] text-stone-400">Kas Masuk - Kas Keluar</span>
         </div>
         <div class="p-3 bg-raised border border-line rounded-lg">
           <span class="text-[9px] text-stone-400 block uppercase">PAYOUT OJEK (TUNAI)</span>
-          <span class="font-bold text-sm text-amber-400 block mt-0.5">- Rp {{ number_format($shiftSummary['ojek_payout_cash'] ?? 0, 0, ',', '.') }}</span>
+          <span class="font-bold text-sm text-amber-400 block mt-0.5">-{{ rupiah($shiftSummary['ojek_payout_cash'] ?? 0) }}</span>
           <span class="text-[9px] text-stone-500">Honor Driver Terbayar</span>
         </div>
         <div class="p-3 bg-raised border border-line rounded-lg">
           <span class="text-[9px] text-stone-400 block uppercase">KAS KELUAR OPERASIONAL</span>
-          <span class="font-bold text-sm text-rose-400 block mt-0.5">- Rp {{ number_format($shiftSummary['operational_expenses_cash'] ?? 0, 0, ',', '.') }}</span>
+          <span class="font-bold text-sm text-rose-400 block mt-0.5">-{{ rupiah($shiftSummary['operational_expenses_cash'] ?? 0) }}</span>
           <span class="text-[9px] text-stone-500">Petty Cash / Mendadak</span>
         </div>
         <div class="p-3 bg-raised border border-line rounded-lg">
           <span class="text-[9px] text-stone-400 block uppercase">NON-TUNAI (QRIS & TF)</span>
-          <span class="font-bold text-sm text-cyan-400 block mt-0.5">Rp {{ number_format(($shiftSummary['qris_total'] ?? 0) + ($shiftSummary['transfer_total'] ?? 0), 0, ',', '.') }}</span>
+          <span class="font-bold text-sm text-cyan-400 block mt-0.5">{{ rupiah(($shiftSummary['qris_total'] ?? 0) + ($shiftSummary['transfer_total'] ?? 0)) }}</span>
           <span class="text-[9px] text-stone-500">Rekening & Merchant</span>
         </div>
       </div>
@@ -102,7 +102,7 @@
                   <span class="text-[9px] text-brand">SIMAKSI: {{ $order->simaksi->registration_code }}</span>
                 @endif
               </td>
-              <td class="py-3 font-bold text-white">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
+              <td class="py-3 font-bold text-white">{{ rupiah($order->total_amount) }}</td>
               <td class="py-3 text-stone-300 uppercase">{{ $order->payment_method }}</td>
               <td class="py-3">
                 @if($order->status === 'completed')

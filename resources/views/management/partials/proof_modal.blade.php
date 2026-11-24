@@ -38,7 +38,7 @@
     if (img) img.src = imageUrl;
     set('proofModalCode', code || '-');
     set('proofModalLeader', leader || '-');
-    set('proofModalAmount', amount ? 'Rp ' + amount : '-');
+    set('proofModalAmount', amount ? (typeof formatRupiah === 'function' ? formatRupiah(amount) : (String(amount).startsWith('Rp') ? amount : 'Rp ' + amount)) : '-');
     set('proofModalMethod', method || 'TRANSFER');
     const raw = document.getElementById('proofModalRawLink');
     if (raw) raw.href = imageUrl;

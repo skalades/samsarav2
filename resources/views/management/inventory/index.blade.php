@@ -150,7 +150,10 @@
 
       <div id="penaltyBox" class="hidden">
         <label class="block text-[10px] text-rose-400 uppercase mb-1 font-bold">DENDA KERUSAKAN / GANTI RUGI (RP):</label>
-        <input type="number" name="damage_penalty" value="0" min="0" class="w-full bg-raised border border-line-strong rounded-lg p-2 text-white font-bold">
+        <div class="relative">
+          <span class="absolute left-3 top-2 text-stone-500 font-bold">Rp</span>
+          <input type="text" inputmode="numeric" data-currency-input name="damage_penalty" value="0" class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold">
+        </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-2">
@@ -178,7 +181,10 @@
 
       <div>
         <label class="block text-[10px] text-stone-400 uppercase mb-1">TARIF RESMI (RP):</label>
-        <input type="number" name="price" id="stockPriceInput" min="0" required class="w-full bg-raised border border-line-strong rounded-lg p-2 text-white font-bold">
+        <div class="relative">
+          <span class="absolute left-3 top-2 text-stone-500 font-bold">Rp</span>
+          <input type="text" inputmode="numeric" data-currency-input name="price" id="stockPriceInput" required class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold">
+        </div>
       </div>
 
       <label class="flex items-center gap-2 pt-1 cursor-pointer">
@@ -217,7 +223,11 @@
   function openStockModal(id, name, stock, price, isActive) {
     document.getElementById('stockModalTitle').innerText = 'UBAH DATA: ' + name;
     document.getElementById('stockAvailInput').value = stock;
-    document.getElementById('stockPriceInput').value = price;
+    if (typeof setCurrencyInputValue === 'function') {
+      setCurrencyInputValue('stockPriceInput', price);
+    } else {
+      document.getElementById('stockPriceInput').value = price;
+    }
     document.getElementById('stockIsActive').checked = isActive;
     document.getElementById('stockForm').action = '/management/inventory/update/' + id;
     document.getElementById('stockModal').classList.remove('hidden');

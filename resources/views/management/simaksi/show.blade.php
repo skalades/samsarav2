@@ -301,39 +301,39 @@
 
         <div class="space-y-2 font-mono-tech text-xs">
           <div class="flex justify-between text-stone-300">
-            <span>Tiket SIMAKSI ({{ $registration->total_climbers }} org @ Rp 25k):</span>
-            <span class="font-bold">Rp {{ number_format($registration->simaksi_fee, 0, ',', '.') }}</span>
+            <span>Tiket SIMAKSI ({{ $registration->total_climbers }} orang{{ $registration->total_climbers > 0 ? ' @ ' . rupiah($registration->simaksi_fee / $registration->total_climbers) : '' }}):</span>
+            <span class="font-bold">{{ rupiah($registration->simaksi_fee) }}</span>
           </div>
           <div class="flex justify-between text-stone-300">
-            <span>Shuttle Ojek ({{ $registration->ojek_count ?? ($registration->ojek_fee > 0 ? 1 : 0) }} Armada @ Rp 30k):</span>
-            <span class="font-bold">Rp {{ number_format($registration->ojek_fee, 0, ',', '.') }}</span>
+            <span>Shuttle Ojek ({{ $registration->ojek_count ?? ($registration->ojek_fee > 0 ? 1 : 0) }} armada{{ (int)($registration->ojek_count ?? 0) > 0 ? ' @ ' . rupiah($registration->ojek_fee / $registration->ojek_count) : '' }}):</span>
+            <span class="font-bold">{{ rupiah($registration->ojek_fee) }}</span>
           </div>
           @if($registration->has_vehicle || $registration->parking_fee > 0)
             <div class="flex justify-between text-cyan-300 bg-cyan-950/20 p-1.5 rounded border border-cyan-800/30">
               <span>Titip Parkir ({{ $registration->motorcycle_count }} Motor, {{ $registration->car_count }} Mobil):</span>
-              <span class="font-bold">Rp {{ number_format($registration->parking_fee, 0, ',', '.') }}</span>
+              <span class="font-bold">{{ rupiah($registration->parking_fee) }}</span>
             </div>
           @endif
           @if($registration->unique_code > 0)
             <div class="flex justify-between text-amber-400 bg-amber-500/10 p-2 rounded border border-amber-500/20">
               <span>Kode Unik Verifikasi Bank:</span>
-              <span class="font-bold">+Rp {{ $registration->unique_code }}</span>
+              <span class="font-bold">+{{ rupiah($registration->unique_code) }}</span>
             </div>
           @endif
           <div class="pt-2 border-t border-line flex justify-between items-center text-sm font-bold text-white">
             <span>TOTAL TAGIHAN:</span>
-            <span class="text-brand text-base">Rp {{ number_format($registration->total_amount, 0, ',', '.') }}</span>
+            <span class="text-brand text-base">{{ rupiah($registration->total_amount) }}</span>
           </div>
           
           <div class="p-2.5 bg-canvas border border-line rounded-lg text-[10px] text-stone-400 mt-2 space-y-1">
             @if($registration->unique_code > 0)
               <div class="text-amber-300 font-bold pb-1 border-b border-line">
-                // Verifikasi Mutasi Bank: Nominal transfer persis <strong class="text-white">Rp {{ number_format($registration->total_amount, 0, ',', '.') }}</strong> (Kode unik: {{ $registration->unique_code }}).
+                // Verifikasi Mutasi Bank: Nominal transfer persis <strong class="text-white">{{ rupiah($registration->total_amount) }}</strong> (Kode unik: {{ $registration->unique_code }}).
               </div>
             @endif
             <div>
               @if($registration->trash_deposit_amount > 0)
-                <span class="text-stone-300 font-bold">UANG JAMINAN SAMPAH: Rp {{ number_format($registration->trash_deposit_amount, 0, ',', '.') }}</span> (Diserahkan saat Gate Check-in & dikembalikan 100% setelah sampah dibawa turun).
+                <span class="text-stone-300 font-bold">UANG JAMINAN SAMPAH: {{ rupiah($registration->trash_deposit_amount) }}</span> (Diserahkan saat Gate Check-in & dikembalikan 100% setelah sampah dibawa turun).
               @else
                 <span class="text-stone-400 font-bold">JAMINAN SAMPAH: NONAKTIF / BEBAS DEPOSIT</span>
               @endif

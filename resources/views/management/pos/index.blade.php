@@ -196,7 +196,7 @@
       <div id="cashCalcBox" class="p-2 bg-raised rounded border border-line space-y-1">
         <div class="flex justify-between items-center">
           <label class="text-[9px] text-stone-400 uppercase">Uang Diterima:</label>
-          <input type="number" id="cashTendered" oninput="calcChange()" placeholder="0" class="w-28 bg-surface border border-line-strong rounded px-2 py-1 text-right text-white font-bold text-xs">
+          <input type="text" inputmode="numeric" data-currency-input id="cashTendered" oninput="calcChange()" placeholder="0" class="w-32 bg-surface border border-line-strong rounded px-2 py-1 text-right text-white font-bold text-xs">
         </div>
         <div class="flex justify-between items-center text-[10px]">
           <span class="text-stone-400">Kembalian:</span>
@@ -358,9 +358,13 @@
 
   function calcChange() {
     const total = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
-    const tendered = parseFloat(document.getElementById('cashTendered').value) || 0;
+    const tendered = typeof parseRupiah === 'function' 
+      ? parseRupiah(document.getElementById('cashTendered').value) 
+      : (parseFloat(document.getElementById('cashTendered').value.replace(/\D/g, '')) || 0);
     const change = Math.max(0, tendered - total);
-    document.getElementById('cashChangeDisplay').innerText = 'Rp ' + change.toLocaleString('id-ID');
+    document.getElementById('cashChangeDisplay').innerText = typeof formatRupiah === 'function'
+      ? formatRupiah(change)
+      : ('Rp ' + change.toLocaleString('id-ID'));
   }
 
   function autoFillCustomerFromSimaksi(selectEl) {
@@ -386,7 +390,9 @@
 
     const customerPhone = document.getElementById('cartCustomerPhone').value.trim();
     const simaksiId = document.getElementById('cartSimaksiId').value || null;
-    const cashTendered = parseFloat(document.getElementById('cashTendered').value) || 0;
+    const cashTendered = typeof parseRupiah === 'function'
+      ? parseRupiah(document.getElementById('cashTendered').value)
+      : (parseFloat(document.getElementById('cashTendered').value.replace(/\D/g, '')) || 0);
 
     const payload = {
       customer_name: customerName,
@@ -484,7 +490,7 @@
         <label class="block text-[10px] text-stone-400 uppercase font-bold mb-1">Nominal Kas Keluar (Rp) *</label>
         <div class="relative">
           <span class="absolute left-3 top-2 text-stone-500 font-bold">Rp</span>
-          <input type="number" name="amount" min="1000" step="500" required placeholder="50000" class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-rose-500">
+          <input type="text" inputmode="numeric" data-currency-input name="amount" required placeholder="50.000" class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-rose-500">
         </div>
       </div>
 

@@ -703,7 +703,7 @@ const App = {
           payParkRow.classList.add('hidden');
         }
       }
-      setEl('wzUniqueCodePay', `+Rp ${effectiveUnique}`);
+      setEl('wzUniqueCodePay', `+Rp ${Number(effectiveUnique).toLocaleString('id-ID')}`);
       setEl('wzFinalTotal', `Rp ${total.toLocaleString('id-ID')}`);
 
       const uniqueRow = document.getElementById('wzUniqueCodeRow');

@@ -504,7 +504,7 @@
               </td>
 
               <td class="py-3.5 px-4 text-right font-black text-sm whitespace-nowrap {{ $entry['type'] === 'IN' ? 'text-emerald-400' : 'text-rose-400' }}">
-                {{ $entry['type'] === 'IN' ? '+' : '-' }} Rp {{ number_format($entry['amount'], 0, ',', '.') }}
+                {{ $entry['type'] === 'IN' ? '+' : '-' }} {{ rupiah($entry['amount']) }}
               </td>
 
               <td class="py-3.5 px-4 text-stone-300 text-[11px]">

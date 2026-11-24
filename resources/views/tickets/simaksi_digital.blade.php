@@ -463,6 +463,12 @@
                         <span class="font-semibold text-white">Rp {{ number_format($registration->parking_fee, 0, ',', '.') }}</span>
                     </div>
                     @endif
+                    @if($registration->unique_code > 0)
+                    <div class="flex justify-between">
+                        <span class="text-stone-400">Kode Unik Verifikasi</span>
+                        <span class="font-semibold text-amber-400">+Rp {{ number_format($registration->unique_code, 0, ',', '.') }}</span>
+                    </div>
+                    @endif
                     <div class="pt-2 border-t border-[#1E2229] flex justify-between text-sm font-extrabold text-white">
                         <span>TOTAL LUNAS / BAYAR:</span>
                         <span class="text-[#FF5722] text-base">Rp {{ number_format($registration->total_amount, 0, ',', '.') }}</span>
