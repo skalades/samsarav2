@@ -15,7 +15,9 @@
   (function () {
     // Mode tampilan: 'auto' (ikut lebar layar) atau 'mobile' (paksa versi mobile di layar apa pun)
     var mode = 'auto';
+    @if($withViewMode ?? true)
     try { mode = localStorage.getItem('samsara_view_mode') || 'auto'; } catch (e) {}
+    @endif
     window.SAMSARA_VIEW_MODE = mode;
 
     var config = {

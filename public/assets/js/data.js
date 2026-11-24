@@ -42,7 +42,7 @@ const SAMSARA_CONFIG = {
       porterPerTrip: pr.porter_fee_per_trip !== undefined ? Number(pr.porter_fee_per_trip) : 350000,
       parkingMotor: pr.parking_motor_fee !== undefined ? Number(pr.parking_motor_fee) : 10000,
       parkingCar: pr.parking_car_fee !== undefined ? Number(pr.parking_car_fee) : 25000,
-      trashDepositEnabled: pr.trash_deposit_enabled !== undefined ? Boolean(pr.trash_deposit_enabled) : true,
+      trashDepositEnabled: pr.trash_deposit_enabled !== undefined ? Boolean(pr.trash_deposit_enabled) : false,
       trashDeposit: pr.trash_deposit_amount !== undefined ? Number(pr.trash_deposit_amount) : 50000,
     };
   },
