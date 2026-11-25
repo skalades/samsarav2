@@ -5,8 +5,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="SAMSARA OPS">
-<meta name="application-name" content="SAMSARA OPS">
+<meta name="apple-mobile-web-app-title" content="{{ $appTitle ?? 'SAMSARA OPS' }}">
+<meta name="application-name" content="{{ $appTitle ?? 'SAMSARA OPS' }}">
 
 {{-- PWA Manifest & App Icons --}}
 <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">

@@ -24,6 +24,11 @@ use Illuminate\Support\Facades\Route;
 // Public Mobile Landing Page
 Route::get('/', [PublicSimaksiController::class, 'portal'])->name('portal.home');
 
+// Search Engine & AI Summary Discovery Endpoints
+Route::get('/sitemap.xml', [PublicSimaksiController::class, 'sitemap'])->name('seo.sitemap');
+Route::get('/llms.txt', [PublicSimaksiController::class, 'llms'])->name('seo.llms');
+Route::get('/llms-full.txt', [PublicSimaksiController::class, 'llmsFull'])->name('seo.llms_full');
+
 // PWA Offline Fallback Routes
 Route::get('/offline', fn () => response(file_get_contents(public_path('offline.html')))->header('Content-Type', 'text/html; charset=utf-8'))->name('pwa.offline');
 Route::get('/management/offline', fn () => response(file_get_contents(public_path('offline.html')))->header('Content-Type', 'text/html; charset=utf-8'))->name('management.offline');

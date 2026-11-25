@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
-  @include('management.partials.head', ['withViewMode' => false, 'lockViewport' => false])
+  @include('management.partials.head', [
+    'withViewMode' => false,
+    'lockViewport' => false,
+    'appTitle' => $profile['expedition_name'] ?? 'SAMSARA EXPEDITION',
+  ])
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>{{ $profile['expedition_name'] ?? 'SAMSARA EXPEDITION' }} — {{ $profile['mountain_name'] ?? 'Gunung Cikuray' }} {{ $profile['mountain_elevation'] ?? '2.821 MDPL' }} | Portal Resmi</title>
-  <meta name="description" content="Portal resmi SIMAKSI pendakian {{ $profile['mountain_name'] ?? 'Gunung Cikuray' }} via {{ $profile['basecamp_name'] ?? 'Basecamp SAMSARA' }}. Cek kuota harian, pesan e-SIMAKSI, dan terima tiket lewat WhatsApp.">
+  <title>{{ $seo['title'] }}</title>
+  <meta name="description" content="{{ $seo['description'] }}">
+  @include('portal.partials.seo-head')
   <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}?v={{ filemtime(public_path('assets/css/main.css')) }}">
 </head>
 <body class="min-h-screen flex flex-col bg-canvas selection:bg-brand selection:text-white pb-24 md:pb-8">

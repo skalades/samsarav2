@@ -13,6 +13,7 @@
 <html lang="id" class="h-full">
 <head>
   @include('management.partials.head')
+  <meta name="robots" content="noindex, nofollow">
   <title>Masuk Petugas — {{ \App\Models\AppSetting::get('expedition_name', 'SAMSARA EXPEDITION') }}</title>
 </head>
 <body class="min-h-full bg-canvas antialiased">

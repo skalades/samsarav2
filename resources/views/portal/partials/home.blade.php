@@ -1,8 +1,10 @@
 {{-- Beranda / landing page portal publik --}}
 @php
-  $trailCfg = \App\Models\AppSetting::getTrailConfig();
-  $trailLast = collect(\App\Models\AppSetting::getTrailRoute())->last();
-  $checklist = \App\Support\InspectionTemplate::get();
+  $trailCfg = $trailConfig ?? \App\Models\AppSetting::getTrailConfig();
+  $trailRouteList = $trailRoute ?? \App\Models\AppSetting::getTrailRoute();
+  $trailLast = collect($trailRouteList)->last();
+  $checklist = $checklist ?? \App\Support\InspectionTemplate::get();
+  $facilities = $facilities ?? \App\Models\AppSetting::getBasecampFacilities();
   $rp = fn ($v) => 'Rp '.number_format((float) $v, 0, ',', '.');
   $status = $trailCondition->status ?? 'open';
   $statusMeta = [
@@ -10,20 +12,11 @@
     'caution' => ['Jalur waspada', 'bg-amber-400', 'text-amber-200'],
     'closed' => ['Jalur ditutup', 'bg-rose-400', 'text-rose-200'],
   ][$status] ?? ['Jalur dibuka', 'bg-emerald-400', 'text-emerald-200'];
-  $remaining = (int) ($todayQuota->remaining_quota ?? 0);
-  $maxQuota = (int) ($todayQuota->max_quota ?? ($profile['default_daily_quota'] ?? 150));
+  $remaining = $remainingQuota ?? (int) ($todayQuota->remaining_quota ?? 0);
+  $maxQuota = $maxQuota ?? (int) ($todayQuota->max_quota ?? ($profile['default_daily_quota'] ?? 150));
   $quotaPct = $maxQuota > 0 ? round((($maxQuota - $remaining) / $maxQuota) * 100) : 0;
   $mountain = $profile['mountain_name'] ?? 'Gunung Cikuray';
   $basecamp = $profile['basecamp_name'] ?? 'Basecamp SAMSARA';
-
-
-  $steps = [
-    ['icon' => 'ticket', 'title' => 'Daftar & bayar online', 'text' => 'Pilih tanggal, isi data rombongan dan KTP ketua, lalu bayar via transfer, QRIS, atau tunai di basecamp.'],
-    ['icon' => 'whatsapp', 'title' => 'E-SIMAKSI dikirim ke WhatsApp', 'text' => 'Setelah kasir memverifikasi lunas, info pendakian lengkap dan tautan e-SIMAKSI langsung masuk ke WhatsApp ketua.'],
-    ['icon' => 'checklist', 'title' => 'Pemeriksaan di gerbang', 'text' => 'Gatekeeper mengecek anggota, alat wajib, memotret tim, dan menghitung logistik yang berpotensi jadi sampah.'],
-    ['icon' => 'printer', 'title' => 'Ambil surat jalan, mulai mendaki', 'text' => 'Kasir mencetak surat jalan'.((float) ($tariffs['ojek_fee_per_trip'] ?? 0) > 0 ? ' dan voucher ojek' : '').'. Ranger mencatat rombongan di setiap pos.'],
-    ['icon' => 'arrow-down', 'title' => 'Turun & hitung ulang', 'text' => 'Logistik dicocokkan lagi di gerbang. Semua sampah kembali, lalu kasir menerbitkan izin keluar parkir.'],
-  ];
 @endphp
 
 <div id="sec-beranda" class="space-y-6 md:space-y-10">
@@ -76,7 +69,7 @@
     <div class="absolute left-4 right-4 bottom-4 sm:left-auto sm:right-6 sm:bottom-6 sm:w-80 rounded-2xl bg-canvas/80 backdrop-blur ring-1 ring-line p-4">
       <div class="flex items-center justify-between">
         <p class="text-xs font-semibold text-muted">Kuota pendakian hari ini</p>
-        <span class="text-[11px] text-subtle">{{ now()->translatedFormat('d M Y') }}</span>
+        <time datetime="{{ now()->toDateString() }}" class="text-[11px] text-subtle">{{ now()->translatedFormat('d M Y') }}</time>
       </div>
       <p class="mt-1 font-display font-bold text-2xl text-ink tabular-nums">{{ $remaining }} <span class="text-sm font-medium text-muted">slot tersisa</span></p>
       <div class="mt-2 h-2 rounded-full bg-raised overflow-hidden"><div class="h-full rounded-full {{ $remaining < 30 ? 'bg-amber-400' : 'bg-brand' }}" style="width: {{ $quotaPct }}%"></div></div>
@@ -177,6 +170,54 @@
         <p class="text-sm text-muted"><strong class="text-ink">Camp:</strong> Pos 2 atau Pos 3, disarankan Pos 3 karena paling dekat ke puncak. <strong class="text-rose-300">Puncak dilarang camp.</strong></p>
       </div>
     </div>
+
+    {{-- Ringkasan terstruktur pos jalur & jam operasional agar langsung terbaca mesin pencari & ringkasan AI --}}
+    <div class="mt-4 pt-4 border-t border-line space-y-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+        <div class="p-3 rounded-xl bg-raised/60 ring-1 ring-line flex items-center justify-between gap-2">
+          <span class="text-muted">Check-in <strong class="text-ink">Tektok (1 Hari)</strong></span>
+          <span class="font-semibold text-ink tabular-nums">{{ $trailCfg['tektok_checkin_start'] }}–{{ $trailCfg['tektok_checkin_end'] }} WIB (maks. {{ $trailCfg['tektok_max_checkout_hour'] }}:00)</span>
+        </div>
+        <div class="p-3 rounded-xl bg-raised/60 ring-1 ring-line flex items-center justify-between gap-2">
+          <span class="text-muted">Check-in <strong class="text-ink">Camp (Bermalam)</strong></span>
+          <span class="font-semibold text-ink tabular-nums">{{ $trailCfg['camp_checkin_start'] }}–{{ $trailCfg['camp_checkin_end'] }} WIB</span>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-2xl ring-1 ring-line bg-canvas/40">
+        <table class="w-full text-left text-xs">
+          <caption class="sr-only">Daftar pos jalur pendakian {{ $mountain }} via {{ $basecamp }} beserta elevasi, jarak, dan fasilitas</caption>
+          <thead class="bg-raised/70 text-muted border-b border-line">
+            <tr>
+              <th scope="col" class="px-3.5 py-2.5 font-semibold">Pos / Titik</th>
+              <th scope="col" class="px-3.5 py-2.5 font-semibold">Ketinggian</th>
+              <th scope="col" class="px-3.5 py-2.5 font-semibold">Jarak Total</th>
+              <th scope="col" class="px-3.5 py-2.5 font-semibold">Camp &amp; Fasilitas</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-line">
+            @foreach($trailRouteList as $pt)
+              @continue($pt['type'] === 'landmark')
+              <tr>
+                <td class="px-3.5 py-2.5 font-semibold text-ink whitespace-nowrap">{{ $pt['code'] }} · {{ $pt['name'] }}</td>
+                <td class="px-3.5 py-2.5 text-muted tabular-nums whitespace-nowrap">{{ number_format($pt['elev'], 0, ',', '.') }} MDPL</td>
+                <td class="px-3.5 py-2.5 text-muted tabular-nums whitespace-nowrap">{{ ($pt['cum']['dist_m'] ?? 0) === 0 ? '0 m (Start)' : number_format($pt['cum']['dist_m'] / 1000, 1, ',', '.').' km' }}</td>
+                <td class="px-3.5 py-2.5 text-muted">
+                  @if(!empty($pt['camp_recommended']))
+                    <span class="text-emerald-300 font-semibold">Camp disarankan</span> ·
+                  @elseif(!empty($pt['camp']))
+                    <span class="text-sky-300 font-semibold">Camp resmi</span> ·
+                  @elseif(!empty($pt['no_camp']))
+                    <span class="text-rose-300 font-semibold">Dilarang camp</span>
+                  @endif
+                  {{ count($pt['facilities'] ?? []) ? implode(', ', $pt['facilities']) : ($pt['type'] === 'pos' ? 'Pos istirahat (tanpa sumber air)' : '') }}
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
+    </div>
     <button type="button" onclick="App.nav.switchTab('sec-waypoints')" class="sm:hidden mt-3 w-full h-11 rounded-xl bg-raised ring-1 ring-line text-sm font-semibold text-ink flex items-center justify-center gap-1">Detail semua pos <x-ui.icon name="chevron-right" class="w-4 h-4" /></button>
   </section>
 
@@ -223,7 +264,7 @@
       <p class="text-xs font-semibold uppercase tracking-wider text-brand">Fasilitas basecamp</p>
       <h2 class="font-display font-bold text-xl md:text-2xl text-ink mt-1">Lengkap, siap melayani 24 jam</h2>
       <div class="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-2">
-        @foreach(\App\Models\AppSetting::getBasecampFacilities() as [$icon, $title, $text])
+        @foreach($facilities as [$icon, $title, $text])
           <div class="p-3.5 rounded-2xl bg-raised/60 ring-1 ring-line">
             <x-ui.icon :name="$icon" class="w-5 h-5 text-brand" />
             <p class="text-sm font-semibold text-ink mt-2.5">{{ $title }}</p>
@@ -237,25 +278,17 @@
   @include('portal.partials.location')
 
   {{-- ================= FAQ ================= --}}
-  <section>
+  <section id="faq" aria-labelledby="faqHeading">
     <p class="text-xs font-semibold uppercase tracking-wider text-brand">Pertanyaan umum</p>
-    <h2 class="font-display font-bold text-2xl md:text-3xl text-ink mt-1 mb-4">Yang sering ditanyakan</h2>
+    <h2 id="faqHeading" class="font-display font-bold text-2xl md:text-3xl text-ink mt-1 mb-4">Yang sering ditanyakan</h2>
     <div class="space-y-2">
-      @foreach([
-        ['Jam berapa harus check-in di basecamp?', 'Pendaki tektok (pulang hari) check-in pukul '.$trailCfg['tektok_checkin_start'].'–'.$trailCfg['tektok_checkin_end'].' WIB dan wajib kembali sebelum pukul '.$trailCfg['tektok_max_checkout_hour'].':00. Pendaki camp check-in pukul '.$trailCfg['camp_checkin_start'].'–'.$trailCfg['camp_checkin_end'].' WIB.'],
-        ['Di mana saya menerima e-tiket?', 'Setelah pembayaran diverifikasi kasir, e-SIMAKSI dan info pendakian lengkap dikirim ke nomor WhatsApp ketua rombongan. Anda juga bisa membukanya kapan saja lewat menu Cek tiket.'],
-        ['Kenapa logistik dihitung di gerbang?', 'Agar tidak ada sampah tertinggal di gunung. Jumlah barang seperti botol dan bungkus makanan dicatat saat naik, lalu dicocokkan dengan yang dibawa turun.'],
-        ['Bagaimana data KTP saya diperlakukan?', 'Foto KTP ketua hanya dipakai untuk verifikasi petugas dan dihapus permanen otomatis setelah pendakian selesai, sesuai UU Pelindungan Data Pribadi.'],
-        ['Bolehkah mendirikan tenda di mana saja?', 'Tidak. Tenda hanya boleh di area camp resmi, yaitu Pos 2 Batu Gendrung (kawasan hutan pinus) dan Pos 3 Thun 30. Puncak dilarang untuk camp, dan pendaki tektok dilarang bermalam.'],
-        ['Sebaiknya camp di Pos 2 atau Pos 3?', 'Keduanya boleh, tapi kami sarankan Pos 3 Thun 30 karena paling dekat ke puncak. Dirikan tenda dan tinggalkan perlengkapan di Pos 3, lalu summit attack dini hari cukup membawa daypack, air, headlamp, dan jaket.'],
-        ['Di mana ada air dan toilet di jalur?', 'Pos 1, Pos 2, dan Pos 3 punya air melimpah, toilet, mushola, dan shelter. Pos 4 sampai puncak tidak ada sumber air, jadi isi penuh botol di Pos 3.'],
-      ] as [$q, $a])
+      @foreach($faqs as $faq)
         <details class="group rounded-2xl bg-surface ring-1 ring-line open:ring-line-strong">
           <summary class="flex items-center justify-between gap-4 px-5 py-4 cursor-pointer">
-            <span class="font-semibold text-ink">{{ $q }}</span>
+            <span class="font-semibold text-ink">{{ $faq['q'] }}</span>
             <x-ui.icon name="plus" class="w-5 h-5 text-muted shrink-0 transition group-open:rotate-45" />
           </summary>
-          <p class="px-5 pb-5 -mt-1 text-sm text-muted leading-relaxed">{{ $a }}</p>
+          <p class="px-5 pb-5 -mt-1 text-sm text-muted leading-relaxed">{{ $faq['a'] }}</p>
         </details>
       @endforeach
     </div>

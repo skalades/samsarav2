@@ -10,8 +10,9 @@ use App\Models\SimaksiRegistration;
 use App\Models\TrailCondition;
 use App\Services\AuditService;
 use App\Services\BookingGuardService;
-use App\Services\SimaksiService;
 use App\Services\GroupPhotoService;
+use App\Services\SeoMetadataService;
+use App\Services\SimaksiService;
 use App\Services\TicketPdfService;
 use App\Support\CodeGenerator;
 use Carbon\Carbon;
@@ -24,9 +25,9 @@ use Illuminate\Support\Str;
 class PublicSimaksiController extends Controller
 {
     /**
-     * Render Public Portal Blade View with Live Quota & Trail Telemetry
+     * Render Public Portal Blade View with Live Quota, Trail Telemetry & SEO/GEO Metadata
      */
-    public function portal(Request $request)
+    public function portal(Request $request, SeoMetadataService $seoService)
     {
         $defaultQuota = (int) AppSetting::get('default_daily_quota', 150);
         $todayStr = Carbon::today()->toDateString();
@@ -46,8 +47,47 @@ class PublicSimaksiController extends Controller
         $trailCondition = TrailCondition::latest()->first();
         $tariffs = AppSetting::getTariffs();
         $profile = AppSetting::getExpeditionProfile();
+        $seoContext = $seoService->getPortalContext($todayQuota, $trailCondition, $tariffs, $profile);
 
-        return view('portal.index', compact('todayQuota', 'trailCondition', 'tariffs', 'profile'));
+        return view('portal.index', array_merge($seoContext, [
+            'todayQuota' => $todayQuota,
+            'trailCondition' => $trailCondition,
+            'tariffs' => $tariffs,
+            'profile' => $profile,
+        ]));
+    }
+
+    /**
+     * XML Sitemap dinamis untuk mesin pencari (Google Search, Bing).
+     */
+    public function sitemap(SeoMetadataService $seoService)
+    {
+        return response($seoService->buildSitemapXml(), 200, [
+            'Content-Type' => 'application/xml; charset=utf-8',
+            'Cache-Control' => 'public, max-age=300',
+        ]);
+    }
+
+    /**
+     * Ringkasan terstruktur /llms.txt untuk crawler ringkasan AI (ChatGPT, Perplexity, Gemini, Claude).
+     */
+    public function llms(SeoMetadataService $seoService)
+    {
+        return response($seoService->buildLlmsTxt(), 200, [
+            'Content-Type' => 'text/plain; charset=utf-8',
+            'Cache-Control' => 'public, max-age=300',
+        ]);
+    }
+
+    /**
+     * Konteks lengkap /llms-full.txt (rute, peralatan wajib, aturan sampah, dan seluruh FAQ).
+     */
+    public function llmsFull(SeoMetadataService $seoService)
+    {
+        return response($seoService->buildLlmsFullTxt(), 200, [
+            'Content-Type' => 'text/plain; charset=utf-8',
+            'Cache-Control' => 'public, max-age=300',
+        ]);
     }
 
     /**

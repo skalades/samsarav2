@@ -1,2 +1,42 @@
+# SAMSARA EXPEDITION — Gunung Cikuray (samsaracikuray.id)
 User-agent: *
-Disallow:
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /sitemap.xml
+Allow: /assets/
+Disallow: /management
+Disallow: /management/
+Disallow: /simaksi/
+Disallow: /api/
+Disallow: /offline
+
+# Izinkan crawler AI & Search modern untuk ringkasan AI
+User-agent: Googlebot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+Sitemap: https://samsaracikuray.id/sitemap.xml

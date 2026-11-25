@@ -20,6 +20,7 @@
 <html lang="id" class="h-full overflow-hidden">
 <head>
   @include('management.partials.head')
+  <meta name="robots" content="noindex, nofollow">
   <title>@yield('title', 'Sistem Manajemen Operasional') — {{ $profile['expedition'] }}</title>
 </head>
 <body class="h-full overflow-hidden antialiased selection:bg-brand selection:text-white">
