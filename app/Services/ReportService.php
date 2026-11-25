@@ -121,13 +121,13 @@ class ReportService
         }
 
         // Check if any POS orders contain parking services
-        $posParkingItems = PosOrderItem::with('inventoryItem')
+        $posParkingItems = PosOrderItem::with('item')
             ->whereIn('pos_order_id', function ($q) use ($start, $end) {
                 $q->select('id')->from('pos_orders')->whereBetween('created_at', [$start, $end])->where('status', 'completed');
             })
             ->where(function ($q) {
                 $q->where('category', 'parkir')
-                    ->orWhere('item_name', 'like', '%parkir%');
+                    ->orWhereRaw('LOWER(item_name) LIKE ?', ['%parkir%']);
             })
             ->get();
 
@@ -138,8 +138,8 @@ class ReportService
 
         foreach ($posParkingItems as $item) {
             $subtotal = (float) $item->subtotal;
-            $sku = $item->inventoryItem?->sku ?? '';
-            $name = strtolower($item->item_name);
+            $sku = $item->item?->sku ?? '';
+            $name = strtolower((string) $item->item_name);
 
             if ($sku === 'PRK-MOBIL' || str_contains($name, 'mobil') || str_contains($name, 'roda 4')) {
                 $posCarFee += $subtotal;
@@ -340,7 +340,7 @@ class ReportService
 
         foreach ($posOrders as $order) {
             $ledger[] = [
-                'datetime' => $order->created_at,
+                'datetime' => $order->created_at ?? Carbon::now(),
                 'type' => 'IN',
                 'category_group' => 'POS KASIR',
                 'category_label' => 'Penjualan / Sewa Logistik Basecamp',
@@ -374,7 +374,7 @@ class ReportService
             }
 
             $ledger[] = [
-                'datetime' => $reg->paid_at ?? $reg->updated_at,
+                'datetime' => $reg->paid_at ?? $reg->updated_at ?? $reg->created_at ?? Carbon::now(),
                 'type' => 'IN',
                 'category_group' => 'SIMAKSI RESMI',
                 'category_label' => 'Izin Masuk Kawasan Konservasi',
@@ -396,7 +396,7 @@ class ReportService
 
         foreach ($forfeited as $f) {
             $ledger[] = [
-                'datetime' => $f->checked_out_at,
+                'datetime' => $f->checked_out_at ?? $f->updated_at ?? Carbon::now(),
                 'type' => 'IN',
                 'category_group' => 'DANA KEBERSIHAN',
                 'category_label' => 'Jaminan Sampah Hangus (Forfeited)',
@@ -416,7 +416,7 @@ class ReportService
 
         foreach ($settlements as $s) {
             $ledger[] = [
-                'datetime' => $s->settled_at,
+                'datetime' => $s->settled_at ?? $s->created_at ?? Carbon::now(),
                 'type' => 'OUT',
                 'category_group' => 'HONOR OJEK',
                 'category_label' => 'Pencairan Payout Pengemudi Ojek',
@@ -437,7 +437,7 @@ class ReportService
 
         foreach ($expenses as $exp) {
             $ledger[] = [
-                'datetime' => $exp->created_at,
+                'datetime' => $exp->created_at ?? Carbon::now(),
                 'type' => 'OUT',
                 'category_group' => 'OPERASIONAL',
                 'category_label' => $exp->category_label,

@@ -343,4 +343,71 @@ class ReportAndAnalyticsTest extends TestCase
         $response->assertSee('Rp 150.000', false);
         $response->assertSee('Rp 200.000', false);
     }
+
+    public function test_pos_parking_items_are_aggregated_without_relation_error(): void
+    {
+        $motor = InventoryItem::create([
+            'sku' => 'PRK-MOTOR',
+            'name' => 'Parkir Motor Harian',
+            'category' => 'parkir',
+            'type' => 'service',
+            'price' => 10000,
+            'stock_total' => 999,
+            'stock_available' => 999,
+        ]);
+
+        $car = InventoryItem::create([
+            'sku' => 'PRK-MOBIL',
+            'name' => 'Parkir Mobil Harian',
+            'category' => 'parkir',
+            'type' => 'service',
+            'price' => 25000,
+            'stock_total' => 999,
+            'stock_available' => 999,
+        ]);
+
+        $posService = app(PosService::class);
+        $posService->createOrder(
+            cashierId: $this->cashier->id,
+            customerName: 'Tamu Parkir',
+            customerPhone: null,
+            items: [
+                ['inventory_item_id' => $motor->id, 'quantity' => 2],
+                ['inventory_item_id' => $car->id, 'quantity' => 1],
+            ],
+            paymentMethod: 'cash',
+            cashTendered: 50000
+        );
+
+        $today = Carbon::today();
+        $summary = app(ReportService::class)->getFinancialSummary($today, $today);
+
+        $this->assertEquals(45000, $summary['total_inflow']);
+        $this->assertEquals(20000, $summary['revenue_stream_breakdown']['parking_motor']);
+        $this->assertEquals(25000, $summary['revenue_stream_breakdown']['parking_car']);
+        $this->assertEquals(2, $summary['total_motorcycles']);
+        $this->assertEquals(1, $summary['total_cars']);
+        $this->assertEquals(0, $summary['revenue_stream_breakdown']['pos_retail_and_rentals']);
+
+        $this->actingAs($this->admin)
+            ->get(route('management.reports.index', ['period' => 'today']))
+            ->assertStatus(200)
+            ->assertSee('Rp 20.000', false)
+            ->assertSee('Rp 25.000', false);
+
+        $this->actingAs($this->admin)
+            ->get(route('management.reports.print', ['period' => 'today']))
+            ->assertStatus(200);
+    }
+
+    public function test_malformed_custom_date_falls_back_gracefully(): void
+    {
+        $this->actingAs($this->admin)
+            ->get(route('management.reports.index', [
+                'period' => 'custom',
+                'start_date' => 'not-a-date',
+                'end_date' => 'also-invalid',
+            ]))
+            ->assertStatus(200);
+    }
 }

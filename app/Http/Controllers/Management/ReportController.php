@@ -96,8 +96,8 @@ class ReportController extends Controller
                 break;
 
             case 'custom':
-                $start = $request->filled('start_date') ? Carbon::parse($request->query('start_date')) : $today->copy()->subDays(29);
-                $end = $request->filled('end_date') ? Carbon::parse($request->query('end_date')) : $today->copy();
+                $start = $this->parseDateOrDefault($request->query('start_date'), $today->copy()->subDays(29));
+                $end = $this->parseDateOrDefault($request->query('end_date'), $today->copy());
                 break;
 
             case '30days':
@@ -120,5 +120,21 @@ class ReportController extends Controller
             'end' => $end,
             'period' => $period,
         ];
+    }
+
+    /**
+     * Safely parse a user-supplied date query value without throwing on malformed input.
+     */
+    protected function parseDateOrDefault(mixed $raw, Carbon $fallback): Carbon
+    {
+        if (! is_string($raw) || trim($raw) === '') {
+            return $fallback;
+        }
+
+        try {
+            return Carbon::parse($raw);
+        } catch (\Throwable) {
+            return $fallback;
+        }
     }
 }
