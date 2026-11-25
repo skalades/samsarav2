@@ -73,11 +73,11 @@
                 $active = \App\Support\Navigation::isActive($item);
                 $count = $item['badge'] ? ($badges[$item['badge']] ?? 0) : 0;
               @endphp
-              <a href="{{ route($item['route'], $item['params']) }}" class="group flex items-center gap-3 h-10 px-3 rounded-xl text-sm transition {{ $active ? 'bg-brand/10 text-ink font-semibold ring-1 ring-inset ring-brand/25' : 'text-muted hover:text-ink hover:bg-hover' }}">
+              <a href="{{ route($item['route'], $item['params']) }}" @if($item['badge']) data-nav-badge="{{ $item['badge'] }}" @endif class="group flex items-center gap-3 h-10 px-3 rounded-xl text-sm transition {{ $active ? 'bg-brand/10 text-ink font-semibold ring-1 ring-inset ring-brand/25' : 'text-muted hover:text-ink hover:bg-hover' }}">
                 <x-ui.icon :name="$item['icon']" class="w-[18px] h-[18px] shrink-0 {{ $active ? 'text-brand' : 'text-subtle group-hover:text-muted' }}" />
                 <span class="flex-1 truncate">{{ $item['label'] }}</span>
                 @if($count > 0)
-                  <span class="min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-bold flex items-center justify-center {{ $item['badge'] === 'wa_failed' ? 'bg-rose-500 text-white' : 'bg-brand text-white' }}">{{ $count }}</span>
+                  <span data-badge-count class="min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-bold flex items-center justify-center {{ $item['badge'] === 'wa_failed' ? 'bg-rose-500 text-white' : 'bg-brand text-white' }}">{{ $count }}</span>
                 @endif
               </a>
             @endforeach
@@ -166,6 +166,10 @@
                 @endforeach
               </div>
             </details>
+          @endif
+
+          @if($authUser && $authUser->hasRole(['superadmin', 'kasir']))
+            @include('management.partials.order_notifications_bell')
           @endif
 
           @if($authUser)
@@ -257,7 +261,7 @@
             $count = $item['badge'] ? ($badges[$item['badge']] ?? 0) : 0;
             $isScan = !empty($item['params']['scan']);
           @endphp
-          <a href="{{ route($item['route'], $item['params']) }}"
+          <a href="{{ route($item['route'], $item['params']) }}" @if($item['badge']) data-nav-badge="{{ $item['badge'] }}" data-nav-badge-style="bottom" @endif
              @if($isScan && request()->routeIs($item['route']))
                onclick="if (typeof openQrScanner === 'function') { event.preventDefault(); openQrScanner(); }"
              @endif
@@ -270,7 +274,7 @@
               <span class="leading-none">{{ $item['label'] }}</span>
             @endif
             @if($count > 0)
-              <span class="absolute top-1.5 left-1/2 translate-x-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-surface">{{ $count > 99 ? '99+' : $count }}</span>
+              <span data-badge-count class="absolute top-1.5 left-1/2 translate-x-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-surface">{{ $count > 99 ? '99+' : $count }}</span>
             @endif
             @if($active && ! $isScan)
               <span class="absolute top-0 inset-x-4 h-0.5 rounded-b bg-brand"></span>
@@ -289,6 +293,9 @@
 </div>
 
 @include('management.partials.proof_modal')
+@if($authUser && $authUser->hasRole(['superadmin', 'kasir']))
+  @include('management.partials.order_notifications_script')
+@endif
 
 <script>
   function toggleMgmtSidebar(open) {

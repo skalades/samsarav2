@@ -4,7 +4,7 @@
  * Versi: 1.0.0
  */
 
-const CACHE_VERSION = 'v1.0.2';
+const CACHE_VERSION = 'v1.0.3';
 const STATIC_CACHE_NAME = `samsara-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE_NAME = `samsara-runtime-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline.html';
@@ -88,6 +88,11 @@ self.addEventListener('fetch', (event) => {
 
   // Abaikan request skema khusus (chrome-extension, dsb)
   if (!url.protocol.startsWith('http')) {
+    return;
+  }
+
+  // Umpan notifikasi real-time: selalu langsung ke jaringan, jangan pernah di-cache
+  if (url.pathname.startsWith('/management/notifications/')) {
     return;
   }
 

@@ -9,6 +9,7 @@ use App\Http\Controllers\Management\InspectionTemplateController;
 use App\Http\Controllers\Management\InventoryController;
 use App\Http\Controllers\Management\OjekController;
 use App\Http\Controllers\Management\OperationalExpenseController;
+use App\Http\Controllers\Management\OrderNotificationController;
 use App\Http\Controllers\Management\PosController;
 use App\Http\Controllers\Management\QuotaController;
 use App\Http\Controllers\Management\RangerCheckpointController;
@@ -65,6 +66,9 @@ Route::prefix('management')->name('management.')->group(function () {
 
         // ---------------- KASIR BASECAMP ----------------
         Route::middleware('role:kasir')->group(function () {
+            // Notifikasi pesanan masuk (polling real-time dari layout)
+            Route::get('/notifications/orders', [OrderNotificationController::class, 'feed'])->name('notifications.orders');
+
             // SIMAKSI Verifikasi & Dokumen Privat
             Route::get('/simaksi', [SimaksiController::class, 'index'])->name('simaksi.index');
             Route::get('/simaksi/{id}', [SimaksiController::class, 'show'])->name('simaksi.show');
