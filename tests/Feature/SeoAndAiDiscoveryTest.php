@@ -34,7 +34,8 @@ class SeoAndAiDiscoveryTest extends TestCase
         $this->assertStringContainsString('<meta name="twitter:card" content="summary_large_image">', $html);
         $this->assertStringContainsString('<meta name="application-name" content="SAMSARA EXPEDITION">', $html);
 
-        // Ringkasan pos & jam operasional harus terlihat langsung di DOM (tidak tersembunyi)
+        // Ringkasan pos & jam operasional serta keyword target harus terlihat langsung di DOM (tidak tersembunyi)
+        $this->assertStringContainsString('SIMAKSI Online Gunung Cikuray', $html);
         $this->assertStringContainsString('Pos / Titik', $html);
         $this->assertStringContainsString('Thun 30', $html);
         $this->assertStringContainsString('2.821 MDPL', $html);

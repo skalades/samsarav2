@@ -52,7 +52,7 @@
         Mendaki {{ $mountain }},<br><span class="text-brand">tertib dari gerbang</span> sampai puncak.
       </h1>
       <p class="mt-4 text-base md:text-lg text-muted max-w-xl">
-        Pesan SIMAKSI resmi via {{ $basecamp }}. E-tiket dikirim ke WhatsApp, rombongan diperiksa di gerbang, dan setiap pos dipantau ranger.
+        Pesan <strong class="text-ink font-semibold">SIMAKSI online {{ $mountain }}</strong> resmi via {{ $basecamp }}. E-tiket dikirim ke WhatsApp, rombongan diperiksa di gerbang, dan setiap pos dipantau ranger.
       </p>
 
       <div class="mt-7 flex flex-col sm:flex-row gap-3">

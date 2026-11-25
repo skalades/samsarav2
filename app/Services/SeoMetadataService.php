@@ -149,8 +149,8 @@ class SeoMetadataService
 
         return [
             [
-                'q' => 'Bagaimana cara daftar SIMAKSI '.$mountain.' via '.$basecamp.'?',
-                'a' => 'Buka portal resmi samsaracikuray.id, pilih menu Reservasi, tentukan tanggal naik, jumlah pendaki (1–'.($profile['max_climbers_per_group'] ?? 15).' orang), isi identitas ketua beserta foto KTP dan kontak darurat keluarga, lalu selesaikan pembayaran via QRIS, transfer bank, atau tunai di loket basecamp.',
+                'q' => 'Bagaimana cara daftar SIMAKSI online '.$mountain.' via '.$basecamp.'?',
+                'a' => 'Buka portal SIMAKSI online '.$mountain.' resmi di samsaracikuray.id, pilih menu Reservasi, tentukan tanggal naik, jumlah pendaki (1–'.($profile['max_climbers_per_group'] ?? 15).' orang), isi identitas ketua beserta foto KTP dan kontak darurat keluarga, lalu selesaikan pembayaran via QRIS, transfer bank, atau tunai di loket basecamp.',
             ],
             [
                 'q' => 'Berapa tarif SIMAKSI, ojek, porter, dan parkir di '.$basecamp.'?',
@@ -208,8 +208,8 @@ class SeoMetadataService
         $location = $profile['basecamp_location'] ?? 'Kecamatan Cilawu / Bayongbong, Garut, Jawa Barat';
         $canonical = $this->canonicalUrl('/');
 
-        $title = "SIMAKSI {$mountain} ({$elevation}) via {$basecamp} — Portal Resmi | samsaracikuray.id";
-        $description = "Portal resmi pendaftaran e-SIMAKSI {$mountain} ({$elevation}) via {$basecamp}, Garut. Cek kuota real-time ({$remainingQuota}/{$maxQuota} hari ini), tarif resmi mulai ".$this->formatRp($tariffs['simaksi_fee_per_person'] ?? 25000).'/orang, peta jalur Pos 1–Puncak, dan e-tiket WhatsApp.';
+        $title = "SIMAKSI Online {$mountain} ({$elevation}) via {$basecamp} | samsaracikuray.id";
+        $description = "Portal resmi SIMAKSI online {$mountain} ({$elevation}) via {$basecamp}, Cihuru, Cigedug, Garut. Cek kuota harian real-time ({$remainingQuota}/{$maxQuota}), pesan e-SIMAKSI mulai ".$this->formatRp($tariffs['simaksi_fee_per_person'] ?? 25000).'/orang, peta jalur GPS, dan e-tiket WhatsApp.';
 
         $ogImage = $this->resolveOgImageUrl($profile);
         $lat = trim((string) ($profile['basecamp_latitude'] ?? '-7.331855'));
@@ -384,15 +384,15 @@ class SeoMetadataService
         $serviceSchema = [
             '@type' => 'Service',
             '@id' => $canonical.'#simaksi-service',
-            'name' => "Reservasi e-SIMAKSI & Layanan Pendakian {$mountain}",
-            'serviceType' => 'Surat Izin Masuk Kawasan Konservasi (SIMAKSI) & Pendakian Gunung',
+            'name' => "SIMAKSI Online {$mountain} & Layanan Pendakian {$basecamp}",
+            'serviceType' => "SIMAKSI Online {$mountain} (Surat Izin Masuk Kawasan Konservasi) & Pendakian Gunung",
             'provider' => ['@id' => $orgId],
             'areaServed' => 'Gunung Cikuray, Garut, Jawa Barat',
             'hasOfferCatalog' => [
                 '@type' => 'OfferCatalog',
                 'name' => 'Tarif Resmi Pendakian '.$basecamp,
                 'itemListElement' => [
-                    $this->buildOffer('Tiket SIMAKSI Pendakian '.$mountain.' (per orang)', $tariffs['simaksi_fee_per_person'] ?? 25000, $canonical),
+                    $this->buildOffer('Tiket SIMAKSI Online '.$mountain.' (per orang)', $tariffs['simaksi_fee_per_person'] ?? 25000, $canonical),
                     $this->buildOffer('Shuttle Ojek '.($tariffs['ojek_route_name'] ?? 'Basecamp → Pos 1').' (per perjalanan)', $tariffs['ojek_fee_per_trip'] ?? 30000, $canonical),
                     $this->buildOffer('Jasa Porter Lokal Gunung Cikuray (per trip 2H1M, maks. 20 kg)', $tariffs['porter_fee_per_trip'] ?? 350000, $canonical),
                     $this->buildOffer('Parkir Sepeda Motor 24 Jam Basecamp', $tariffs['parking_motor_fee'] ?? 10000, $canonical),
@@ -415,7 +415,7 @@ class SeoMetadataService
         $howToSchema = [
             '@type' => 'HowTo',
             '@id' => $canonical.'#howto-simaksi',
-            'name' => "Cara Daftar SIMAKSI {$mountain} Online via {$basecamp}",
+            'name' => "Cara Daftar SIMAKSI Online {$mountain} via {$basecamp}",
             'description' => "Panduan 5 langkah pendaftaran e-SIMAKSI hingga check-out pendakian {$mountain} di {$basecamp}.",
             'inLanguage' => 'id-ID',
             'step' => $howToSteps,

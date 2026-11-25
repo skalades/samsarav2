@@ -34,7 +34,9 @@ return [
     ],
 
     'keywords' => [
+        'SIMAKSI Online Gunung Cikuray',
         'SIMAKSI Gunung Cikuray',
+        'Daftar SIMAKSI Gunung Cikuray Online',
         'Basecamp SAMSARA Cikuray',
         'Jalur Pendakian Gunung Cikuray via Samsara',
         'Booking SIMAKSI Cikuray Online',
