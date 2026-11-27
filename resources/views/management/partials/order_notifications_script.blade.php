@@ -4,7 +4,8 @@
 <script>
 (function () {
   const FEED_URL = @json(route('management.notifications.orders'));
-  const STORE = 'samsara_order_notif_v1';
+  const ROLE_KEY = @json(auth()->user()?->level() ?? 'staff');
+  const STORE = 'samsara_div_notif_v1_' + ROLE_KEY;
   const INTERVAL_VISIBLE = 10000;
   const INTERVAL_HIDDEN = 30000;
   const MAX_ITEMS = 30;
@@ -86,9 +87,21 @@
     return isNaN(d) ? '' : d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
   }
   function tone(type) {
-    return type === 'proof_uploaded'
-      ? { dot: 'bg-emerald-400', ring: 'ring-emerald-500/30', label: 'text-emerald-300' }
-      : { dot: 'bg-brand', ring: 'ring-brand/30', label: 'text-brand' };
+    switch (type) {
+      case 'proof_uploaded':
+      case 'simaksi_paid':
+        return { dot: 'bg-emerald-400', ring: 'ring-emerald-500/30', label: 'text-emerald-300' };
+      case 'gate_ascent_cleared':
+        return { dot: 'bg-sky-400', ring: 'ring-sky-500/30', label: 'text-sky-300' };
+      case 'gate_descent_returned':
+        return { dot: 'bg-violet-400', ring: 'ring-violet-500/30', label: 'text-violet-300' };
+      case 'gate_descent_issue':
+        return { dot: 'bg-rose-400', ring: 'ring-rose-500/35', label: 'text-rose-300' };
+      case 'group_released':
+        return { dot: 'bg-amber-400', ring: 'ring-amber-500/30', label: 'text-amber-300' };
+      default:
+        return { dot: 'bg-brand', ring: 'ring-brand/30', label: 'text-brand' };
+    }
   }
 
   function renderList() {
@@ -101,7 +114,7 @@
     if (el.sound) el.sound.textContent = 'Suara: ' + (s.muted ? 'mati' : 'aktif');
 
     if (!s.items.length) {
-      el.list.innerHTML = '<p data-empty class="px-3.5 py-6 text-center text-xs text-muted">Belum ada pesanan baru.</p>';
+      el.list.innerHTML = '<p data-empty class="px-3.5 py-6 text-center text-xs text-muted">Belum ada notifikasi baru.</p>';
       return;
     }
     el.list.innerHTML = s.items.map(i => {

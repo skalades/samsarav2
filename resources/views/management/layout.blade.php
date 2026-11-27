@@ -169,7 +169,7 @@
             </details>
           @endif
 
-          @if($authUser && $authUser->hasRole(['superadmin', 'kasir']))
+          @if($authUser)
             @include('management.partials.order_notifications_bell')
           @endif
 
@@ -294,7 +294,7 @@
 </div>
 
 @include('management.partials.proof_modal')
-@if($authUser && $authUser->hasRole(['superadmin', 'kasir']))
+@if($authUser)
   @include('management.partials.order_notifications_script')
 @endif
 

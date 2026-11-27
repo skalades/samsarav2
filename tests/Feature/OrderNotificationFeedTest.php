@@ -55,7 +55,9 @@ class OrderNotificationFeedTest extends TestCase
 
         $res = $this->actingAs($this->user('kasir'))->getJson(route('management.notifications.orders'));
 
-        $res->assertOk()->assertJsonPath('events', [])->assertJsonStructure(['cursor', 'events', 'badges' => ['simaksi', 'desk']]);
+        $res->assertOk()
+            ->assertJsonPath('events', [])
+            ->assertJsonStructure(['cursor', 'role', 'events', 'badges' => ['simaksi', 'desk', 'gate_up', 'gate_down', 'ojek', 'wa_failed']]);
         $this->assertNotEmpty($res->json('cursor'));
     }
 
@@ -105,19 +107,93 @@ class OrderNotificationFeedTest extends TestCase
             ->assertJsonPath('events.0.type', 'proof_uploaded');
     }
 
-    public function test_gatekeeper_and_ranger_cannot_read_feed(): void
+    public function test_kasir_receives_gatekeeper_ascent_and_descent_handoff_notifications(): void
     {
-        foreach (['gatekeeper', 'ranger'] as $role) {
-            $this->actingAs($this->user($role))->getJson(route('management.notifications.orders'))->assertForbidden();
-        }
+        $kasir = $this->user('kasir');
+        $regUp = $this->registration(['status' => 'paid', 'payment_status' => 'paid', 'paid_at' => Carbon::now()->subMinutes(5)]);
+        $regDownClear = $this->registration(['status' => 'checked_in', 'payment_status' => 'paid', 'paid_at' => Carbon::now()->subHours(2)]);
+        $regDownIssue = $this->registration(['status' => 'checked_in', 'payment_status' => 'paid', 'paid_at' => Carbon::now()->subHours(2)]);
+
+        $this->travel(1)->minutes();
+        $cursor = $this->actingAs($kasir)->getJson(route('management.notifications.orders'))->json('cursor');
+
+        $this->travel(5)->seconds();
+        $regUp->update(['status' => 'gate_cleared', 'gate_up_at' => Carbon::now(), 'ojek_count' => 2]);
+        $regDownClear->update(['status' => 'returned', 'gate_down_at' => Carbon::now(), 'gate_down_clear' => true]);
+        $regDownIssue->update(['status' => 'returned', 'gate_down_at' => Carbon::now(), 'gate_down_clear' => false]);
+
+        $res = $this->actingAs($kasir)->getJson(route('management.notifications.orders', ['since' => $cursor]));
+
+        $res->assertOk()->assertJsonCount(3, 'events');
+
+        $events = collect($res->json('events'))->keyBy('code');
+        $this->assertSame('gate_ascent_cleared', $events[$regUp->registration_code]['type']);
+        $this->assertSame(route('management.desk.show', $regUp->id), $events[$regUp->registration_code]['url']);
+        $this->assertSame('gate_descent_returned', $events[$regDownClear->registration_code]['type']);
+        $this->assertSame(route('management.desk.show', $regDownClear->id), $events[$regDownClear->registration_code]['url']);
+        $this->assertSame('gate_descent_issue', $events[$regDownIssue->registration_code]['type']);
     }
 
-    public function test_layout_shows_bell_only_for_order_handlers(): void
+    public function test_gatekeeper_only_receives_paid_simaksi_notifications(): void
+    {
+        $gatekeeper = $this->user('gatekeeper');
+        $pendingReg = $this->registration(['status' => 'pending']);
+
+        $this->travel(1)->minutes();
+        $cursor = $this->actingAs($gatekeeper)->getJson(route('management.notifications.orders'))->json('cursor');
+
+        $this->travel(5)->seconds();
+        // Order baru belum bayar tidak boleh masuk ke Gatekeeper
+        $this->registration(['status' => 'pending']);
+        // Order yang dilunasi Kasir masuk ke Gatekeeper
+        $pendingReg->update(['status' => 'paid', 'payment_status' => 'paid', 'paid_at' => Carbon::now()]);
+
+        $res = $this->actingAs($gatekeeper)->getJson(route('management.notifications.orders', ['since' => $cursor]));
+
+        $res->assertOk()
+            ->assertJsonCount(1, 'events')
+            ->assertJsonPath('events.0.type', 'simaksi_paid')
+            ->assertJsonPath('events.0.code', $pendingReg->registration_code)
+            ->assertJsonPath('events.0.url', route('management.gate.ascent', $pendingReg->id));
+    }
+
+    public function test_ranger_only_receives_released_group_notifications(): void
+    {
+        $ranger = $this->user('ranger');
+        $reg = $this->registration(['status' => 'gate_cleared', 'payment_status' => 'paid', 'gate_up_at' => Carbon::now()->subMinutes(5)]);
+
+        $this->travel(1)->minutes();
+        $cursor = $this->actingAs($ranger)->getJson(route('management.notifications.orders'))->json('cursor');
+
+        $this->travel(5)->seconds();
+        // Booking baru atau lolos gate belum berangkat tidak masuk ke Ranger
+        $this->registration(['status' => 'pending']);
+        // Kasir memberangkatkan rombongan
+        $reg->update(['status' => 'checked_in', 'released_at' => Carbon::now()]);
+
+        $res = $this->actingAs($ranger)->getJson(route('management.notifications.orders', ['since' => $cursor]));
+
+        $res->assertOk()
+            ->assertJsonCount(1, 'events')
+            ->assertJsonPath('events.0.type', 'group_released')
+            ->assertJsonPath('events.0.code', $reg->registration_code)
+            ->assertJsonPath('events.0.url', route('management.ranger.index', ['code' => $reg->registration_code]));
+    }
+
+    public function test_unauthenticated_cannot_read_feed(): void
+    {
+        $this->getJson(route('management.notifications.orders'))->assertUnauthorized();
+    }
+
+    public function test_layout_shows_bell_for_all_divisions_with_role_links(): void
     {
         $this->actingAs($this->user('kasir'))->get(route('management.dashboard'))
-            ->assertOk()->assertSee('orderNotifMenu', false);
+            ->assertOk()->assertSee('orderNotifMenu', false)->assertSee('Antrean Kasir');
 
         $this->actingAs($this->user('gatekeeper'))->get(route('management.gate.index'))
-            ->assertOk()->assertDontSee('orderNotifMenu', false);
+            ->assertOk()->assertSee('orderNotifMenu', false)->assertSee('Buka Gate');
+
+        $this->actingAs($this->user('ranger'))->get(route('management.ranger.index'))
+            ->assertOk()->assertSee('orderNotifMenu', false)->assertSee('Pos Ranger');
     }
 }

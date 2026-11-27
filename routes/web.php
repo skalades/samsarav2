@@ -68,12 +68,11 @@ Route::prefix('management')->name('management.')->group(function () {
     Route::middleware(['auth', 'role'])->group(function () {
         Route::get('/', fn () => redirect()->route('management.dashboard'));
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        // Notifikasi real-time lintas divisi (polling dari layout, difilter sesuai role)
+        Route::get('/notifications/orders', [OrderNotificationController::class, 'feed'])->name('notifications.orders');
 
         // ---------------- KASIR BASECAMP ----------------
         Route::middleware('role:kasir')->group(function () {
-            // Notifikasi pesanan masuk (polling real-time dari layout)
-            Route::get('/notifications/orders', [OrderNotificationController::class, 'feed'])->name('notifications.orders');
-
             // SIMAKSI Verifikasi & Dokumen Privat
             Route::get('/simaksi', [SimaksiController::class, 'index'])->name('simaksi.index');
             Route::get('/simaksi/{id}', [SimaksiController::class, 'show'])->name('simaksi.show');
