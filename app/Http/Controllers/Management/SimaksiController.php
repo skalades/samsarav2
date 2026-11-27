@@ -162,4 +162,24 @@ class SimaksiController extends Controller
 
         return $pdf->download('E-Tiket_SIMAKSI_'.$registration->registration_code.'.pdf');
     }
+
+    /**
+     * Hapus permanen SIMAKSI beserta seluruh data terkait (khusus Superadmin).
+     */
+    public function destroy(Request $request, int $id)
+    {
+        $request->validate([
+            'reason' => 'nullable|string|max:500',
+        ]);
+
+        $registration = SimaksiRegistration::findOrFail($id);
+        $summary = $this->simaksiService->deleteWithRelated(
+            registration: $registration,
+            officerId: Auth::id(),
+            reason: $request->input('reason'),
+        );
+
+        return redirect()->route('management.simaksi.index')
+            ->with('success', "SIMAKSI {$summary['registration_code']} dan data terkait (Ojek: {$summary['ojek_trips']}, Sewa: {$summary['rental_records']}, POS: {$summary['pos_orders']}, WA: {$summary['whatsapp_messages']}) berhasil dihapus permanen.");
+    }
 }

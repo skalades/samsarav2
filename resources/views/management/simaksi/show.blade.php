@@ -508,9 +508,49 @@
         @endif
       </x-ui.card>
 
+      @if(auth()->user()?->level() === \App\Models\User::ROLE_SUPERADMIN)
+        <x-ui.card title="Zona Berbahaya (Superadmin)" subtitle="Penghapusan permanen SIMAKSI & seluruh data turunannya" icon="trash">
+          <p class="text-xs text-muted leading-relaxed mb-3">
+            Menghapus SIMAKSI akan ikut menghapus manifest anggota, voucher/trip ojek, catatan sewa alat, transaksi POS terhubung, log WhatsApp, checkpoint ranger, berkas foto/KTP, serta mengembalikan kuota &amp; stok barang.
+          </p>
+          <x-ui.button variant="danger" icon="trash" block onclick="document.getElementById('deleteSimaksiModal').classList.remove('hidden')">
+            Hapus Permanen SIMAKSI
+          </x-ui.button>
+        </x-ui.card>
+      @endif
+
     </div>
 
   </div>
 
 </div>
+
+@if(auth()->user()?->level() === \App\Models\User::ROLE_SUPERADMIN)
+  <x-ui.modal id="deleteSimaksiModal" title="Hapus Permanen {{ $registration->registration_code }}" eyebrow="Otorisasi Superadmin" maxWidth="sm:max-w-md">
+    <form method="POST" action="{{ route('management.simaksi.destroy', $registration->id) }}" class="space-y-4">
+      @csrf
+      @method('DELETE')
+      <div class="p-3.5 rounded-xl bg-rose-500/10 ring-1 ring-rose-500/30 text-xs text-rose-200 space-y-1.5 leading-relaxed">
+        <p class="font-bold text-rose-300">Tindakan ini tidak dapat dibatalkan.</p>
+        <p>Seluruh data terkait <strong>{{ $registration->registration_code }}</strong> ({{ $registration->leader_name }} · {{ $registration->total_climbers }} pendaki) akan dihapus permanen:</p>
+        <ul class="list-disc pl-4 space-y-0.5 text-rose-200/90">
+          <li>Data manifest anggota, checklist gate, dan log checkpoint ranger</li>
+          <li>Voucher / riwayat trip ojek terkait (driver aktif dikembalikan standby)</li>
+          <li>Catatan sewa alat &amp; transaksi POS terhubung (stok dikembalikan)</li>
+          <li>Log pesan WhatsApp, berkas foto/KTP, dan kuota harian dilepaskan</li>
+        </ul>
+      </div>
+
+      <div>
+        <label for="deleteSimaksiReason" class="label">Alasan Penghapusan (Opsional, tercatat di Audit Log)</label>
+        <input id="deleteSimaksiReason" type="text" name="reason" maxlength="500" placeholder="Contoh: Data uji coba / duplikat permohonan" class="field">
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-line">
+        <x-ui.button variant="secondary" onclick="document.getElementById('deleteSimaksiModal').classList.add('hidden')">Batal</x-ui.button>
+        <x-ui.button type="submit" variant="danger" icon="trash">Ya, Hapus Permanen</x-ui.button>
+      </div>
+    </form>
+  </x-ui.modal>
+@endif
 @endsection

@@ -3,12 +3,23 @@
 namespace App\Services;
 
 use App\Models\AppSetting;
+use App\Models\ClimberMember;
 use App\Models\DailyQuota;
+use App\Models\InventoryItem;
+use App\Models\OjekDriver;
+use App\Models\OjekSettlement;
+use App\Models\OjekTrip;
+use App\Models\PosOrder;
+use App\Models\RentalRecord;
+use App\Models\SimaksiCheckpoint;
+use App\Models\SimaksiInspectionItem;
 use App\Models\SimaksiRegistration;
+use App\Models\WhatsappMessage;
 use App\Services\WhatsApp\WhatsAppNotifier;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class SimaksiService
 {
@@ -203,5 +214,200 @@ class SimaksiService
 
             return $locked;
         });
+    }
+
+    /**
+     * Hapus permanen permohonan SIMAKSI beserta seluruh data terkait
+     * (anggota, voucher/trip ojek, sewa alat, transaksi POS terkait, log WA,
+     * checkpoint, checklist gate, berkas fisik, serta kembalikan kuota & stok).
+     *
+     * @return array{registration_code:string,ojek_trips:int,rental_records:int,pos_orders:int,whatsapp_messages:int,quota_released:int}
+     */
+    public function deleteWithRelated(SimaksiRegistration $registration, int $officerId, ?string $reason = null): array
+    {
+        $filesToDelete = [];
+
+        $summary = DB::transaction(function () use ($registration, $reason, &$filesToDelete) {
+            $locked = SimaksiRegistration::where('id', $registration->id)->lockForUpdate()->firstOrFail();
+
+            $fileCandidates = [
+                $locked->leader_ktp_path,
+                $locked->payment_proof_path,
+                $locked->group_photo_path,
+                $locked->gate_photo_path,
+            ];
+            $filesToDelete = array_values(array_filter(array_unique($fileCandidates)));
+
+            // 1. Kembalikan kuota harian bila status masih menahan kuota (selain rejected)
+            $quotaReleased = 0;
+            if ($locked->status !== 'rejected') {
+                $quota = DailyQuota::whereDate('quota_date', $locked->hiking_date)->lockForUpdate()->first();
+                if ($quota && $quota->booked_quota > 0) {
+                    $quotaReleased = min($quota->booked_quota, (int) $locked->total_climbers);
+                    if ($quotaReleased > 0) {
+                        $quota->decrement('booked_quota', $quotaReleased);
+                    }
+                }
+            }
+
+            // Kumpulkan ID transaksi POS terkait agar semua turunan POS & SIMAKSI ikut bersih
+            $posOrders = PosOrder::with('items.item')
+                ->where('simaksi_registration_id', $locked->id)
+                ->lockForUpdate()
+                ->get();
+            $posOrderIds = $posOrders->pluck('id')->all();
+
+            // 2. Hapus trip/voucher ojek terkait + sesuaikan settlement + pulihkan status driver
+            $ojekTrips = OjekTrip::where('simaksi_registration_id', $locked->id)
+                ->when(! empty($posOrderIds), fn ($q) => $q->orWhereIn('pos_order_id', $posOrderIds))
+                ->lockForUpdate()
+                ->get();
+
+            $affectedDriverIds = $ojekTrips
+                ->whereIn('trip_status', ['assigned', 'on_trip'])
+                ->pluck('driver_id')
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            $settlementAdjustments = $ojekTrips
+                ->whereNotNull('ojek_settlement_id')
+                ->groupBy('ojek_settlement_id');
+
+            foreach ($settlementAdjustments as $settlementId => $tripsInSettlement) {
+                $settlement = OjekSettlement::where('id', $settlementId)->lockForUpdate()->first();
+                if (! $settlement) {
+                    continue;
+                }
+                $newCount = max(0, (int) $settlement->total_trips - $tripsInSettlement->count());
+                $newAmount = max(0, (float) $settlement->total_amount - (float) $tripsInSettlement->sum('driver_share'));
+                if ($newCount === 0) {
+                    $settlement->delete();
+                } else {
+                    $settlement->update([
+                        'total_trips' => $newCount,
+                        'total_amount' => $newAmount,
+                    ]);
+                }
+            }
+
+            $ojekCount = $ojekTrips->count();
+            if ($ojekCount > 0) {
+                OjekTrip::whereIn('id', $ojekTrips->pluck('id')->all())->delete();
+            }
+
+            foreach ($affectedDriverIds as $driverId) {
+                $driver = OjekDriver::where('id', $driverId)->lockForUpdate()->first();
+                if (! $driver || $driver->status !== 'on_trip') {
+                    continue;
+                }
+                $stillActive = OjekTrip::where('driver_id', $driver->id)
+                    ->whereIn('trip_status', ['assigned', 'on_trip'])
+                    ->exists();
+                if (! $stillActive) {
+                    $driver->update(['status' => 'standby']);
+                }
+            }
+
+            // 3. Kembalikan stok alat yang masih status 'rented', lalu hapus record sewa
+            $rentals = RentalRecord::where('simaksi_registration_id', $locked->id)
+                ->when(! empty($posOrderIds), fn ($q) => $q->orWhereIn('pos_order_id', $posOrderIds))
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($rentals as $rental) {
+                if ($rental->status === 'rented' && $rental->inventory_item_id) {
+                    $item = InventoryItem::where('id', $rental->inventory_item_id)->lockForUpdate()->first();
+                    if ($item && $item->type !== 'service') {
+                        $restore = (int) $rental->quantity;
+                        if ($item->stock_total > 0) {
+                            $restore = min($restore, max(0, (int) $item->stock_total - (int) $item->stock_available));
+                        }
+                        if ($restore > 0) {
+                            $item->increment('stock_available', $restore);
+                        }
+                    }
+                }
+            }
+
+            $rentalCount = $rentals->count();
+            if ($rentalCount > 0) {
+                RentalRecord::whereIn('id', $rentals->pluck('id')->all())->delete();
+            }
+
+            // 4. Kembalikan stok barang ritel pada PosOrder yang completed, lalu hapus PosOrder terkait
+            $posCount = $posOrders->count();
+            foreach ($posOrders as $order) {
+                if ($order->status === 'completed') {
+                    foreach ($order->items as $orderItem) {
+                        if (! $orderItem->inventory_item_id) {
+                            continue;
+                        }
+                        $inv = InventoryItem::where('id', $orderItem->inventory_item_id)->lockForUpdate()->first();
+                        // Stok tipe 'rental' sudah ditangani lewat RentalRecord di atas agar tidak double-restore
+                        if ($inv && $inv->type === 'goods') {
+                            $restore = (int) $orderItem->quantity;
+                            if ($inv->stock_total > 0) {
+                                $restore = min($restore, max(0, (int) $inv->stock_total - (int) $inv->stock_available));
+                            }
+                            if ($restore > 0) {
+                                $inv->increment('stock_available', $restore);
+                            }
+                        }
+                    }
+                }
+                $order->delete();
+            }
+
+            // 5. Hapus pesan WhatsApp, checkpoint ranger, checklist gate, dan manifest anggota
+            $waCount = WhatsappMessage::where('simaksi_registration_id', $locked->id)->delete();
+            SimaksiCheckpoint::where('simaksi_registration_id', $locked->id)->delete();
+            SimaksiInspectionItem::where('simaksi_registration_id', $locked->id)->delete();
+            ClimberMember::where('simaksi_registration_id', $locked->id)->delete();
+
+            $code = $locked->registration_code;
+            $leaderName = $locked->leader_name;
+            $climbers = (int) $locked->total_climbers;
+            $regId = $locked->id;
+
+            // 6. Hapus record utama SIMAKSI
+            $locked->delete();
+
+            $result = [
+                'registration_code' => $code,
+                'ojek_trips' => $ojekCount,
+                'rental_records' => $rentalCount,
+                'pos_orders' => $posCount,
+                'whatsapp_messages' => $waCount,
+                'quota_released' => $quotaReleased,
+            ];
+
+            AuditService::log(
+                action: 'DELETE_SIMAKSI',
+                entityType: 'SimaksiRegistration',
+                entityId: $regId,
+                description: "Superadmin menghapus permanen SIMAKSI {$code} ({$leaderName}, {$climbers} pendaki) beserta data terkait (Ojek: {$ojekCount}, Sewa: {$rentalCount}, POS: {$posCount}, WA: {$waCount}).",
+                reason: $reason ?: null,
+                payload: $result
+            );
+
+            return $result;
+        });
+
+        // Hapus berkas fisik setelah transaksi database sukses commit
+        if (! empty($filesToDelete)) {
+            DB::afterCommit(function () use ($filesToDelete): void {
+                foreach ($filesToDelete as $path) {
+                    foreach (['local', 'public'] as $disk) {
+                        if (Storage::disk($disk)->exists($path)) {
+                            Storage::disk($disk)->delete($path);
+                        }
+                    }
+                }
+            });
+        }
+
+        return $summary;
     }
 }

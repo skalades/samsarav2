@@ -147,6 +147,7 @@ Route::prefix('management')->name('management.')->group(function () {
 
         // ---------------- SUPERADMIN ----------------
         Route::middleware('role:superadmin')->group(function () {
+            Route::delete('/simaksi/{id}', [SimaksiController::class, 'destroy'])->name('simaksi.destroy');
             Route::post('/quota/update-date', [QuotaController::class, 'updateDate'])->name('quota.update_date');
             Route::post('/quota/update-trail', [QuotaController::class, 'updateTrailCondition'])->name('quota.update_trail');
 
