@@ -2,107 +2,77 @@
 
 @section('title', 'Rekonsiliasi & Payout Ojek — SAMSARA')
 @section('page_title', 'Rekonsiliasi & Payout Ojek')
-@section('page_subtitle', 'Pencairan Hak Pembagian Pendapatan Pengemudi Resmi')
+@section('page_subtitle', 'Pencairan hak pembagian pendapatan pengemudi resmi')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-5">
 
   <!-- Overview Summary -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono-tech">
-    <div class="p-4 bg-surface border border-line rounded-xl flex flex-col justify-between">
-      <span class="text-[11px] text-stone-400">TOTAL UNSETTLED PAYOUT (HAK DRIVER)</span>
-      <div class="mt-2 text-2xl font-display font-black text-emerald-400">
-        Rp {{ number_format($totalUnsettledAmount, 0, ',', '.') }}
-      </div>
-      <span class="text-[10px] text-stone-400 mt-1">{{ $driversWithPending->count() }} Pengemudi menunggu pencairan</span>
-    </div>
-
-    <div class="p-4 bg-surface border border-line rounded-xl flex flex-col justify-between">
-      <span class="text-[11px] text-stone-400">KEBIJAKAN KASIR / SETTLEMENT</span>
-      <div class="mt-2 text-sm text-white font-bold">
-        Satu Pintu Kasir Loket
-      </div>
-      <span class="text-[10px] text-stone-400 mt-1">Struk & tanda terima tercetak untuk audit kas</span>
-    </div>
-
-    <div class="p-4 bg-surface border border-line rounded-xl flex flex-col justify-between">
-      <span class="text-[11px] text-stone-400">BAGI HASIL BASECAMP (PEMELIHARAAN)</span>
-      <div class="mt-2 text-sm text-cyan-400 font-bold">
-        Rp 5.000 / Trip
-      </div>
-      <span class="text-[10px] text-stone-400 mt-1">Otomatis masuk kas pemeliharaan jalur</span>
-    </div>
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <x-ui.stat label="Total unsettled payout" :value="'Rp '.number_format($totalUnsettledAmount, 0, ',', '.')" :hint="$driversWithPending->count().' pengemudi menunggu pencairan'" tone="success" icon="cash" />
+    <x-ui.stat label="Kebijakan settlement" value="Satu Pintu Kasir" hint="Struk & tanda terima tercetak untuk audit kas" tone="neutral" icon="shield" />
+    <x-ui.stat label="Bagi hasil basecamp" value="Rp 5.000 / Trip" hint="Otomatis masuk kas pemeliharaan jalur" tone="info" icon="bolt" />
   </div>
 
-  @if(session('success'))
-    <div class="p-3.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 font-mono-tech text-xs flex items-center gap-2">
-      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-      <span>{{ session('success') }}</span>
-    </div>
-  @endif
-
-  @if(session('error'))
-    <div class="p-3.5 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 font-mono-tech text-xs flex items-center gap-2">
-      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      <span>{{ session('error') }}</span>
-    </div>
-  @endif
-
   <!-- Section 1: Drivers with Pending Payouts -->
-  <div class="bg-surface border border-line rounded-xl p-5 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-line">
-      <div class="flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-        <h3 class="font-display font-bold text-sm text-white uppercase tracking-wider">
-          Pengemudi Menunggu Pencairan Saldo (Ready to Payout)
-        </h3>
-      </div>
-      <span class="text-[10px] text-stone-400">Rekonsiliasi Shift Kasir</span>
-    </div>
-
+  <x-ui.card title="Pengemudi Menunggu Pencairan" subtitle="Rekonsiliasi shift kasir" icon="wallet" :padding="false">
     @if($driversWithPending->isEmpty())
-      <div class="py-8 text-center text-stone-500">
-        <svg class="w-8 h-8 mx-auto mb-2 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <p>Semua honor trip pengemudi telah lunas dicairkan. Tidak ada saldo pending.</p>
-      </div>
+      <x-ui.empty icon="check" title="Semua honor trip telah lunas" text="Tidak ada saldo pending saat ini." />
     @else
-      <div class="overflow-x-auto">
-        <table class="w-full text-left">
-          <thead>
-            <tr class="text-[10px] text-stone-400 uppercase border-b border-line">
-              <th class="pb-3">NO ROMPI</th>
-              <th class="pb-3">NAMA PENGEMUDI</th>
-              <th class="pb-3">PLAT MOTOR</th>
-              <th class="pb-3">TRIP SELESAI BELUM DIBAYAR</th>
-              <th class="pb-3">TOTAL HAK DRIVER</th>
-              <th class="pb-3 text-right">AKSI PEMBAYARAN</th>
+      {{-- Mobile: kartu --}}
+      <div class="lg:hidden divide-y divide-line">
+        @foreach($driversWithPending as $driver)
+          <div class="p-3.5 space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <x-ui.badge tone="warning" size="xs">{{ $driver->registration_number }}</x-ui.badge>
+                  <span class="font-code text-xs text-brand font-bold">{{ $driver->plate_number }}</span>
+                </div>
+                <p class="font-semibold text-sm text-ink mt-1">{{ $driver->name }}</p>
+                <p class="text-xs text-muted">{{ $driver->trips->count() }} trip selesai · {{ $driver->phone ?? '-' }}</p>
+              </div>
+              <p class="font-display font-bold text-base text-emerald-400 tabular-nums shrink-0">
+                Rp {{ number_format($driver->trips->sum('driver_share'), 0, ',', '.') }}
+              </p>
+            </div>
+            <x-ui.button variant="success" size="sm" block icon="cash" onclick="openPayoutModal({{ $driver->id }}, '{{ $driver->name }}', '{{ $driver->registration_number }}', {{ $driver->trips->count() }}, {{ $driver->trips->sum('driver_share') }})">
+              Cairkan Payout Sekarang
+            </x-ui.button>
+          </div>
+        @endforeach
+      </div>
+
+      {{-- Desktop: tabel --}}
+      <div class="hidden lg:block overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-raised/40 border-b border-line text-[11px] text-subtle uppercase">
+            <tr>
+              <th class="py-3 px-4 font-semibold">No Rompi</th>
+              <th class="py-3 px-3 font-semibold">Nama Pengemudi</th>
+              <th class="py-3 px-3 font-semibold">Plat Motor</th>
+              <th class="py-3 px-3 font-semibold">Trip Belum Dibayar</th>
+              <th class="py-3 px-3 font-semibold text-right">Total Hak Driver</th>
+              <th class="py-3 px-4 font-semibold text-right">Aksi</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-line">
             @foreach($driversWithPending as $driver)
-              <tr class="hover:bg-raised">
-                <td class="py-3.5">
-                  <span class="px-2 py-0.5 rounded bg-raised border border-line-strong text-amber-400 font-bold text-xs">
-                    {{ $driver->registration_number }}
-                  </span>
+              <tr class="hover:bg-hover/40">
+                <td class="py-3 px-4 whitespace-nowrap"><x-ui.badge tone="warning">{{ $driver->registration_number }}</x-ui.badge></td>
+                <td class="py-3 px-3">
+                  <div class="font-semibold text-ink">{{ $driver->name }}</div>
+                  <div class="text-xs text-muted">{{ $driver->phone ?? '-' }}</div>
                 </td>
-                <td class="py-3.5 font-bold text-white">
-                  {{ $driver->name }}
-                  <span class="block text-[10px] text-stone-400 font-normal">{{ $driver->phone ?? '-' }}</span>
-                </td>
-                <td class="py-3.5 font-bold text-brand">
-                  {{ $driver->plate_number }}
-                </td>
-                <td class="py-3.5 text-stone-300">
-                  <span class="font-bold text-white">{{ $driver->trips->count() }}</span> Trip Selesai
-                </td>
-                <td class="py-3.5 text-base font-bold text-emerald-400 font-display">
+                <td class="py-3 px-3 font-code font-bold text-brand whitespace-nowrap">{{ $driver->plate_number }}</td>
+                <td class="py-3 px-3 text-ink"><strong class="tabular-nums">{{ $driver->trips->count() }}</strong> Trip Selesai</td>
+                <td class="py-3 px-3 text-right font-display font-bold text-base text-emerald-400 tabular-nums whitespace-nowrap">
                   Rp {{ number_format($driver->trips->sum('driver_share'), 0, ',', '.') }}
                 </td>
-                <td class="py-3.5 text-right">
-                  <button onclick="openPayoutModal({{ $driver->id }}, '{{ $driver->name }}', '{{ $driver->registration_number }}', {{ $driver->trips->count() }}, {{ $driver->trips->sum('driver_share') }})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg transition shadow-lg shadow-emerald-600/20">
-                    Cairkan Payout Sekarang →
-                  </button>
+                <td class="py-3 px-4 text-right whitespace-nowrap">
+                  <x-ui.button variant="success" size="sm" onclick="openPayoutModal({{ $driver->id }}, '{{ $driver->name }}', '{{ $driver->registration_number }}', {{ $driver->trips->count() }}, {{ $driver->trips->sum('driver_share') }})">
+                    Cairkan Payout →
+                  </x-ui.button>
                 </td>
               </tr>
             @endforeach
@@ -110,57 +80,63 @@
         </table>
       </div>
     @endif
-  </div>
+  </x-ui.card>
 
   <!-- Section 2: Recent Settlement History -->
-  <div class="bg-surface border border-line rounded-xl p-5 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-line">
-      <h3 class="font-display font-bold text-sm text-white uppercase tracking-wider">
-        Riwayat Pencairan Honor (Settlement Records)
-      </h3>
-      <span class="text-[10px] text-stone-400">Jejak Audit Keuangan</span>
-    </div>
-
+  <x-ui.card title="Riwayat Pencairan Honor" subtitle="Jejak audit keuangan" icon="receipt" :padding="false">
     @if($recentSettlements->isEmpty())
-      <div class="py-6 text-center text-stone-500">
-        Belum ada riwayat pencairan payout yang tercatat.
-      </div>
+      <x-ui.empty icon="receipt" title="Belum ada riwayat pencairan" />
     @else
-      <div class="overflow-x-auto">
-        <table class="w-full text-left">
-          <thead>
-            <tr class="text-[10px] text-stone-400 uppercase border-b border-line">
-              <th class="pb-2">KODE SETTLEMENT</th>
-              <th class="pb-2">PENGEMUDI</th>
-              <th class="pb-2">JUMLAH TRIP</th>
-              <th class="pb-2">NOMINAL DICAIRKAN</th>
-              <th class="pb-2">METODE</th>
-              <th class="pb-2">KASIR PETUGAS</th>
-              <th class="pb-2">WAKTU</th>
-              <th class="pb-2 text-right">STRUK</th>
+      {{-- Mobile: kartu --}}
+      <div class="lg:hidden divide-y divide-line">
+        @foreach($recentSettlements as $stl)
+          <div class="p-3.5 space-y-2">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <span class="font-code text-xs font-bold text-brand">{{ $stl->settlement_code }}</span>
+                <p class="font-semibold text-sm text-ink mt-0.5">{{ $stl->driver?->name }}</p>
+                <p class="text-[11px] text-muted">{{ $stl->driver?->registration_number }} · {{ $stl->total_trips }} Trip · {{ $stl->settled_at->format('d/m/Y H:i') }}</p>
+              </div>
+              <div class="text-right shrink-0">
+                <p class="font-bold text-sm text-emerald-400 tabular-nums">Rp {{ number_format($stl->total_amount, 0, ',', '.') }}</p>
+                <x-ui.badge size="xs" class="mt-1">{{ strtoupper($stl->payment_method) }}</x-ui.badge>
+              </div>
+            </div>
+            <x-ui.button variant="secondary" size="sm" block icon="printer" :href="route('management.ojek.print_settlement', $stl->id)" target="_blank">Cetak Slip</x-ui.button>
+          </div>
+        @endforeach
+      </div>
+
+      {{-- Desktop: tabel --}}
+      <div class="hidden lg:block overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-raised/40 border-b border-line text-[11px] text-subtle uppercase">
+            <tr>
+              <th class="py-3 px-4 font-semibold">Kode</th>
+              <th class="py-3 px-3 font-semibold">Pengemudi</th>
+              <th class="py-3 px-3 font-semibold">Trip</th>
+              <th class="py-3 px-3 font-semibold text-right">Nominal</th>
+              <th class="py-3 px-3 font-semibold">Metode</th>
+              <th class="py-3 px-3 font-semibold">Kasir</th>
+              <th class="py-3 px-3 font-semibold">Waktu</th>
+              <th class="py-3 px-4 font-semibold text-right">Slip</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-line">
             @foreach($recentSettlements as $stl)
-              <tr class="hover:bg-raised">
-                <td class="py-3 font-bold text-brand">{{ $stl->settlement_code }}</td>
-                <td class="py-3 text-white">
-                  <div class="font-bold">{{ $stl->driver?->name }}</div>
-                  <div class="text-[10px] text-stone-400">#{{ $stl->driver?->registration_number }} • {{ $stl->driver?->plate_number }}</div>
+              <tr class="hover:bg-hover/40">
+                <td class="py-3 px-4 font-code font-bold text-brand whitespace-nowrap">{{ $stl->settlement_code }}</td>
+                <td class="py-3 px-3">
+                  <div class="font-semibold text-ink">{{ $stl->driver?->name }}</div>
+                  <div class="text-xs text-muted">#{{ $stl->driver?->registration_number }} · {{ $stl->driver?->plate_number }}</div>
                 </td>
-                <td class="py-3 text-stone-300">{{ $stl->total_trips }} Trip</td>
-                <td class="py-3 font-bold text-emerald-400">Rp {{ number_format($stl->total_amount, 0, ',', '.') }}</td>
-                <td class="py-3 uppercase text-stone-300">
-                  <span class="px-2 py-0.5 rounded bg-raised border border-line-strong text-[10px]">
-                    {{ $stl->payment_method }}
-                  </span>
-                </td>
-                <td class="py-3 text-stone-300">{{ $stl->cashier?->name }}</td>
-                <td class="py-3 text-stone-400">{{ $stl->settled_at->format('d/m/Y H:i') }} WIB</td>
-                <td class="py-3 text-right">
-                  <a href="{{ route('management.ojek.print_settlement', $stl->id) }}" target="_blank" class="px-2 py-1 bg-raised hover:bg-hover border border-line-strong text-stone-300 hover:text-white rounded text-[10px] font-bold transition">
-                    [PRINT] Slip
-                  </a>
+                <td class="py-3 px-3 text-muted tabular-nums">{{ $stl->total_trips }} Trip</td>
+                <td class="py-3 px-3 text-right font-bold text-emerald-400 tabular-nums whitespace-nowrap">Rp {{ number_format($stl->total_amount, 0, ',', '.') }}</td>
+                <td class="py-3 px-3"><x-ui.badge size="xs">{{ strtoupper($stl->payment_method) }}</x-ui.badge></td>
+                <td class="py-3 px-3 text-muted">{{ $stl->cashier?->name }}</td>
+                <td class="py-3 px-3 text-muted text-xs whitespace-nowrap tabular-nums">{{ $stl->settled_at->format('d/m/Y H:i') }} WIB</td>
+                <td class="py-3 px-4 text-right whitespace-nowrap">
+                  <x-ui.button variant="secondary" size="sm" icon="printer" :href="route('management.ojek.print_settlement', $stl->id)" target="_blank">Slip</x-ui.button>
                 </td>
               </tr>
             @endforeach
@@ -168,56 +144,49 @@
         </table>
       </div>
     @endif
-  </div>
+  </x-ui.card>
 
 </div>
 
-<!-- Modal Payout Confirmation -->
-<div id="modalPayout" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-  <div class="bg-surface border border-line-strong rounded-xl max-w-md w-full p-6 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-line">
-      <h4 class="font-display font-bold text-base text-white">Konfirmasi Pencairan Honor Driver</h4>
-      <button onclick="document.getElementById('modalPayout').classList.add('hidden')" class="text-stone-400 hover:text-white text-lg">✕</button>
+<x-ui.modal id="modalPayout" title="Konfirmasi Pencairan Honor Driver" eyebrow="Settlement Ojek" maxWidth="sm:max-w-md">
+  <form id="formPayout" method="POST" class="space-y-4">
+    @csrf
+    <div class="p-3.5 bg-raised border border-line-strong rounded-xl space-y-2 text-sm">
+      <div class="flex justify-between gap-2">
+        <span class="text-muted">Pengemudi</span>
+        <span id="payoutDriverName" class="font-semibold text-ink">-</span>
+      </div>
+      <div class="flex justify-between gap-2">
+        <span class="text-muted">Jumlah Trip</span>
+        <span id="payoutTotalTrips" class="font-semibold text-ink">-</span>
+      </div>
+      <div class="flex justify-between gap-2 border-t border-line pt-2">
+        <span class="text-muted">Total Dibayarkan</span>
+        <span id="payoutAmount" class="font-display font-bold text-emerald-400 text-base tabular-nums">-</span>
+      </div>
     </div>
 
-    <form id="formPayout" method="POST" class="space-y-4">
-      @csrf
-      <div class="p-3 bg-raised border border-line-strong rounded-lg space-y-2">
-        <div class="flex justify-between">
-          <span class="text-stone-400">Pengemudi:</span>
-          <span id="payoutDriverName" class="font-bold text-white">-</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-stone-400">Jumlah Trip:</span>
-          <span id="payoutTotalTrips" class="font-bold text-white">-</span>
-        </div>
-        <div class="flex justify-between border-t border-line pt-2">
-          <span class="text-stone-400">Total Yang Dibayarkan:</span>
-          <span id="payoutAmount" class="font-bold text-emerald-400 text-sm font-display">-</span>
-        </div>
-      </div>
+    <div>
+      <label class="label">Metode Pembayaran</label>
+      <select name="payment_method" class="field">
+        <option value="cash">Tunai (Diserahkan di loket kasir)</option>
+        <option value="transfer">Transfer Bank / E-Wallet</option>
+      </select>
+    </div>
 
-      <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">Metode Pembayaran:</label>
-        <select name="payment_method" class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-white">
-          <option value="cash">TUNAI (Diserahkan langsung di loket kasir)</option>
-          <option value="transfer">TRANSFER BANK / E-WALLET</option>
-        </select>
-      </div>
+    <div>
+      <label class="label">Catatan Kasir (Opsional)</label>
+      <input type="text" name="notes" placeholder="Contoh: Honor trip shift pagi s/d sore" class="field">
+    </div>
 
-      <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">Catatan Kasir (Opsional):</label>
-        <input type="text" name="notes" placeholder="Contoh: Honor trip shift pagi s/d sore" class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-white">
-      </div>
+    <div class="flex items-center justify-end gap-2 pt-2 border-t border-line">
+      <x-ui.button variant="secondary" onclick="document.getElementById('modalPayout').classList.add('hidden')">Batal</x-ui.button>
+      <x-ui.button type="submit" variant="success" icon="check">Konfirmasi &amp; Cetak Bukti</x-ui.button>
+    </div>
+  </form>
+</x-ui.modal>
 
-      <div class="flex items-center justify-end gap-2 pt-3 border-t border-line">
-        <button type="button" onclick="document.getElementById('modalPayout').classList.add('hidden')" class="px-3 py-2 bg-raised text-stone-300 rounded-lg hover:text-white">Batal</button>
-        <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition">Konfirmasi & Cetak Bukti</button>
-      </div>
-    </form>
-  </div>
-</div>
-
+@push('scripts')
 <script>
   function openPayoutModal(driverId, driverName, regNumber, tripsCount, amount) {
     document.getElementById('formPayout').action = '/management/ojek/payout/' + driverId;
@@ -227,4 +196,5 @@
     document.getElementById('modalPayout').classList.remove('hidden');
   }
 </script>
+@endpush
 @endsection

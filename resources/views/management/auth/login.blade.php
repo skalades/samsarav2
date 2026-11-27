@@ -20,22 +20,22 @@
   <div class="min-h-screen grid lg:grid-cols-2">
 
     {{-- Panel visual (desktop) --}}
-    <div class="hidden lg:flex relative overflow-hidden bg-surface border-r border-line p-12 flex-col justify-between">
+    <div class="hidden lg:flex relative overflow-hidden bg-surface border-r border-line p-8 xl:p-12 flex-col justify-between">
       <svg class="absolute inset-x-0 bottom-0 w-full text-raised" viewBox="0 0 800 300" preserveAspectRatio="none" aria-hidden="true">
         <path fill="currentColor" d="M0 300 L0 210 L120 150 L210 190 L330 80 L420 140 L500 60 L610 170 L700 120 L800 180 L800 300 Z"/>
         <path fill="#0B0D10" opacity=".6" d="M0 300 L0 250 L150 200 L260 240 L380 170 L480 220 L600 190 L720 240 L800 220 L800 300 Z"/>
       </svg>
       <div class="relative flex items-center gap-3">
-        <span class="w-11 h-11 rounded-2xl bg-brand/15 ring-1 ring-brand/30 flex items-center justify-center text-brand"><x-ui.icon name="mountain" class="w-6 h-6" /></span>
+        <span class="w-10 h-10 rounded-xl bg-brand/15 ring-1 ring-brand/30 flex items-center justify-center text-brand"><x-ui.icon name="mountain" class="w-5 h-5" /></span>
         <div>
-          <p class="font-display font-bold text-lg text-ink leading-none">SAMSARA OPS</p>
+          <p class="font-display font-bold text-base text-ink leading-none">SAMSARA OPS</p>
           <p class="text-xs text-muted mt-1">{{ $mountain }} · {{ $elevation }}</p>
         </div>
       </div>
       <div class="relative max-w-md">
-        <h1 class="font-display font-bold text-4xl text-ink leading-tight">Satu sistem untuk seluruh tim basecamp.</h1>
-        <p class="text-muted mt-3">Kasir, Gatekeeper, dan Ranger bekerja di alur yang sama — dari verifikasi bayar, pemeriksaan logistik, sampai rombongan kembali dengan selamat.</p>
-        <div class="grid grid-cols-2 gap-2 mt-8">
+        <h1 class="font-display font-bold text-3xl xl:text-4xl text-ink leading-tight">Satu sistem untuk seluruh tim basecamp.</h1>
+        <p class="text-sm text-muted mt-3 leading-relaxed">Kasir, Gatekeeper, dan Ranger bekerja di alur yang sama — dari verifikasi bayar, pemeriksaan logistik, sampai rombongan kembali dengan selamat.</p>
+        <div class="grid grid-cols-2 gap-2.5 mt-6">
           @foreach(\App\Models\User::ROLES as $key => $role)
             <div class="p-3 rounded-xl bg-canvas/60 ring-1 ring-line">
               <x-ui.icon :name="$levelMeta[$key]['icon']" class="w-5 h-5 text-brand" />

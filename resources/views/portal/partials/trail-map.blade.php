@@ -10,7 +10,7 @@
   {{-- ============ KOLOM PETA ============ --}}
   <div class="lg:col-span-3 flex flex-col gap-3 min-w-0">
     <div class="tm-frame relative rounded-2xl overflow-hidden ring-1 ring-line bg-raised" id="{{ $mapId }}Frame">
-      <div id="{{ $mapId }}" class="tm-canvas w-full h-[300px] sm:h-[380px] lg:h-[500px]" role="application" aria-label="Peta interaktif jalur pendakian"></div>
+      <div id="{{ $mapId }}" class="tm-canvas w-full h-[260px] sm:h-[340px] lg:h-[380px]" role="application" aria-label="Peta interaktif jalur pendakian"></div>
       <div class="tm-loading absolute inset-0 flex flex-col items-center justify-center gap-2 text-sm text-muted pointer-events-none">
         <span class="w-6 h-6 rounded-full border-2 border-line-strong border-t-brand animate-spin"></span>Memuat peta…
       </div>
@@ -244,7 +244,7 @@
       + '<svg class="w-4 h-4 text-brand shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
       + '<span class="font-display font-bold text-lg text-ink truncate">' + esc(to.type === 'pos' ? to.code.replace('POS', 'Pos') + ' · ' + to.name : to.name) + '</span>'
       + '</div>'
-      + '<div class="grid grid-cols-4 gap-1.5 mt-3">'
+      + '<div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 mt-3">'
       + [[km(s.dist_m), 'Jarak'], [isOjek ? '±' + dur(mins) : dur(mins), isOjek ? 'Ojek' : 'Waktu'], [(up ? '+' : '−') + num(Math.abs(s.gain_m)) + ' m', up ? 'Naik' : 'Turun'], [num(to.elev), 'MDPL']].map(function (x) {
           return '<div class="rounded-xl bg-raised ring-1 ring-line px-1.5 py-2 text-center"><p class="font-display font-bold text-sm sm:text-base text-ink tabular-nums leading-tight">' + x[0] + '</p><p class="text-[10px] text-muted mt-0.5">' + x[1] + '</p></div>';
         }).join('')

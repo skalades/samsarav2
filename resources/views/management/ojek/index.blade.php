@@ -5,126 +5,50 @@
 @section('page_subtitle', 'Pangkalan Armada Shuttle Basecamp — Pos 1')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-5">
 
-  <!-- ======================================================== -->
-  <!-- 1. LIVE METRICS & QUICK SUMMARY                          -->
-  <!-- ======================================================== -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 font-mono-tech">
-    <div class="p-4 bg-surface border border-line rounded-xl flex flex-col justify-between">
-      <div class="flex items-center justify-between text-[11px] text-stone-400">
-        <span>DRIVER STANDBY</span>
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-      </div>
-      <div class="mt-2 text-2xl font-display font-black text-white">
-        {{ $standbyDrivers->count() }} <span class="text-xs font-mono-tech font-normal text-stone-400">Motor</span>
-      </div>
-      <span class="text-[10px] text-emerald-400 mt-1">Siap berangkat giliran terdepan</span>
-    </div>
-
-    <div class="p-4 bg-surface border border-line rounded-xl flex flex-col justify-between">
-      <div class="flex items-center justify-between text-[11px] text-stone-400">
-        <span>SEDANG DI JALUR</span>
-        <span class="w-2 h-2 rounded-full bg-brand"></span>
-      </div>
-      <div class="mt-2 text-2xl font-display font-black text-white">
-        {{ $onTripDrivers->count() }} <span class="text-xs font-mono-tech font-normal text-stone-400">Trip</span>
-      </div>
-      <span class="text-[10px] text-brand mt-1">Mengantar menuju Pos 1</span>
-    </div>
-
-    <div class="p-4 bg-surface border border-line rounded-xl flex flex-col justify-between">
-      <div class="flex items-center justify-between text-[11px] text-stone-400">
-        <span>TRIP SELESAI HARI INI</span>
-        <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-      </div>
-      <div class="mt-2 text-2xl font-display font-black text-white">
-        {{ $todayTripCount }} <span class="text-xs font-mono-tech font-normal text-stone-400">Trip</span>
-      </div>
-      <span class="text-[10px] text-stone-400 mt-1">Total Omzet: Rp {{ number_format($todayGrossFare, 0, ',', '.') }}</span>
-    </div>
-
-    <div class="p-4 bg-surface border border-line rounded-xl flex flex-col justify-between">
-      <div class="flex items-center justify-between text-[11px] text-stone-400">
-        <span>HAK PENGEMUDI HARI INI</span>
-        <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-      </div>
-      <div class="mt-2 text-xl font-display font-black text-emerald-400">
-        Rp {{ number_format($todayDriverEarnings, 0, ',', '.') }}
-      </div>
-      <span class="text-[10px] text-stone-400 mt-1">Kas Jalur: Rp {{ number_format($todayBasecampShare, 0, ',', '.') }}</span>
-    </div>
+  <!-- 1. LIVE METRICS -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <x-ui.stat label="Driver standby" :value="$standbyDrivers->count().' Motor'" hint="Siap berangkat giliran terdepan" tone="success" icon="users" />
+    <x-ui.stat label="Sedang di jalur" :value="$onTripDrivers->count().' Trip'" hint="Mengantar menuju Pos 1" tone="brand" icon="bolt" />
+    <x-ui.stat label="Trip selesai hari ini" :value="$todayTripCount.' Trip'" :hint="'Omzet: Rp '.number_format($todayGrossFare, 0, ',', '.')" tone="info" icon="check" />
+    <x-ui.stat label="Hak pengemudi hari ini" :value="'Rp '.number_format($todayDriverEarnings, 0, ',', '.')" :hint="'Kas jalur: Rp '.number_format($todayBasecampShare, 0, ',', '.')" tone="success" icon="cash" />
   </div>
 
-  @if(session('success'))
-    <div class="p-3.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 font-mono-tech text-xs flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-        <span>{{ session('success') }}</span>
-      </div>
-    </div>
-  @endif
-
-  @if(session('error'))
-    <div class="p-3.5 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 font-mono-tech text-xs flex items-center gap-2">
-      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      <span>{{ session('error') }}</span>
-    </div>
-  @endif
-
-  <!-- ======================================================== -->
-  <!-- 2. MAIN WORKSPACE: DISPATCH PANE & LIVE QUEUE            -->
-  <!-- ======================================================== -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono-tech text-xs">
+  <!-- 2. MAIN WORKSPACE -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
     
-    <!-- LEFT COLUMN (2 COLS): VOUCHERS WAITING & ONGOING TRIPS -->
-    <div class="lg:col-span-2 space-y-6">
+    <!-- LEFT COLUMN (2 COLS) -->
+    <div class="lg:col-span-2 space-y-5">
       
-      <!-- Box A: Tiket / Voucher Menunggu Penugasan Driver -->
-      <div class="bg-surface border border-line rounded-xl p-5 space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-line">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-            <h3 class="font-display font-bold text-sm text-white uppercase tracking-wider">
-              Voucher Menunggu Penugasan Driver ({{ $pendingTrips->count() }})
-            </h3>
-          </div>
-          <span class="text-[10px] text-stone-400">Pemberangkatan Segera</span>
-        </div>
-
+      <!-- Box A: Voucher Menunggu Penugasan -->
+      <x-ui.card :title="'Voucher Menunggu Driver ('.$pendingTrips->count().')'" subtitle="Pemberangkatan segera ke Pos 1" icon="bolt" :padding="false">
         @if($pendingTrips->isEmpty())
-          <div class="py-8 text-center text-stone-500">
-            <svg class="w-8 h-8 mx-auto mb-2 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <p>Tidak ada voucher ojek yang menunggu penugasan saat ini.</p>
-            <p class="text-[10px] text-stone-600 mt-1">Voucher baru akan otomatis muncul saat pendaki check-in atau membeli tiket di Kasir POS.</p>
-          </div>
+          <x-ui.empty icon="check" title="Tidak ada voucher menunggu" text="Voucher baru otomatis muncul saat pendaki lolos Gate atau membeli di Kasir POS." />
         @else
-          <div class="space-y-3">
+          <div class="p-3.5 space-y-3">
             @foreach($pendingTrips as $trip)
-              <div class="p-3.5 bg-raised border border-line-strong rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3">
-                <div class="space-y-1">
-                  <div class="flex items-center gap-2">
-                    <span class="font-bold text-brand text-sm">{{ $trip->trip_code }}</span>
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $trip->status_badge['bg'] }}">
-                      {{ $trip->status_badge['label'] }}
-                    </span>
-                  </div>
-                  <div class="text-white font-bold">{{ $trip->passenger_name }}</div>
-                  <div class="text-[10px] text-stone-400 flex items-center gap-3">
-                    <span>Rute: {{ $trip->route }}</span>
-                    <span>•</span>
-                    <span>Tarif: Rp {{ number_format($trip->fare_amount, 0, ',', '.') }}</span>
-                    @if($trip->simaksi)
-                      <span>•</span>
-                      <span class="text-cyan-400">Ref: {{ $trip->simaksi->registration_code }}</span>
-                    @endif
+              <div class="p-3.5 bg-raised/70 ring-1 ring-line-strong rounded-2xl space-y-3">
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                  <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="font-code font-bold text-brand text-sm">{{ $trip->trip_code }}</span>
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $trip->status_badge['bg'] }}">
+                        {{ $trip->status_badge['label'] }}
+                      </span>
+                    </div>
+                    <p class="text-ink font-semibold text-sm mt-1">{{ $trip->passenger_name }}</p>
+                    <p class="text-xs text-muted mt-0.5">
+                      {{ $trip->route }} · <strong class="text-ink tabular-nums">Rp {{ number_format($trip->fare_amount, 0, ',', '.') }}</strong>
+                      @if($trip->simaksi) · <span class="text-sky-400 font-code">{{ $trip->simaksi->registration_code }}</span>@endif
+                    </p>
                   </div>
                 </div>
 
-                <!-- Form Tugaskan Driver Standby Terdepan -->
-                <form action="{{ route('management.ojek.assign', $trip->id) }}" method="POST" class="flex items-center gap-2 shrink-0">
+                <!-- Form Tugaskan Driver -->
+                <form action="{{ route('management.ojek.assign', $trip->id) }}" method="POST" class="flex flex-col sm:flex-row sm:items-center gap-2 pt-2 border-t border-line">
                   @csrf
-                  <select name="driver_id" id="driver_select_{{ $trip->id }}" required class="bg-surface border border-line-strong rounded-lg px-2.5 py-1.5 text-xs text-white">
+                  <select name="driver_id" id="driver_select_{{ $trip->id }}" required class="field flex-1">
                     <option value="">-- Pilih Driver Standby --</option>
                     @foreach($standbyDrivers as $idx => $driver)
                       <option value="{{ $driver->id }}">
@@ -133,79 +57,81 @@
                     @endforeach
                   </select>
 
-                  <button type="submit" name="action" value="assign_and_print" class="px-3 py-1.5 bg-brand hover:bg-brand-hover text-black font-bold rounded-lg transition whitespace-nowrap flex items-center gap-1">
-                    <span>Tugaskan & Cetak</span>
-                  </button>
-
-                  <button type="button" onclick="printTripWithSelectedDriver({{ $trip->id }})" title="Cetak Voucher Tiket" class="px-2.5 py-1.5 bg-raised hover:bg-hover border border-line-strong rounded-lg text-stone-200 hover:text-white font-bold transition flex items-center gap-1.5 text-xs whitespace-nowrap">
-                    <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    <span>Cetak</span>
-                  </button>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <x-ui.button type="submit" name="action" value="assign_and_print" class="flex-1 sm:flex-none">Tugaskan &amp; Cetak</x-ui.button>
+                    <x-ui.button variant="secondary" icon="printer" onclick="printTripWithSelectedDriver({{ $trip->id }})">Cetak</x-ui.button>
+                  </div>
                 </form>
               </div>
             @endforeach
           </div>
         @endif
-      </div>
+      </x-ui.card>
 
       <!-- Box B: Trip Aktif Sedang Jalan -->
-      <div class="bg-surface border border-line rounded-xl p-5 space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-line">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-brand animate-ping"></span>
-            <h3 class="font-display font-bold text-sm text-white uppercase tracking-wider">
-              Trip Sedang Berjalan di Jalur ({{ $activeTrips->count() }})
-            </h3>
-          </div>
-          <span class="text-[10px] text-stone-400">Konfirmasi Tiba di Pos</span>
-        </div>
-
+      <x-ui.card :title="'Trip Berjalan di Jalur ('.$activeTrips->count().')'" subtitle="Konfirmasi apabila pengemudi sudah tiba" icon="mountain" :padding="false">
         @if($activeTrips->isEmpty())
-          <div class="py-6 text-center text-stone-500">
-            Tidak ada armada yang sedang mengantar di jalur saat ini.
-          </div>
+          <x-ui.empty icon="bolt" title="Tidak ada armada di jalur" text="Belum ada driver yang sedang mengantar saat ini." />
         @else
-          <div class="overflow-x-auto">
-            <table class="w-full text-left font-mono-tech text-xs">
-              <thead>
-                <tr class="text-[10px] text-stone-400 uppercase border-b border-line">
-                  <th class="pb-2">KODE TRIP</th>
-                  <th class="pb-2">PENGEMUDI RESMI</th>
-                  <th class="pb-2">PENUMPANG</th>
-                  <th class="pb-2">JAM BERANGKAT</th>
-                  <th class="pb-2 text-right">AKSI</th>
+          {{-- Mobile: kartu --}}
+          <div class="lg:hidden divide-y divide-line">
+            @foreach($activeTrips as $active)
+              <div class="p-3.5 space-y-2.5">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0">
+                    <span class="font-code font-bold text-brand text-sm">{{ $active->trip_code }}</span>
+                    <p class="text-sm font-semibold text-ink mt-0.5">{{ $active->driver?->name }} <span class="text-xs font-code text-amber-400">({{ $active->driver?->registration_number }})</span></p>
+                    <p class="text-xs text-muted">{{ $active->passenger_name }} · {{ $active->route }}</p>
+                    <p class="text-[11px] text-subtle mt-0.5">Plat: {{ $active->driver?->plate_number }} · Berangkat {{ $active->dispatched_at ? $active->dispatched_at->format('H:i') : '-' }} WIB</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 pt-1">
+                  <x-ui.button variant="secondary" size="sm" icon="printer" :href="route('management.ojek.print_voucher', $active->id)" target="_blank">Cetak</x-ui.button>
+                  <form action="{{ route('management.ojek.complete', $active->id) }}" method="POST" class="flex-1" onsubmit="return confirm('Konfirmasi trip {{ $active->trip_code }} telah selesai sampai tujuan?')">
+                    @csrf
+                    <x-ui.button type="submit" variant="success" size="sm" block icon="check">Selesai Trip</x-ui.button>
+                  </form>
+                </div>
+              </div>
+            @endforeach
+          </div>
+
+          {{-- Desktop: tabel --}}
+          <div class="hidden lg:block overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-raised/40 border-b border-line text-[11px] text-subtle uppercase">
+                <tr>
+                  <th class="py-3 px-4 font-semibold">Kode Trip</th>
+                  <th class="py-3 px-3 font-semibold">Pengemudi Resmi</th>
+                  <th class="py-3 px-3 font-semibold">Penumpang</th>
+                  <th class="py-3 px-3 font-semibold">Berangkat</th>
+                  <th class="py-3 px-4 font-semibold text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-line">
                 @foreach($activeTrips as $active)
-                  <tr class="hover:bg-raised">
-                    <td class="py-3 font-bold text-brand">{{ $active->trip_code }}</td>
-                    <td class="py-3 text-white">
-                      <div class="font-bold flex items-center gap-1.5">
-                        <span class="px-1.5 py-0.5 rounded bg-raised border border-line-strong text-[10px] text-amber-400">
-                          {{ $active->driver?->registration_number }}
-                        </span>
+                  <tr class="hover:bg-hover/40">
+                    <td class="py-3 px-4 font-code font-bold text-brand whitespace-nowrap">{{ $active->trip_code }}</td>
+                    <td class="py-3 px-3">
+                      <div class="font-semibold text-ink flex items-center gap-1.5">
+                        <x-ui.badge tone="warning" size="xs">{{ $active->driver?->registration_number }}</x-ui.badge>
                         <span>{{ $active->driver?->name }}</span>
                       </div>
-                      <div class="text-[10px] text-stone-400">Plat: {{ $active->driver?->plate_number }}</div>
+                      <div class="text-xs text-muted">Plat: {{ $active->driver?->plate_number }}</div>
                     </td>
-                    <td class="py-3 text-stone-300">
-                      <div>{{ $active->passenger_name }}</div>
-                      <div class="text-[10px] text-stone-400">{{ $active->route }}</div>
+                    <td class="py-3 px-3">
+                      <div class="text-ink">{{ $active->passenger_name }}</div>
+                      <div class="text-xs text-muted">{{ $active->route }}</div>
                     </td>
-                    <td class="py-3 text-stone-300">
+                    <td class="py-3 px-3 text-muted tabular-nums whitespace-nowrap">
                       {{ $active->dispatched_at ? $active->dispatched_at->format('H:i') : '-' }} WIB
                     </td>
-                    <td class="py-3 text-right">
+                    <td class="py-3 px-4 text-right whitespace-nowrap">
                       <div class="flex items-center justify-end gap-1.5">
-                        <a href="{{ route('management.ojek.print_voucher', $active->id) }}" target="_blank" title="Cetak Ulang Voucher" class="px-2 py-1 bg-raised hover:bg-hover border border-line-strong rounded text-stone-300 hover:text-white transition flex items-center gap-1 text-[10px]">
-                          <span>Cetak</span>
-                        </a>
+                        <x-ui.button variant="secondary" size="sm" :href="route('management.ojek.print_voucher', $active->id)" target="_blank">Cetak</x-ui.button>
                         <form action="{{ route('management.ojek.complete', $active->id) }}" method="POST" class="inline" onsubmit="return confirm('Konfirmasi trip {{ $active->trip_code }} telah selesai sampai tujuan?')">
                           @csrf
-                          <button type="submit" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[10px] font-bold uppercase transition">
-                            ✓ Selesai Trip
-                          </button>
+                          <x-ui.button type="submit" variant="success" size="sm" icon="check">Selesai</x-ui.button>
                         </form>
                       </div>
                     </td>
@@ -215,101 +141,74 @@
             </table>
           </div>
         @endif
-      </div>
+      </x-ui.card>
 
     </div>
 
-    <!-- RIGHT COLUMN (1 COL): LIVE QUEUE ANTREAN DRIVER DI PANGKALAN -->
-    <div class="space-y-6">
-      
-      <div class="bg-surface border border-line rounded-xl p-5 space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-line">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <h3 class="font-display font-bold text-sm text-white uppercase tracking-wider">
-              Giliran Antrean Pangkalan
-            </h3>
-          </div>
-          <a href="{{ route('management.ojek.drivers') }}" class="text-[10px] text-brand hover:underline">
-            Kelola Driver →
-          </a>
-        </div>
-
-        <p class="text-[10px] text-stone-400">
-          Sistem giliran berurutan (FIFO). Driver yang baru kembali dari Pos 1 akan berada di urutan paling belakang.
-        </p>
-
+    <!-- RIGHT COLUMN (1 COL) -->
+    <div class="space-y-5">
+      <x-ui.card title="Antrean Pangkalan (FIFO)" subtitle="Driver kembali dari Pos 1 masuk urutan belakang" icon="users">
+        <x-slot:actions><a href="{{ route('management.ojek.drivers') }}" class="text-xs font-semibold text-brand hover:underline">Kelola →</a></x-slot:actions>
         <div class="space-y-2">
           @forelse($standbyDrivers as $index => $driver)
-            <div class="p-2.5 rounded-lg bg-raised border {{ $index === 0 ? 'border-emerald-500/50 bg-emerald-950/20' : 'border-line-strong' }} flex items-center justify-between">
-              <div class="flex items-center gap-2.5">
-                <div class="w-6 h-6 rounded flex items-center justify-center font-bold text-xs {{ $index === 0 ? 'bg-emerald-500 text-black' : 'bg-surface text-stone-400 border border-line-strong' }}">
+            <div class="p-2.5 rounded-xl bg-raised/70 ring-1 {{ $index === 0 ? 'ring-emerald-500/40 bg-emerald-950/20' : 'ring-line' }} flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 {{ $index === 0 ? 'bg-emerald-500 text-black' : 'bg-surface text-muted ring-1 ring-line' }}">
                   {{ $index + 1 }}
                 </div>
-                <div>
+                <div class="min-w-0">
                   <div class="flex items-center gap-1.5">
-                    <span class="font-bold text-white">{{ $driver->name }}</span>
-                    <span class="text-[10px] font-mono-tech text-amber-400">({{ $driver->registration_number }})</span>
+                    <span class="font-semibold text-sm text-ink truncate">{{ $driver->name }}</span>
+                    <span class="text-[11px] font-code text-amber-400 shrink-0">{{ $driver->registration_number }}</span>
                   </div>
-                  <div class="text-[10px] text-stone-400 font-mono-tech">
-                    Plat: <span class="text-stone-300 font-bold">{{ $driver->plate_number }}</span>
-                  </div>
+                  <div class="text-[11px] text-muted">Plat: <strong class="text-ink">{{ $driver->plate_number }}</strong></div>
                 </div>
               </div>
 
               @if($index === 0)
-                <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[9px] font-bold border border-emerald-500/40">
-                  GILIRAN 1
-                </span>
+                <x-ui.badge tone="success" size="xs">Giliran 1</x-ui.badge>
               @endif
             </div>
           @empty
-            <div class="py-6 text-center text-stone-500">
-              Tidak ada driver yang standby di pangkalan saat ini.
-            </div>
+            <x-ui.empty icon="users" title="Tidak ada driver standby" />
           @endforelse
         </div>
 
         @if($offDutyDrivers->isNotEmpty())
-          <div class="pt-3 border-t border-line">
-            <span class="text-[10px] text-stone-400 uppercase font-bold block mb-2">Driver Libur / Off Duty ({{ $offDutyDrivers->count() }}):</span>
+          <div class="mt-3 pt-3 border-t border-line">
+            <span class="text-[11px] text-muted font-semibold block mb-2">Driver Off Duty ({{ $offDutyDrivers->count() }})</span>
             <div class="flex flex-wrap gap-1.5">
               @foreach($offDutyDrivers as $off)
-                <span class="px-2 py-0.5 rounded bg-raised border border-line-strong text-[10px] text-stone-400">
-                  {{ $off->registration_number }} - {{ $off->name }}
-                </span>
+                <x-ui.badge size="xs">{{ $off->registration_number }} · {{ $off->name }}</x-ui.badge>
               @endforeach
             </div>
           </div>
         @endif
+      </x-ui.card>
 
-      </div>
-
-      <!-- Quick Action Card -->
-      <div class="p-4 bg-surface border border-line-strong rounded-xl space-y-3 font-mono-tech text-xs">
-        <span class="text-stone-300 font-bold uppercase block">AKSES CEPAT LOGISTIK:</span>
-        <div class="grid grid-cols-1 gap-2">
-          <a href="{{ route('management.ojek.settlements') }}" class="px-3 py-2 rounded-lg bg-raised hover:bg-hover border border-line-strong text-stone-200 hover:text-white flex items-center justify-between transition">
-            <span>Rekonsiliasi & Pencairan Payout</span>
-            <span class="text-emerald-400 font-bold">→</span>
+      <x-ui.card title="Akses Cepat Logistik" icon="grid">
+        <div class="space-y-2">
+          <a href="{{ route('management.ojek.settlements') }}" class="px-3.5 py-2.5 rounded-xl bg-raised hover:bg-hover ring-1 ring-line text-sm font-medium text-ink flex items-center justify-between transition">
+            <span>Rekonsiliasi &amp; Payout</span>
+            <x-ui.icon name="chevron-right" class="w-4 h-4 text-emerald-400" />
           </a>
-          <a href="{{ route('management.gate.index') }}" class="px-3 py-2 rounded-lg bg-raised hover:bg-hover border border-line-strong text-stone-200 hover:text-white flex items-center justify-between transition">
-            <span>Gate Check-In & Manifest</span>
-            <span class="text-cyan-400 font-bold">→</span>
+          <a href="{{ route('management.gate.index') }}" class="px-3.5 py-2.5 rounded-xl bg-raised hover:bg-hover ring-1 ring-line text-sm font-medium text-ink flex items-center justify-between transition">
+            <span>Gate Check-In &amp; Manifest</span>
+            <x-ui.icon name="chevron-right" class="w-4 h-4 text-sky-400" />
           </a>
-          <a href="{{ route('management.pos.index') }}" class="px-3 py-2 rounded-lg bg-raised hover:bg-hover border border-line-strong text-stone-200 hover:text-white flex items-center justify-between transition">
-            <span>Kasir POS Loket Terpadu</span>
-            <span class="text-brand font-bold">→</span>
+          <a href="{{ route('management.pos.index') }}" class="px-3.5 py-2.5 rounded-xl bg-raised hover:bg-hover ring-1 ring-line text-sm font-medium text-ink flex items-center justify-between transition">
+            <span>Kasir POS Basecamp</span>
+            <x-ui.icon name="chevron-right" class="w-4 h-4 text-brand" />
           </a>
         </div>
-      </div>
-
+      </x-ui.card>
     </div>
 
   </div>
 
 </div>
 
+@push('scripts')
 <script>
   function printTripWithSelectedDriver(tripId) {
     const select = document.getElementById('driver_select_' + tripId);
@@ -324,4 +223,5 @@
     }
   }
 </script>
+@endpush
 @endsection

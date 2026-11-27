@@ -125,10 +125,10 @@
         </div>
 
         <!-- Emergency Contact -->
-        <div class="p-3 bg-raised border border-line rounded-lg font-mono-tech text-xs space-y-1">
-          <span class="text-[10px] text-brand font-bold uppercase tracking-wider block">KONTAK DARURAT (KELUARGA TIDAK IKUT MENDAKI)</span>
-          <div class="flex justify-between items-center text-stone-300 pt-1">
-            <span>Nama: <strong class="text-white">{{ $registration->emergency_contact_name }}</strong> ({{ $registration->emergency_relationship }})</span>
+        <div class="p-3 bg-raised border border-line rounded-xl text-xs space-y-1">
+          <span class="text-[11px] text-brand font-bold uppercase tracking-wider block">Kontak Darurat (Keluarga Tidak Ikut Mendaki)</span>
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 text-muted pt-1">
+            <span>Nama: <strong class="text-ink">{{ $registration->emergency_contact_name }}</strong> ({{ $registration->emergency_relationship }})</span>
             <span>Telp: <a href="tel:{{ $registration->emergency_contact_phone }}" class="text-brand font-bold hover:underline">{{ $registration->emergency_contact_phone }}</a></span>
           </div>
         </div>
@@ -187,21 +187,46 @@
       </div>
 
       <!-- Climber Members Manifest Table -->
-      <div class="bg-surface border border-line rounded-xl p-5 space-y-4">
+      <div class="bg-surface border border-line rounded-2xl p-4 sm:p-5 space-y-4">
         <div class="flex items-center justify-between pb-3 border-b border-line">
           <div class="flex items-center gap-2">
             <div class="w-2.5 h-2.5 rounded-sm bg-brand"></div>
-            <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-white">
-              MANIFEST SELURUH ANGGOTA ROMBONGAN ({{ $registration->members->count() }} ORANG)
+            <h3 class="font-display font-bold text-xs uppercase tracking-wider text-ink">
+              Manifest Anggota Rombongan ({{ $registration->members->count() }} Orang)
             </h3>
           </div>
-          <span class="font-mono-tech text-[10px] text-stone-400">CREW ROSTER</span>
+          <span class="text-[10px] text-subtle">CREW ROSTER</span>
         </div>
 
-        <div class="overflow-x-auto">
-          <table class="w-full text-left font-mono-tech text-xs">
+        {{-- Mobile: kartu anggota --}}
+        <div class="lg:hidden space-y-2.5">
+          @foreach($registration->members as $idx => $m)
+            <div class="p-3 rounded-xl bg-raised/70 ring-1 ring-line space-y-1.5 text-xs">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-semibold text-sm text-ink">{{ $idx + 1 }}. {{ $m->full_name }}</span>
+                <div class="flex items-center gap-1 shrink-0">
+                  @if($m->is_leader)
+                    <x-ui.badge tone="brand" size="xs">Ketua</x-ui.badge>
+                  @endif
+                  @if($m->is_checked_in)
+                    <x-ui.badge tone="success" size="xs">Hadir</x-ui.badge>
+                  @endif
+                </div>
+              </div>
+              <p class="text-muted font-code">NIK: {{ $m->nik ?? '-' }}</p>
+              <p class="text-muted">{{ $m->gender === 'L' ? 'Laki-laki' : 'Perempuan' }} · {{ $m->city_origin ?? '-' }}</p>
+              @if($m->medical_conditions && $m->medical_conditions !== 'Tidak Ada')
+                <p class="text-amber-400 font-semibold">Medis: {{ $m->medical_conditions }}</p>
+              @endif
+            </div>
+          @endforeach
+        </div>
+
+        {{-- Desktop: tabel --}}
+        <div class="hidden lg:block overflow-x-auto">
+          <table class="w-full text-left text-xs">
             <thead>
-              <tr class="text-[10px] text-stone-400 uppercase border-b border-line">
+              <tr class="text-[10px] text-subtle uppercase border-b border-line">
                 <th class="pb-2">NO</th>
                 <th class="pb-2">NAMA LENGKAP</th>
                 <th class="pb-2">NIK</th>
@@ -215,18 +240,18 @@
             <tbody class="divide-y divide-line">
               @foreach($registration->members as $idx => $m)
                 <tr class="hover:bg-raised">
-                  <td class="py-2.5 text-stone-400">{{ $idx + 1 }}</td>
-                  <td class="py-2.5 font-bold text-white">{{ $m->full_name }}</td>
-                  <td class="py-2.5 text-stone-300">{{ $m->nik ?? '-' }}</td>
-                  <td class="py-2.5 text-stone-300">{{ $m->gender === 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
-                  <td class="py-2.5 text-stone-400">{{ $m->city_origin ?? '-' }}</td>
+                  <td class="py-2.5 text-muted">{{ $idx + 1 }}</td>
+                  <td class="py-2.5 font-bold text-ink">{{ $m->full_name }}</td>
+                  <td class="py-2.5 text-muted font-code">{{ $m->nik ?? '-' }}</td>
+                  <td class="py-2.5 text-muted">{{ $m->gender === 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                  <td class="py-2.5 text-muted">{{ $m->city_origin ?? '-' }}</td>
                   <td class="py-2.5">
                     @if($m->medical_conditions && $m->medical_conditions !== 'Tidak Ada')
                       <span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold">
                         [!] {{ $m->medical_conditions }}
                       </span>
                     @else
-                      <span class="text-stone-400 text-[10px]">Tidak Ada</span>
+                      <span class="text-subtle text-[10px]">Tidak Ada</span>
                     @endif
                   </td>
                   <td class="py-2.5">
@@ -235,14 +260,14 @@
                         KETUA TIM
                       </span>
                     @else
-                      <span class="text-stone-400 text-[10px]">Anggota</span>
+                      <span class="text-subtle text-[10px]">Anggota</span>
                     @endif
                   </td>
                   <td class="py-2.5">
                     @if($m->is_checked_in)
                       <span class="text-emerald-400 text-[10px] font-bold">✓ HADIR</span>
                     @else
-                      <span class="text-stone-400 text-[10px]">Belum</span>
+                      <span class="text-subtle text-[10px]">Belum</span>
                     @endif
                   </td>
                 </tr>
@@ -370,14 +395,14 @@
               @php
                 $defaultMethod = old('payment_method', $registration->payment_method ?? ($registration->payment_proof_path ? 'transfer' : 'cash_pos'));
               @endphp
-              <select id="payment_method" name="payment_method" class="w-full bg-raised border border-line-strong rounded-lg px-3 py-2 text-white font-mono-tech font-bold text-xs focus:outline-none focus:border-emerald-500">
+              <select id="payment_method" name="payment_method" class="field font-semibold">
                 <option value="qris" {{ $defaultMethod === 'qris' ? 'selected' : '' }}>QRIS Resmi Basecamp</option>
                 <option value="transfer" {{ in_array($defaultMethod, ['transfer', 'bank_transfer']) ? 'selected' : '' }}>Transfer Bank (BCA)</option>
                 <option value="cash_pos" {{ in_array($defaultMethod, ['cash', 'cash_pos']) ? 'selected' : '' }}>Uang Tunai (Cash Fisik Posko)</option>
               </select>
-              <p class="text-[9px] text-stone-400 mt-1">Uang non-tunai (QRIS & Transfer) tidak membebani laci fisik kasir posko.</p>
+              <p class="text-[11px] text-muted mt-1">Uang non-tunai (QRIS &amp; Transfer) tidak membebani laci fisik kasir posko.</p>
             </div>
-            <button type="submit" onclick="return confirm('Konfirmasi pembayaran LUNAS? Info pendakian & e-SIMAKSI akan dikirim otomatis ke WhatsApp ketua.')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-mono-tech font-bold text-xs uppercase tracking-wider rounded-lg transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
+            <button type="submit" onclick="return confirm('Konfirmasi pembayaran LUNAS? Info pendakian & e-SIMAKSI akan dikirim otomatis ke WhatsApp ketua.')" class="w-full h-11 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm rounded-xl transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
               <span>Konfirmasi lunas &amp; kirim WhatsApp</span>
             </button>
@@ -429,9 +454,9 @@
             <span class="block font-mono-tech text-[10px] text-amber-400 font-bold uppercase">MINTA PERBAIKAN BERKAS / DATA:</span>
             <form action="{{ route('management.simaksi.revision', $registration->id) }}" method="POST" class="space-y-2">
               @csrf
-              <textarea name="revision_notes" required rows="2" placeholder="Tuliskan instruksi perbaikan untuk ketua tim..." class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-xs font-mono-tech text-white focus:outline-none focus:border-amber-500">{{ $registration->revision_notes }}</textarea>
-              <button type="submit" class="w-full py-2 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 font-mono-tech font-bold text-xs rounded-lg transition">
-                KIRIM PERMINTAAN REVISI
+              <textarea name="revision_notes" required rows="2" placeholder="Tuliskan instruksi perbaikan untuk ketua tim..." class="field focus:!border-amber-500"></textarea>
+              <button type="submit" class="w-full h-10 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 font-semibold text-xs rounded-xl transition">
+                Kirim Permintaan Revisi
               </button>
             </form>
           </div>
@@ -440,12 +465,12 @@
         <!-- 3. REJECT FORM -->
         @if(!in_array($registration->status, array_merge(\App\Models\SimaksiRegistration::POST_PAYMENT_STATUSES, ['rejected'])))
           <div class="pt-3 border-t border-line space-y-2">
-            <span class="block font-mono-tech text-[10px] text-rose-400 font-bold uppercase">TOLAK PERMOHONAN:</span>
+            <span class="block text-[11px] text-rose-400 font-bold uppercase">Tolak Permohonan</span>
             <form action="{{ route('management.simaksi.reject', $registration->id) }}" method="POST" class="space-y-2">
               @csrf
-              <textarea name="rejection_reason" required rows="2" placeholder="Tuliskan alasan penolakan resmi (wajib)..." class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-xs font-mono-tech text-white focus:outline-none focus:border-rose-500"></textarea>
-              <button type="submit" onclick="return confirm('Yakin ingin MENOLAK permohonan SIMAKSI ini? Tindakan akan diaudit.')" class="w-full py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 font-mono-tech font-bold text-xs rounded-lg transition">
-                TOLAK PERMOHONAN RESMI
+              <textarea name="rejection_reason" required rows="2" placeholder="Tuliskan alasan penolakan resmi (wajib)..." class="field focus:!border-rose-500"></textarea>
+              <button type="submit" onclick="return confirm('Yakin ingin MENOLAK permohonan SIMAKSI ini? Tindakan akan diaudit.')" class="w-full h-10 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 font-semibold text-xs rounded-xl transition">
+                Tolak Permohonan Resmi
               </button>
             </form>
           </div>

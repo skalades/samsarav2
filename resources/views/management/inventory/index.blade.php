@@ -1,208 +1,218 @@
 @extends('management.layout')
 
 @section('title', 'Inventori & Sewa Alat')
-@section('page_title', 'Manajemen Inventori & Persewaan Alat')
-@section('page_subtitle', 'Stok Alat Gunung, Serah-Terima Peminjaman, & Pengecekan Kondisi Fisik Pengembalian')
+@section('page_title', 'Inventori & Persewaan Alat')
+@section('page_subtitle', 'Stok alat gunung, serah-terima peminjaman, & cek kondisi pengembalian')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-5">
 
   <!-- ======================================================== -->
-  <!-- 1. ACTIVE EQUIPMENT RENTALS TABLE                        -->
+  <!-- 1. ACTIVE EQUIPMENT RENTALS                              -->
   <!-- ======================================================== -->
-  <div class="bg-surface border border-line rounded-xl p-5 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-line">
-      <div class="flex items-center gap-2">
-        <span class="w-2.5 h-2.5 rounded-sm bg-brand"></span>
-        <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-white">
-          ALAT YANG SEDANG DISEWA / DI PINJAM ({{ $activeRentals->count() }} DATA)
-        </h3>
-      </div>
-      <span class="text-[10px] text-stone-400">SERAH TERIMA PINJAM AKTIF</span>
+  <x-ui.card :title="'Alat Sedang Disewa / Dipinjam ('.$activeRentals->count().')'" subtitle="Serah terima peminjaman aktif" icon="box" :padding="false">
+    {{-- Mobile: kartu --}}
+    <div class="lg:hidden divide-y divide-line">
+      @forelse($activeRentals as $rental)
+        <div class="p-3.5 space-y-2.5">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <p class="font-semibold text-sm text-ink">{{ $rental->item_name }} <span class="text-brand font-bold">({{ $rental->quantity }} Unit)</span></p>
+              <p class="text-xs text-muted mt-0.5">Peminjam: <strong class="text-ink">{{ $rental->customer_name }}</strong></p>
+              @if($rental->simaksi)
+                <p class="text-[11px] font-code text-brand-soft mt-0.5">SIMAKSI: {{ $rental->simaksi->registration_code }}</p>
+              @endif
+              <p class="text-[11px] text-subtle mt-1">Kondisi: {{ $rental->condition_out }} · {{ $rental->handed_out_at ? $rental->handed_out_at->format('d/m H:i') : '-' }}</p>
+            </div>
+          </div>
+          <x-ui.button variant="success" size="sm" block icon="check" onclick="openReturnModal({{ $rental->id }}, '{{ addslashes($rental->item_name) }}', '{{ addslashes($rental->customer_name) }}', {{ $rental->quantity }})">
+            Terima Pengembalian
+          </x-ui.button>
+        </div>
+      @empty
+        <x-ui.empty icon="box" title="Tidak ada alat sedang dipinjam" />
+      @endforelse
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="w-full text-left font-mono-tech text-xs">
-        <thead>
-          <tr class="text-[10px] text-stone-400 uppercase border-b border-line">
-            <th class="pb-2">NAMA ALAT</th>
-            <th class="pb-2">JUMLAH</th>
-            <th class="pb-2">PEMINJAM / KETUA</th>
-            <th class="pb-2">KONDISI SAAT SERAH</th>
-            <th class="pb-2">PETUGAS PENYERAH</th>
-            <th class="pb-2">WAKTU AMBIL</th>
-            <th class="pb-2 text-right">AKSI</th>
+    {{-- Desktop: tabel --}}
+    <div class="hidden lg:block overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-raised/40 border-b border-line text-[11px] text-subtle uppercase">
+          <tr>
+            <th class="py-3 px-4 font-semibold">Nama Alat</th>
+            <th class="py-3 px-3 font-semibold">Jumlah</th>
+            <th class="py-3 px-3 font-semibold">Peminjam / Ketua</th>
+            <th class="py-3 px-3 font-semibold">Kondisi Serah</th>
+            <th class="py-3 px-3 font-semibold">Petugas</th>
+            <th class="py-3 px-3 font-semibold">Waktu Ambil</th>
+            <th class="py-3 px-4 font-semibold text-right">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-line">
           @forelse($activeRentals as $rental)
-            <tr class="hover:bg-raised">
-              <td class="py-3 font-bold text-white">{{ $rental->item_name }}</td>
-              <td class="py-3 font-bold text-brand">{{ $rental->quantity }} Unit</td>
-              <td class="py-3 text-stone-200">
+            <tr class="hover:bg-hover/40">
+              <td class="py-3 px-4 font-semibold text-ink">{{ $rental->item_name }}</td>
+              <td class="py-3 px-3 font-bold text-brand whitespace-nowrap">{{ $rental->quantity }} Unit</td>
+              <td class="py-3 px-3 text-ink">
                 <div>{{ $rental->customer_name }}</div>
                 @if($rental->simaksi)
-                  <span class="text-[9px] text-stone-400">SIMAKSI: {{ $rental->simaksi->registration_code }}</span>
+                  <span class="text-[11px] font-code text-muted">SIMAKSI: {{ $rental->simaksi->registration_code }}</span>
                 @endif
               </td>
-              <td class="py-3 text-stone-300">{{ $rental->condition_out }}</td>
-              <td class="py-3 text-stone-400">{{ $rental->handedOfficer?->name ?? 'Kasir Pos' }}</td>
-              <td class="py-3 text-stone-400">{{ $rental->handed_out_at ? $rental->handed_out_at->format('d/m H:i') : '-' }}</td>
-              <td class="py-3 text-right">
-                <button type="button" onclick="openReturnModal({{ $rental->id }}, '{{ addslashes($rental->item_name) }}', '{{ addslashes($rental->customer_name) }}', {{ $rental->quantity }})" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[10px] transition">
-                  TERIMA PENGEMBALIAN
-                </button>
+              <td class="py-3 px-3 text-muted">{{ $rental->condition_out }}</td>
+              <td class="py-3 px-3 text-muted">{{ $rental->handedOfficer?->name ?? 'Kasir Pos' }}</td>
+              <td class="py-3 px-3 text-muted whitespace-nowrap tabular-nums">{{ $rental->handed_out_at ? $rental->handed_out_at->format('d/m H:i') : '-' }}</td>
+              <td class="py-3 px-4 text-right whitespace-nowrap">
+                <x-ui.button variant="success" size="sm" onclick="openReturnModal({{ $rental->id }}, '{{ addslashes($rental->item_name) }}', '{{ addslashes($rental->customer_name) }}', {{ $rental->quantity }})">
+                  Terima Pengembalian
+                </x-ui.button>
               </td>
             </tr>
           @empty
-            <tr>
-              <td colspan="7" class="py-6 text-center text-stone-400">Saat ini tidak ada alat gunung yang sedang dipinjam.</td>
-            </tr>
+            <tr><td colspan="7"><x-ui.empty icon="box" title="Saat ini tidak ada alat gunung yang sedang dipinjam" /></td></tr>
           @endforelse
         </tbody>
       </table>
     </div>
-  </div>
+  </x-ui.card>
 
   <!-- ======================================================== -->
-  <!-- 2. INVENTORY CATALOG & STOCK TABLE                       -->
+  <!-- 2. INVENTORY CATALOG & STOCK                             -->
   <!-- ======================================================== -->
-  <div class="bg-surface border border-line rounded-xl p-5 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-line">
-      <div class="flex items-center gap-2">
-        <span class="w-2.5 h-2.5 rounded-sm bg-brand"></span>
-        <h3 class="font-mono-tech font-bold text-xs uppercase tracking-wider text-white">
-          KATALOG ALAT & LOGISTIK OPERASIONAL BASECAMP
-        </h3>
-      </div>
-      <span class="text-[10px] text-stone-400">TOTAL: {{ $items->count() }} SKU</span>
+  <x-ui.card title="Katalog Alat & Logistik Basecamp" :subtitle="'Total '.$items->count().' SKU'" icon="list" :padding="false">
+    {{-- Mobile: kartu --}}
+    <div class="lg:hidden divide-y divide-line">
+      @foreach($items as $item)
+        <div class="p-3.5 flex items-center justify-between gap-3">
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="font-code text-xs font-bold text-brand">{{ $item->sku }}</span>
+              <x-ui.badge :tone="$item->type === 'rental' ? 'info' : ($item->type === 'service' ? 'warning' : 'success')" size="xs">{{ strtoupper($item->type) }}</x-ui.badge>
+            </div>
+            <p class="font-semibold text-sm text-ink truncate mt-1">{{ $item->name }}</p>
+            <p class="text-xs text-muted mt-0.5 tabular-nums">
+              <strong class="text-ink">Rp {{ number_format($item->price, 0, ',', '.') }}</strong> ·
+              Stok: <strong class="{{ $item->stock_available < 5 && $item->type !== 'service' ? 'text-amber-400' : 'text-ink' }}">{{ $item->type === 'service' ? '∞' : $item->stock_available.' '.$item->unit }}</strong>
+            </p>
+          </div>
+          <x-ui.button variant="secondary" size="sm" onclick="openStockModal({{ $item->id }}, '{{ addslashes($item->name) }}', {{ $item->stock_available }}, {{ $item->price }}, {{ $item->is_active ? 'true' : 'false' }})">
+            Ubah
+          </x-ui.button>
+        </div>
+      @endforeach
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="w-full text-left font-mono-tech text-xs">
-        <thead>
-          <tr class="text-[10px] text-stone-400 uppercase border-b border-line">
-            <th class="pb-2">SKU</th>
-            <th class="pb-2">NAMA BARANG / LAYANAN</th>
-            <th class="pb-2">KATEGORI</th>
-            <th class="pb-2">TIPE</th>
-            <th class="pb-2">TARIF RESMI</th>
-            <th class="pb-2">STOK TERSEDIA</th>
-            <th class="pb-2">TOTAL</th>
-            <th class="pb-2 text-right">AKSI</th>
+    {{-- Desktop: tabel --}}
+    <div class="hidden lg:block overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-raised/40 border-b border-line text-[11px] text-subtle uppercase">
+          <tr>
+            <th class="py-3 px-4 font-semibold">SKU</th>
+            <th class="py-3 px-3 font-semibold">Nama Barang / Layanan</th>
+            <th class="py-3 px-3 font-semibold">Kategori</th>
+            <th class="py-3 px-3 font-semibold">Tipe</th>
+            <th class="py-3 px-3 font-semibold text-right">Tarif Resmi</th>
+            <th class="py-3 px-3 font-semibold text-right">Stok</th>
+            <th class="py-3 px-3 font-semibold text-right">Total</th>
+            <th class="py-3 px-4 font-semibold text-right">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-line">
           @foreach($items as $item)
-            <tr class="hover:bg-raised">
-              <td class="py-2.5 font-bold text-brand">{{ $item->sku }}</td>
-              <td class="py-2.5 font-bold text-white">{{ $item->name }}</td>
-              <td class="py-2.5 text-stone-400 uppercase text-[10px]">{{ $item->category }}</td>
-              <td class="py-2.5">
-                <span class="px-2 py-0.5 rounded text-[9px] font-bold {{ $item->type === 'rental' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30' : ($item->type === 'service' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30') }}">
+            <tr class="hover:bg-hover/40">
+              <td class="py-3 px-4 font-code font-bold text-brand whitespace-nowrap">{{ $item->sku }}</td>
+              <td class="py-3 px-3 font-semibold text-ink">{{ $item->name }}</td>
+              <td class="py-3 px-3 text-muted uppercase text-xs">{{ $item->category }}</td>
+              <td class="py-3 px-3">
+                <x-ui.badge :tone="$item->type === 'rental' ? 'info' : ($item->type === 'service' ? 'warning' : 'success')" size="xs">
                   {{ strtoupper($item->type) }}
-                </span>
+                </x-ui.badge>
               </td>
-              <td class="py-2.5 text-white font-bold">Rp {{ number_format($item->price, 0, ',', '.') }}</td>
-              <td class="py-2.5 font-bold {{ $item->stock_available < 5 && $item->type !== 'service' ? 'text-amber-400' : 'text-stone-300' }}">
+              <td class="py-3 px-3 text-right text-ink font-semibold tabular-nums whitespace-nowrap">Rp {{ number_format($item->price, 0, ',', '.') }}</td>
+              <td class="py-3 px-3 text-right font-semibold tabular-nums {{ $item->stock_available < 5 && $item->type !== 'service' ? 'text-amber-400' : 'text-ink' }}">
                 {{ $item->type === 'service' ? '∞' : $item->stock_available . ' ' . $item->unit }}
               </td>
-              <td class="py-2.5 text-stone-400">
+              <td class="py-3 px-3 text-right text-muted tabular-nums">
                 {{ $item->type === 'service' ? '∞' : $item->stock_total }}
               </td>
-              <td class="py-2.5 text-right">
-                <button type="button" onclick="openStockModal({{ $item->id }}, '{{ addslashes($item->name) }}', {{ $item->stock_available }}, {{ $item->price }}, {{ $item->is_active ? 'true' : 'false' }})" class="px-2 py-1 bg-raised hover:bg-hover text-stone-300 rounded text-[10px]">
+              <td class="py-3 px-4 text-right whitespace-nowrap">
+                <x-ui.button variant="secondary" size="sm" onclick="openStockModal({{ $item->id }}, '{{ addslashes($item->name) }}', {{ $item->stock_available }}, {{ $item->price }}, {{ $item->is_active ? 'true' : 'false' }})">
                   Ubah Stok
-                </button>
+                </x-ui.button>
               </td>
             </tr>
           @endforeach
         </tbody>
       </table>
     </div>
-  </div>
+  </x-ui.card>
 
 </div>
 
-<!-- Modal Terima Pengembalian Alat -->
-<div id="returnModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-surface border border-line-strong rounded-xl max-w-md w-full p-5 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-line">
-      <h3 class="font-display font-bold text-sm text-white uppercase" id="returnModalTitle">TERIMA PENGEMBALIAN ALAT</h3>
-      <button onclick="closeReturnModal()" class="text-stone-400 hover:text-white font-bold">✕</button>
+<x-ui.modal id="returnModal" title="Terima Pengembalian Alat" eyebrow="Serah Terima" maxWidth="sm:max-w-md" onclose="closeReturnModal()">
+  <form id="returnForm" method="POST" class="space-y-4">
+    @csrf
+    <div>
+      <label class="label">Kondisi Alat Saat Kembali</label>
+      <select name="status" id="retStatus" onchange="checkDamagePenalty(this.value)" class="field">
+        <option value="returned_good">Bagus / Utuh &amp; Bersih (Stok dikembalikan)</option>
+        <option value="damaged">Rusak Ringan / Robek / Frame Patah (Kena Denda)</option>
+        <option value="lost">Hilang (Wajib Ganti Unit)</option>
+      </select>
     </div>
 
-    <form id="returnForm" method="POST" class="space-y-3">
-      @csrf
-      <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">KONDISI ALAT SAAT KEMBALI:</label>
-        <select name="status" id="retStatus" onchange="checkDamagePenalty(this.value)" class="w-full bg-raised border border-line-strong rounded-lg p-2 text-white">
-          <option value="returned_good">Bagus / Utuh & Bersih (Stok dikembalikan)</option>
-          <option value="damaged">Rusak Ringan / Robek / Frame Patah (Kena Denda)</option>
-          <option value="lost">Hilang (Wajib Ganti Unit)</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">CATATAN FISIK ALAT:</label>
-        <input type="text" name="condition_in" value="Lengkap & bersih tanpa cacat" required class="w-full bg-raised border border-line-strong rounded-lg p-2 text-white text-xs">
-      </div>
-
-      <div id="penaltyBox" class="hidden">
-        <label class="block text-[10px] text-rose-400 uppercase mb-1 font-bold">DENDA KERUSAKAN / GANTI RUGI (RP):</label>
-        <div class="relative">
-          <span class="absolute left-3 top-2 text-stone-500 font-bold">Rp</span>
-          <input type="text" inputmode="numeric" data-currency-input name="damage_penalty" value="0" class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold">
-        </div>
-      </div>
-
-      <div class="flex justify-end gap-2 pt-2">
-        <button type="button" onclick="closeReturnModal()" class="px-4 py-2 bg-raised text-stone-300 rounded-lg">BATAL</button>
-        <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg">SIMPAN PENGEMBALIAN</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Modal Update Stok Item -->
-<div id="stockModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-surface border border-line-strong rounded-xl max-w-md w-full p-5 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-line">
-      <h3 class="font-display font-bold text-sm text-white uppercase" id="stockModalTitle">UBAH STOK & HARGA</h3>
-      <button onclick="closeStockModal()" class="text-stone-400 hover:text-white font-bold">✕</button>
+    <div>
+      <label class="label">Catatan Fisik Alat</label>
+      <input type="text" name="condition_in" value="Lengkap & bersih tanpa cacat" required class="field">
     </div>
 
-    <form id="stockForm" method="POST" class="space-y-3">
-      @csrf
-      <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">STOK TERSEDIA SAAT INI:</label>
-        <input type="number" name="stock_available" id="stockAvailInput" min="0" required class="w-full bg-raised border border-line-strong rounded-lg p-2 text-white font-bold">
+    <div id="penaltyBox" class="hidden">
+      <label class="label !text-rose-400">Denda Kerusakan / Ganti Rugi (Rp)</label>
+      <div class="relative">
+        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted font-semibold text-sm">Rp</span>
+        <input type="text" inputmode="numeric" data-currency-input name="damage_penalty" value="0" class="field !pl-10 font-bold">
       </div>
+    </div>
 
-      <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">TARIF RESMI (RP):</label>
-        <div class="relative">
-          <span class="absolute left-3 top-2 text-stone-500 font-bold">Rp</span>
-          <input type="text" inputmode="numeric" data-currency-input name="price" id="stockPriceInput" required class="w-full bg-raised border border-line-strong rounded-lg pl-10 pr-3 py-2 text-white font-bold">
-        </div>
+    <div class="flex justify-end gap-2 pt-2 border-t border-line">
+      <x-ui.button variant="secondary" onclick="closeReturnModal()">Batal</x-ui.button>
+      <x-ui.button type="submit" variant="success" icon="check">Simpan Pengembalian</x-ui.button>
+    </div>
+  </form>
+</x-ui.modal>
+
+<x-ui.modal id="stockModal" title="Ubah Stok & Harga" eyebrow="Inventori" maxWidth="sm:max-w-md" onclose="closeStockModal()">
+  <form id="stockForm" method="POST" class="space-y-4">
+    @csrf
+    <div>
+      <label class="label">Stok Tersedia Saat Ini</label>
+      <input type="number" name="stock_available" id="stockAvailInput" min="0" required class="field font-bold">
+    </div>
+
+    <div>
+      <label class="label">Tarif Resmi (Rp)</label>
+      <div class="relative">
+        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted font-semibold text-sm">Rp</span>
+        <input type="text" inputmode="numeric" data-currency-input name="price" id="stockPriceInput" required class="field !pl-10 font-bold">
       </div>
+    </div>
 
-      <label class="flex items-center gap-2 pt-1 cursor-pointer">
-        <input type="checkbox" name="is_active" id="stockIsActive" value="1" class="rounded bg-black text-brand">
-        <span class="text-stone-200">Item Aktif di Katalog POS</span>
-      </label>
+    <label class="flex items-center gap-2.5 pt-1 cursor-pointer select-none">
+      <input type="checkbox" name="is_active" id="stockIsActive" value="1" class="w-5 h-5 rounded accent-orange-500">
+      <span class="text-sm text-ink">Item Aktif di Katalog POS</span>
+    </label>
 
-      <div class="flex justify-end gap-2 pt-2">
-        <button type="button" onclick="closeStockModal()" class="px-4 py-2 bg-raised text-stone-300 rounded-lg">BATAL</button>
-        <button type="submit" class="px-4 py-2 bg-brand text-black font-bold rounded-lg">SIMPAN</button>
-      </div>
-    </form>
-  </div>
-</div>
+    <div class="flex justify-end gap-2 pt-2 border-t border-line">
+      <x-ui.button variant="secondary" onclick="closeStockModal()">Batal</x-ui.button>
+      <x-ui.button type="submit" icon="check">Simpan</x-ui.button>
+    </div>
+  </form>
+</x-ui.modal>
 
+@push('scripts')
 <script>
   function openReturnModal(id, itemName, customerName, qty) {
-    document.getElementById('returnModalTitle').innerText = 'PENGEMBALIAN: ' + itemName + ' (' + qty + ' Unit)';
+    document.getElementById('returnModalTitle').innerText = 'Pengembalian: ' + itemName + ' (' + qty + ' Unit)';
     document.getElementById('returnForm').action = '/management/inventory/return/' + id;
     document.getElementById('returnModal').classList.remove('hidden');
   }
@@ -213,15 +223,12 @@
 
   function checkDamagePenalty(val) {
     const box = document.getElementById('penaltyBox');
-    if (val === 'damaged' || val === 'lost') {
-      box.classList.remove('hidden');
-    } else {
-      box.classList.add('hidden');
-    }
+    if (val === 'damaged' || val === 'lost') box.classList.remove('hidden');
+    else box.classList.add('hidden');
   }
 
   function openStockModal(id, name, stock, price, isActive) {
-    document.getElementById('stockModalTitle').innerText = 'UBAH DATA: ' + name;
+    document.getElementById('stockModalTitle').innerText = 'Ubah Data: ' + name;
     document.getElementById('stockAvailInput').value = stock;
     if (typeof setCurrencyInputValue === 'function') {
       setCurrencyInputValue('stockPriceInput', price);
@@ -237,4 +244,5 @@
     document.getElementById('stockModal').classList.add('hidden');
   }
 </script>
+@endpush
 @endsection

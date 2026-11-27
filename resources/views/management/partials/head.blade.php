@@ -66,7 +66,9 @@
   html, body { background-color: #0B0D10; }
   @if($lockViewport ?? true)
   /* Shell aplikasi (backoffice): viewport terkunci, hanya area konten yang menggulir */
-  html, body { height: 100%; height: 100dvh; overflow: hidden; }
+  html, body { height: 100%; height: 100dvh; overflow: hidden; overscroll-behavior: none; }
+  @else
+  html, body { overflow-x: clip; }
   @endif
   body {
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
@@ -79,9 +81,9 @@
   /* Gaya lama "terminal" kini memakai Inter + angka tabular agar lebih mudah dibaca */
   .font-mono-tech { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; font-variant-numeric: tabular-nums; }
 
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #2F3641; border-radius: 8px; border: 2px solid #0B0D10; }
+  ::-webkit-scrollbar-thumb { background: #2F3641; border-radius: 8px; }
   ::-webkit-scrollbar-thumb:hover { background: #3B4350; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { scrollbar-width: none; }
@@ -90,9 +92,17 @@
   .safe-top { padding-top: env(safe-area-inset-top); }
 
   input, select, textarea { color-scheme: dark; }
+  /* Cegah auto-zoom browser mobile saat fokus input */
+  @media (max-width: 1023px) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  }
   .field { width: 100%; height: 2.75rem; border-radius: 0.75rem; background: #0B0D10; border: 1px solid #2F3641; padding: 0 0.875rem; font-size: 1rem; color: #ECEFF3; outline: none; transition: border-color .15s, box-shadow .15s; }
-  @media (min-width: 1024px) { .field { font-size: 0.9375rem; } }
-  textarea.field { height: auto; padding: 0.625rem 0.875rem; }
+  @media (min-width: 1024px) { .field { height: 2.5rem; font-size: 0.875rem; } }
+  textarea.field { height: auto; min-height: 4.75rem; padding: 0.625rem 0.875rem; }
   .field:focus { border-color: #FF5722; box-shadow: 0 0 0 3px rgba(255, 87, 34, .15); }
   .field::placeholder { color: #6E7887; }
   .label { display: block; font-size: 0.75rem; font-weight: 600; color: #A0A9B6; margin-bottom: 0.375rem; }
@@ -109,7 +119,7 @@
   }
   html.force-mobile #appShell {
     width: 100%;
-    max-width: 440px;
+    max-width: 430px;
     height: 100%;
     height: 100dvh;
     margin-left: auto;

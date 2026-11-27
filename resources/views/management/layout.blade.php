@@ -33,9 +33,9 @@
   <!-- ================================================================ -->
   <!-- SIDEBAR (desktop) / DRAWER (mobile)                              -->
   <!-- ================================================================ -->
-  <aside id="mgmtSidebar" class="absolute lg:relative inset-y-0 left-0 z-40 w-[84%] max-w-[300px] lg:w-[260px] lg:max-w-none -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-out bg-surface border-r border-line flex flex-col shrink-0">
+  <aside id="mgmtSidebar" class="absolute lg:relative inset-y-0 left-0 z-40 w-[82%] max-w-[290px] lg:w-[236px] lg:max-w-none -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-out bg-surface border-r border-line flex flex-col shrink-0">
 
-    <div class="h-16 px-4 flex items-center justify-between border-b border-line shrink-0">
+    <div class="h-14 lg:h-[60px] px-4 flex items-center justify-between border-b border-line shrink-0">
       <a href="{{ route('management.dashboard') }}" class="flex items-center gap-2.5 min-w-0">
         @if($profile['logo'])
           <img src="{{ asset('storage/'.$profile['logo']) }}" alt="Logo" class="w-9 h-9 rounded-xl object-contain bg-raised ring-1 ring-line p-0.5">
@@ -118,30 +118,30 @@
   <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
     <header class="bg-canvas/90 backdrop-blur border-b border-line shrink-0 safe-top">
-      <div class="h-14 lg:h-16 px-3 lg:px-6 flex items-center justify-between gap-2">
+      <div class="h-14 lg:h-[60px] px-3 sm:px-5 lg:px-8 max-w-[1160px] mx-auto w-full flex items-center justify-between gap-2">
         <div class="flex items-center gap-2.5 min-w-0 flex-1">
           @if($hasDrawer)
-            <button type="button" onclick="toggleMgmtSidebar(true)" class="lg:hidden w-10 h-10 shrink-0 rounded-xl bg-raised ring-1 ring-line text-ink flex items-center justify-center" aria-label="Buka menu">
+            <button type="button" onclick="toggleMgmtSidebar(true)" class="lg:hidden w-10 h-10 shrink-0 rounded-xl bg-raised ring-1 ring-line text-ink flex items-center justify-center active:scale-95 transition" aria-label="Buka menu">
               <x-ui.icon name="menu" class="w-5 h-5" />
             </button>
           @else
             <span class="lg:hidden w-9 h-9 shrink-0 rounded-xl bg-brand/15 ring-1 ring-brand/30 flex items-center justify-center text-brand"><x-ui.icon name="mountain" class="w-5 h-5" /></span>
           @endif
           <div class="min-w-0">
-            <h2 class="font-display font-semibold text-[15px] lg:text-lg text-ink leading-tight truncate">@yield('page_title', 'Dashboard')</h2>
+            <h2 class="font-display font-semibold text-[15px] lg:text-base text-ink leading-tight truncate">@yield('page_title', 'Dashboard')</h2>
             <p class="hidden sm:block text-xs text-muted truncate">@yield('page_subtitle', $profile['mountain'].' · '.now()->translatedFormat('l, d F Y'))</p>
           </div>
         </div>
 
         <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {{-- PWA Status Jaringan Lapangan (Real-time Online/Offline) --}}
-          <div class="pwa-net-badge inline-flex items-center gap-1.5 h-8 px-2 sm:px-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-[10px] sm:text-[11px] font-semibold transition" title="Status Jaringan Lapangan">
+          <div class="pwa-net-badge inline-flex items-center gap-1.5 h-8 px-2 sm:px-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold transition" title="Status Jaringan Lapangan">
             <span class="pwa-net-dot w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
-            <span class="pwa-net-label">Online</span>
+            <span class="pwa-net-label hidden sm:inline">Online</span>
           </div>
 
-          {{-- PWA Tombol Pasang Aplikasi (Muncul otomatis jika peramban mendukung & belum terpasang) --}}
-          <button type="button" class="pwa-install-trigger pwa-btn-install hidden h-9 px-2.5 sm:px-3 rounded-xl bg-brand text-white text-xs font-semibold items-center gap-1.5 shadow-md shadow-brand/25 active:scale-95 transition" title="Pasang aplikasi SAMSARA OPS ke perangkat">
+          {{-- PWA Tombol Pasang Aplikasi (Desktop/tablet header; di ponsel ada di drawer & profil) --}}
+          <button type="button" class="pwa-install-trigger pwa-btn-install hidden h-9 px-2.5 sm:px-3 rounded-xl bg-brand text-white text-xs font-semibold items-center gap-1.5 shadow-md shadow-brand/25 active:scale-95 transition max-sm:!hidden" title="Pasang aplikasi SAMSARA OPS ke perangkat">
             <x-ui.icon name="download" class="w-4 h-4" />
             <span class="hidden md:inline">Install App</span>
           </button>
@@ -215,8 +215,8 @@
       </div>
     </header>
 
-    <main class="flex-1 overflow-y-auto overflow-x-hidden">
-      <div class="w-full max-w-[1440px] mx-auto p-3 sm:p-4 lg:p-6 pb-8">
+    <main class="flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain scroll-pb-24">
+      <div class="w-full max-w-[1160px] mx-auto px-3.5 py-3.5 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pb-8">
         <!-- Notifikasi -->
         @if(session('success') || session('error') || $errors->any())
           <div class="mb-4 space-y-2">

@@ -23,57 +23,62 @@
 
   {{-- ================= HERO ================= --}}
   <section class="relative overflow-hidden rounded-3xl ring-1 ring-line bg-surface">
-    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,87,34,.25),transparent_55%)]"></div>
-    <svg class="absolute inset-x-0 bottom-0 w-full h-[55%] md:h-[70%]" viewBox="0 0 1200 400" preserveAspectRatio="none" aria-hidden="true">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,87,34,.22),transparent_55%)]"></div>
+    <svg class="absolute inset-x-0 bottom-0 w-full h-[55%] md:h-[65%] opacity-70 pointer-events-none" viewBox="0 0 1200 400" preserveAspectRatio="none" aria-hidden="true">
       <defs>
         <linearGradient id="mtnBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2F3641"/><stop offset="1" stop-color="#181C22"/></linearGradient>
         <linearGradient id="mtnFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1F242C"/><stop offset="1" stop-color="#12151A"/></linearGradient>
       </defs>
       <path fill="url(#mtnBack)" opacity=".7" d="M0 400 L0 300 L180 230 L320 270 L470 170 L600 230 L760 150 L900 220 L1060 190 L1200 240 L1200 400 Z"/>
       <path fill="url(#mtnFront)" d="M0 400 L0 340 L260 300 L520 120 L600 60 L680 120 L940 300 L1200 330 L1200 400 Z"/>
-      <path fill="#ECEFF3" opacity=".9" d="M560 90 L600 60 L640 90 L622 98 L608 86 L596 100 L580 92 Z"/>
+      <path fill="#ECEFF3" opacity=".85" d="M560 90 L600 60 L640 90 L622 98 L608 86 L596 100 L580 92 Z"/>
     </svg>
 
-    <div class="relative px-5 pt-8 pb-44 sm:px-8 md:px-12 md:pt-14 md:pb-56 max-w-3xl">
-      <div class="flex flex-wrap gap-2 mb-5">
-        <span class="inline-flex items-center gap-2 h-8 px-3 rounded-full bg-canvas/70 ring-1 ring-line text-xs font-semibold {{ $statusMeta[2] }}">
-          <span class="relative flex w-2 h-2"><span class="absolute inline-flex w-full h-full rounded-full {{ $statusMeta[1] }} opacity-60 animate-ping"></span><span class="relative inline-flex w-2 h-2 rounded-full {{ $statusMeta[1] }}"></span></span>
-          {{ $statusMeta[0] }}
-        </span>
-        <span class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-canvas/70 ring-1 ring-line text-xs text-muted">
-          Kuota hari ini <strong class="text-ink tabular-nums">{{ $remaining }}</strong>/{{ $maxQuota }}
-        </span>
-        @if($trailCondition?->night_temp_celsius)
-          <span class="hidden sm:inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-canvas/70 ring-1 ring-line text-xs text-muted">Suhu malam <strong class="text-ink">{{ $trailCondition->night_temp_celsius }}</strong></span>
-        @endif
+    <div class="relative p-5 sm:p-7 lg:p-9 grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8 items-end">
+      <div class="lg:col-span-7">
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span class="inline-flex items-center gap-2 h-7 px-2.5 rounded-full bg-canvas/75 ring-1 ring-line text-xs font-semibold {{ $statusMeta[2] }}">
+            <span class="relative flex w-2 h-2"><span class="absolute inline-flex w-full h-full rounded-full {{ $statusMeta[1] }} opacity-60 animate-ping"></span><span class="relative inline-flex w-2 h-2 rounded-full {{ $statusMeta[1] }}"></span></span>
+            {{ $statusMeta[0] }}
+          </span>
+          <span class="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full bg-canvas/75 ring-1 ring-line text-xs text-muted">
+            Kuota hari ini <strong class="text-ink tabular-nums">{{ $remaining }}</strong>/{{ $maxQuota }}
+          </span>
+          @if($trailCondition?->night_temp_celsius)
+            <span class="hidden sm:inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full bg-canvas/75 ring-1 ring-line text-xs text-muted">Suhu malam <strong class="text-ink">{{ $trailCondition->night_temp_celsius }}</strong></span>
+          @endif
+        </div>
+
+        <h1 class="font-display font-bold text-[28px] leading-[1.12] sm:text-4xl lg:text-[44px] text-ink tracking-tight">
+          Mendaki {{ $mountain }},<br><span class="text-brand">tertib dari gerbang</span> sampai puncak.
+        </h1>
+        <p class="mt-3 text-sm sm:text-base text-muted max-w-xl leading-relaxed">
+          Pesan <strong class="text-ink font-semibold">SIMAKSI online {{ $mountain }}</strong> resmi via {{ $basecamp }}. E-tiket dikirim ke WhatsApp, rombongan diperiksa di gerbang, dan setiap pos dipantau ranger.
+        </p>
+
+        <div class="mt-5 flex flex-col sm:flex-row gap-2.5 sm:gap-3">
+          <button type="button" onclick="App.nav.switchTab('sec-booking')" class="tap-active h-12 px-6 rounded-xl bg-brand hover:bg-brand-hover text-white text-sm sm:text-base font-semibold flex items-center justify-center gap-2 shadow-lg shadow-brand/25">
+            Pesan SIMAKSI <x-ui.icon name="arrow-right" class="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+          <button type="button" onclick="App.modal.open('ticketModal')" class="tap-active h-12 px-5 rounded-xl bg-canvas/80 ring-1 ring-line-strong hover:bg-hover text-ink text-sm sm:text-base font-semibold flex items-center justify-center gap-2">
+            <x-ui.icon name="ticket" class="w-4 h-4 sm:w-5 sm:h-5 text-brand" /> Cek status tiket
+          </button>
+        </div>
       </div>
 
-      <h1 class="font-display font-bold text-[34px] leading-[1.08] sm:text-5xl md:text-6xl text-ink tracking-tight">
-        Mendaki {{ $mountain }},<br><span class="text-brand">tertib dari gerbang</span> sampai puncak.
-      </h1>
-      <p class="mt-4 text-base md:text-lg text-muted max-w-xl">
-        Pesan <strong class="text-ink font-semibold">SIMAKSI online {{ $mountain }}</strong> resmi via {{ $basecamp }}. E-tiket dikirim ke WhatsApp, rombongan diperiksa di gerbang, dan setiap pos dipantau ranger.
-      </p>
-
-      <div class="mt-7 flex flex-col sm:flex-row gap-3">
-        <button type="button" onclick="App.nav.switchTab('sec-booking')" class="tap-active h-14 px-7 rounded-2xl bg-brand hover:bg-brand-hover text-white text-base font-semibold flex items-center justify-center gap-2 shadow-xl shadow-brand/25">
-          Pesan SIMAKSI <x-ui.icon name="arrow-right" class="w-5 h-5" />
-        </button>
-        <button type="button" onclick="App.modal.open('ticketModal')" class="tap-active h-14 px-6 rounded-2xl bg-canvas/70 ring-1 ring-line-strong hover:bg-hover text-ink text-base font-semibold flex items-center justify-center gap-2">
-          <x-ui.icon name="ticket" class="w-5 h-5 text-brand" /> Cek status tiket
-        </button>
+      {{-- Kartu kuota (menyatu di grid, tidak melayang menutupi ruang kosong) --}}
+      <div class="lg:col-span-5 rounded-2xl bg-canvas/85 backdrop-blur ring-1 ring-line p-4 sm:p-5">
+        <div class="flex items-center justify-between gap-2">
+          <p class="text-xs font-semibold text-muted">Kuota pendakian hari ini</p>
+          <time datetime="{{ now()->toDateString() }}" class="text-[11px] text-subtle">{{ now()->translatedFormat('d M Y') }}</time>
+        </div>
+        <p class="mt-1.5 font-display font-bold text-2xl sm:text-3xl text-ink tabular-nums">{{ $remaining }} <span class="text-sm font-medium text-muted">slot tersisa</span></p>
+        <div class="mt-2.5 h-2 rounded-full bg-raised overflow-hidden"><div class="h-full rounded-full {{ $remaining < 30 ? 'bg-amber-400' : 'bg-brand' }}" style="width: {{ $quotaPct }}%"></div></div>
+        <div class="mt-3 pt-3 border-t border-line flex items-center justify-between gap-2">
+          <span class="text-[11px] text-subtle">Maks. {{ $maxQuota }} pendaki/hari</span>
+          <button type="button" onclick="App.nav.switchTab('sec-booking')" class="text-xs sm:text-sm font-semibold text-brand-soft hover:text-brand flex items-center gap-1">Cek tanggal lain <x-ui.icon name="chevron-right" class="w-4 h-4" /></button>
+        </div>
       </div>
-    </div>
-
-    {{-- Kartu kuota --}}
-    <div class="absolute left-4 right-4 bottom-4 sm:left-auto sm:right-6 sm:bottom-6 sm:w-80 rounded-2xl bg-canvas/80 backdrop-blur ring-1 ring-line p-4">
-      <div class="flex items-center justify-between">
-        <p class="text-xs font-semibold text-muted">Kuota pendakian hari ini</p>
-        <time datetime="{{ now()->toDateString() }}" class="text-[11px] text-subtle">{{ now()->translatedFormat('d M Y') }}</time>
-      </div>
-      <p class="mt-1 font-display font-bold text-2xl text-ink tabular-nums">{{ $remaining }} <span class="text-sm font-medium text-muted">slot tersisa</span></p>
-      <div class="mt-2 h-2 rounded-full bg-raised overflow-hidden"><div class="h-full rounded-full {{ $remaining < 30 ? 'bg-amber-400' : 'bg-brand' }}" style="width: {{ $quotaPct }}%"></div></div>
-      <button type="button" onclick="App.nav.switchTab('sec-booking')" class="mt-3 text-sm font-semibold text-brand-soft hover:text-brand flex items-center gap-1">Cek tanggal lain <x-ui.icon name="chevron-right" class="w-4 h-4" /></button>
     </div>
   </section>
 
@@ -184,7 +189,32 @@
         </div>
       </div>
 
-      <div class="overflow-x-auto rounded-2xl ring-1 ring-line bg-canvas/40">
+      {{-- Mobile: kartu pos tanpa scroll horizontal --}}
+      <div class="md:hidden space-y-2">
+        @foreach($trailRouteList as $pt)
+          @continue($pt['type'] === 'landmark')
+          <div class="p-3 rounded-2xl bg-canvas/50 ring-1 ring-line space-y-1">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-semibold text-sm text-ink">{{ $pt['code'] }} · {{ $pt['name'] }}</span>
+              <span class="text-xs font-bold text-brand-soft tabular-nums shrink-0">{{ number_format($pt['elev'], 0, ',', '.') }} MDPL</span>
+            </div>
+            <p class="text-xs text-muted">
+              Jarak {{ ($pt['cum']['dist_m'] ?? 0) === 0 ? '0 m (Start)' : number_format($pt['cum']['dist_m'] / 1000, 1, ',', '.').' km' }}
+              ·
+              @if(!empty($pt['camp_recommended']))
+                <span class="text-emerald-300 font-semibold">Camp disarankan</span> ·
+              @elseif(!empty($pt['camp']))
+                <span class="text-sky-300 font-semibold">Camp resmi</span> ·
+              @elseif(!empty($pt['no_camp']))
+                <span class="text-rose-300 font-semibold">Dilarang camp</span> ·
+              @endif
+              {{ count($pt['facilities'] ?? []) ? implode(', ', $pt['facilities']) : ($pt['type'] === 'pos' ? 'Pos istirahat (tanpa sumber air)' : '') }}
+            </p>
+          </div>
+        @endforeach
+      </div>
+
+      <div class="hidden md:block overflow-x-auto rounded-2xl ring-1 ring-line bg-canvas/40">
         <table class="w-full text-left text-xs">
           <caption class="sr-only">Daftar pos jalur pendakian {{ $mountain }} via {{ $basecamp }} beserta elevasi, jarak, dan fasilitas</caption>
           <thead class="bg-raised/70 text-muted border-b border-line">

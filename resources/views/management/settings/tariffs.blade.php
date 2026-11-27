@@ -628,17 +628,17 @@
     <!-- ======================================================== -->
     <!-- ACTIONS BAR (STICKY FOOTER)                              -->
     <!-- ======================================================== -->
-    <div class="p-4 rounded-xl bg-canvas border border-line flex flex-col sm:flex-row items-center justify-between gap-3 sticky bottom-4 shadow-2xl z-20">
-      <div class="text-[10px] text-stone-400">
-        Perubahan tarif & konfigurasi sistem akan <strong>langsung aktif</strong> di seluruh Portal Publik, Kasir POS, dan Modul Gate.
+    <div class="p-3.5 sm:p-4 rounded-2xl bg-canvas/95 backdrop-blur border border-line-strong flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky bottom-2 sm:bottom-4 shadow-2xl z-20">
+      <div class="text-xs text-muted">
+        Perubahan tarif &amp; konfigurasi sistem akan <strong class="text-ink">langsung aktif</strong> di seluruh Portal Publik, Kasir POS, dan Modul Gate.
       </div>
-      <div class="flex items-center gap-3">
-        <button type="reset" class="px-4 py-2.5 rounded-lg bg-raised border border-line-strong text-stone-300 hover:text-white transition font-bold text-xs uppercase">
-          Reset Formulir
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 shrink-0">
+        <button type="reset" class="h-10 px-4 rounded-xl bg-raised border border-line-strong text-muted hover:text-ink transition font-semibold text-xs">
+          Reset
         </button>
-        <button type="submit" class="tap-active px-6 py-2.5 rounded-lg bg-brand hover:bg-brand-hover text-black font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-[#FF5722]/20 flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-          <span>SIMPAN SEMUA PERUBAHAN SISTEM</span>
+        <button type="submit" class="tap-active h-11 px-5 rounded-xl bg-brand hover:bg-brand-hover text-white font-semibold text-xs sm:text-sm transition shadow-lg shadow-brand/20 flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+          <span>Simpan Perubahan</span>
         </button>
       </div>
     </div>

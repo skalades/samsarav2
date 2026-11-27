@@ -7,7 +7,7 @@
   "start_url": "/management",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "any",
   "background_color": "#0B0D10",
   "theme_color": "#0B0D10",

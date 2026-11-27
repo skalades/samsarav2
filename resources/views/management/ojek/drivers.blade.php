@@ -2,217 +2,198 @@
 
 @section('title', 'Master Data Driver Ojek Resmi — SAMSARA')
 @section('page_title', 'Master Data Driver Ojek Resmi')
-@section('page_subtitle', 'Pendaftaran & Inventarisasi Pengemudi Resmi Jalur ' . \App\Models\AppSetting::get('mountain_name', 'Gunung Cikuray'))
+@section('page_subtitle', 'Pendaftaran & inventarisasi pengemudi resmi jalur ' . \App\Models\AppSetting::get('mountain_name', 'Gunung Cikuray'))
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-5">
 
-  <!-- Header & Add Button -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-mono-tech">
-    <div>
-      <h3 class="font-display font-bold text-lg text-white">Daftar Pengemudi Ojek Resmi Terdaftar</h3>
-      <p class="text-xs text-stone-400">Total {{ $drivers->count() }} pengemudi resmi terdaftar dengan nomor rompi dan plat kendaraan legal.</p>
-    </div>
-
+  <x-ui.page-header title="Pengemudi Ojek Resmi" :subtitle="'Total '.$drivers->count().' pengemudi terdaftar dengan nomor rompi & plat kendaraan legal'" eyebrow="Ojek Resmi">
     @if(in_array(auth()->user()?->role, ['superadmin', 'admin']))
-      <button onclick="document.getElementById('modalAddDriver').classList.remove('hidden')" class="px-4 py-2.5 bg-brand hover:bg-brand-hover text-black font-bold text-xs rounded-lg transition flex items-center gap-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-        <span>Tambah Pengemudi Baru</span>
-      </button>
+      <x-slot:actions>
+        <x-ui.button icon="plus" onclick="document.getElementById('modalAddDriver').classList.remove('hidden')">Tambah Pengemudi</x-ui.button>
+      </x-slot:actions>
     @endif
-  </div>
+  </x-ui.page-header>
 
-  @if(session('success'))
-    <div class="p-3.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 font-mono-tech text-xs flex items-center gap-2">
-      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-      <span>{{ session('success') }}</span>
+  <x-ui.card :padding="false">
+    {{-- Mobile: kartu --}}
+    <div class="lg:hidden divide-y divide-line">
+      @forelse($drivers as $driver)
+        <div class="p-3.5 space-y-2.5">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <x-ui.badge tone="warning" size="xs">{{ $driver->registration_number }}</x-ui.badge>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border {{ $driver->status_badge['bg'] }}">{{ $driver->status_badge['label'] }}</span>
+              </div>
+              <p class="font-semibold text-sm text-ink mt-1">{{ $driver->name }}</p>
+              <p class="text-xs text-muted">{{ $driver->plate_number }} · {{ $driver->phone ?? '-' }}</p>
+              @if($driver->notes)<p class="text-[11px] text-subtle mt-0.5">{{ $driver->notes }}</p>@endif
+            </div>
+            <div class="text-right shrink-0 tabular-nums">
+              <p class="text-xs text-muted">{{ $driver->trips_count }} trip</p>
+              <p class="font-bold text-sm {{ $driver->pending_payout > 0 ? 'text-emerald-400' : 'text-subtle' }}">Rp {{ number_format($driver->pending_payout, 0, ',', '.') }}</p>
+            </div>
+          </div>
+
+          @if(in_array(auth()->user()?->role, ['superadmin', 'admin']))
+            <div class="flex items-center gap-2 pt-1">
+              <form action="{{ route('management.ojek.toggle_driver', $driver->id) }}" method="POST" class="flex-1">
+                @csrf
+                <x-ui.button type="submit" variant="secondary" size="sm" block>
+                  {{ $driver->status === 'standby' ? 'Set Off-Duty' : 'Set Standby' }}
+                </x-ui.button>
+              </form>
+              <x-ui.button variant="info" size="sm" onclick="openEditModal({{ json_encode($driver) }})">Edit</x-ui.button>
+            </div>
+          @endif
+        </div>
+      @empty
+        <x-ui.empty icon="users" title="Belum ada driver ojek terdaftar" />
+      @endforelse
     </div>
-  @endif
 
-  <!-- Drivers Table -->
-  <div class="bg-surface border border-line rounded-xl p-5 font-mono-tech text-xs">
-    <div class="overflow-x-auto">
-      <table class="w-full text-left">
-        <thead>
-          <tr class="text-[10px] text-stone-400 uppercase border-b border-line">
-            <th class="pb-3">NO ROMPI</th>
-            <th class="pb-3">NAMA PENGEMUDI</th>
-            <th class="pb-3">PLAT NOMOR</th>
-            <th class="pb-3">WHATSAPP / HP</th>
-            <th class="pb-3">STATUS OPERASIONAL</th>
-            <th class="pb-3">TOTAL TRIP</th>
-            <th class="pb-3">BELUM DICAIRKAN</th>
-            <th class="pb-3 text-right">AKSI</th>
+    {{-- Desktop: tabel --}}
+    <div class="hidden lg:block overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-raised/40 border-b border-line text-[11px] text-subtle uppercase">
+          <tr>
+            <th class="py-3 px-4 font-semibold">No Rompi</th>
+            <th class="py-3 px-3 font-semibold">Nama Pengemudi</th>
+            <th class="py-3 px-3 font-semibold">Plat Nomor</th>
+            <th class="py-3 px-3 font-semibold">WhatsApp / HP</th>
+            <th class="py-3 px-3 font-semibold">Status</th>
+            <th class="py-3 px-3 font-semibold text-right">Trip</th>
+            <th class="py-3 px-3 font-semibold text-right">Belum Dicairkan</th>
+            <th class="py-3 px-4 font-semibold text-right">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-line">
           @forelse($drivers as $driver)
-            <tr class="hover:bg-raised">
-              <td class="py-3.5">
-                <span class="px-2 py-0.5 rounded bg-raised border border-line-strong text-amber-400 font-bold text-xs">
-                  {{ $driver->registration_number }}
-                </span>
+            <tr class="hover:bg-hover/40">
+              <td class="py-3 px-4 whitespace-nowrap"><x-ui.badge tone="warning">{{ $driver->registration_number }}</x-ui.badge></td>
+              <td class="py-3 px-3">
+                <div class="font-semibold text-ink">{{ $driver->name }}</div>
+                @if($driver->notes)<div class="text-xs text-muted">{{ $driver->notes }}</div>@endif
               </td>
-              <td class="py-3.5 font-bold text-white">
-                {{ $driver->name }}
-                @if($driver->notes)
-                  <span class="block text-[10px] font-normal text-stone-400">{{ $driver->notes }}</span>
-                @endif
-              </td>
-              <td class="py-3.5 font-bold text-brand">
-                {{ $driver->plate_number }}
-              </td>
-              <td class="py-3.5 text-stone-300">
-                {{ $driver->phone ?? '-' }}
-              </td>
-              <td class="py-3.5">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold border {{ $driver->status_badge['bg'] }}">
+              <td class="py-3 px-3 font-code font-bold text-brand whitespace-nowrap">{{ $driver->plate_number }}</td>
+              <td class="py-3 px-3 text-muted whitespace-nowrap">{{ $driver->phone ?? '-' }}</td>
+              <td class="py-3 px-3 whitespace-nowrap">
+                <span class="px-2 py-0.5 rounded-full text-[11px] font-bold border {{ $driver->status_badge['bg'] }}">
                   {{ $driver->status_badge['label'] }}
                 </span>
               </td>
-              <td class="py-3.5 text-stone-300">
-                {{ $driver->trips_count }} trip
-              </td>
-              <td class="py-3.5 font-bold {{ $driver->pending_payout > 0 ? 'text-emerald-400' : 'text-stone-400' }}">
+              <td class="py-3 px-3 text-right text-muted tabular-nums whitespace-nowrap">{{ $driver->trips_count }} trip</td>
+              <td class="py-3 px-3 text-right font-bold tabular-nums whitespace-nowrap {{ $driver->pending_payout > 0 ? 'text-emerald-400' : 'text-subtle' }}">
                 Rp {{ number_format($driver->pending_payout, 0, ',', '.') }}
               </td>
-              <td class="py-3.5 text-right">
-                <div class="flex items-center justify-end gap-1.5">
-                  @if(in_array(auth()->user()?->role, ['superadmin', 'admin']))
+              <td class="py-3 px-4 text-right whitespace-nowrap">
+                @if(in_array(auth()->user()?->role, ['superadmin', 'admin']))
+                  <div class="flex items-center justify-end gap-1.5">
                     <form action="{{ route('management.ojek.toggle_driver', $driver->id) }}" method="POST" class="inline">
                       @csrf
-                      <button type="submit" class="px-2 py-1 bg-raised hover:bg-hover border border-line-strong rounded text-[10px] text-stone-300 hover:text-white transition">
+                      <x-ui.button type="submit" variant="secondary" size="sm">
                         {{ $driver->status === 'standby' ? 'Set Off-Duty' : 'Set Standby' }}
-                      </button>
+                      </x-ui.button>
                     </form>
-
-                    <button onclick="openEditModal({{ json_encode($driver) }})" class="px-2 py-1 bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/30 rounded text-[10px] text-cyan-300 font-bold transition">
-                      Edit
-                    </button>
-                  @endif
-                </div>
+                    <x-ui.button variant="info" size="sm" onclick="openEditModal({{ json_encode($driver) }})">Edit</x-ui.button>
+                  </div>
+                @endif
               </td>
             </tr>
           @empty
-            <tr>
-              <td colspan="8" class="py-8 text-center text-stone-500">
-                Belum ada driver ojek resmi terdaftar. Klik "Tambah Pengemudi Baru" di atas.
-              </td>
-            </tr>
+            <tr><td colspan="8"><x-ui.empty icon="users" title="Belum ada driver ojek terdaftar" /></td></tr>
           @endforelse
         </tbody>
       </table>
     </div>
-  </div>
+  </x-ui.card>
 
 </div>
 
-<!-- Modal 1: Tambah Driver Baru -->
-<div id="modalAddDriver" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-  <div class="bg-surface border border-line-strong rounded-xl max-w-md w-full p-6 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-line">
-      <h4 class="font-display font-bold text-base text-white">Tambah Pengemudi Ojek Resmi</h4>
-      <button onclick="document.getElementById('modalAddDriver').classList.add('hidden')" class="text-stone-400 hover:text-white text-lg">✕</button>
+<x-ui.modal id="modalAddDriver" title="Tambah Pengemudi Ojek Resmi" eyebrow="Master Driver" maxWidth="sm:max-w-md">
+  <form action="{{ route('management.ojek.store_driver') }}" method="POST" class="space-y-4">
+    @csrf
+    <div>
+      <label class="label">Nomor Rompi / Lambung (Unik)</label>
+      <input type="text" name="registration_number" placeholder="Contoh: OJK-07" required class="field font-bold uppercase">
     </div>
-
-    <form action="{{ route('management.ojek.store_driver') }}" method="POST" class="space-y-4">
-      @csrf
-      <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">Nomor Rompi / Lambung (Unik):</label>
-        <input type="text" name="registration_number" placeholder="Contoh: OJK-07" required class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-white font-bold">
-      </div>
-
-      <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">Nama Lengkap Pengemudi:</label>
-        <input type="text" name="name" placeholder="Contoh: Mang Dadang Sukmana" required class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-white">
-      </div>
-
-      <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">Plat Nomor Kendaraan (Motor):</label>
-        <input type="text" name="plate_number" placeholder="Contoh: Z 3182 FA" required class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-white font-bold uppercase">
-      </div>
-
-      <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">Nomor WhatsApp / HP:</label>
-        <input type="text" name="phone" placeholder="Contoh: 081234567890" class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-white">
-      </div>
-
-      <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">Status Operasional Awal:</label>
-        <select name="status" class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-white">
-          <option value="standby">STANDBY (Langsung masuk antrean pangkalan)</option>
-          <option value="off_duty">OFF DUTY (Sedang tidak bertugas / libur)</option>
-          <option value="suspended">DISUSPEN (Ditangguhkan)</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">Catatan Tambahan (Opsional):</label>
-        <input type="text" name="notes" placeholder="Contoh: Warga Desa Mekarjaya RT 02" class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-white">
-      </div>
-
-      <div class="flex items-center justify-end gap-2 pt-3 border-t border-line">
-        <button type="button" onclick="document.getElementById('modalAddDriver').classList.add('hidden')" class="px-3 py-2 bg-raised text-stone-300 rounded-lg hover:text-white">Batal</button>
-        <button type="submit" class="px-4 py-2 bg-brand hover:bg-brand-hover text-black font-bold rounded-lg transition">Simpan Pengemudi</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Modal 2: Edit Driver -->
-<div id="modalEditDriver" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-  <div class="bg-surface border border-line-strong rounded-xl max-w-md w-full p-6 space-y-4 font-mono-tech text-xs">
-    <div class="flex items-center justify-between pb-3 border-b border-line">
-      <h4 class="font-display font-bold text-base text-white">Edit Pengemudi Ojek</h4>
-      <button onclick="document.getElementById('modalEditDriver').classList.add('hidden')" class="text-stone-400 hover:text-white text-lg">✕</button>
+    <div>
+      <label class="label">Nama Lengkap Pengemudi</label>
+      <input type="text" name="name" placeholder="Contoh: Mang Dadang Sukmana" required class="field">
     </div>
-
-    <form id="formEditDriver" method="POST" class="space-y-4">
-      @csrf
-      @method('PUT')
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">Nomor Rompi / Lambung:</label>
-        <input type="text" id="editRegNumber" name="registration_number" required class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-white font-bold">
+        <label class="label">Plat Nomor Kendaraan</label>
+        <input type="text" name="plate_number" placeholder="Z 3182 FA" required class="field font-bold uppercase">
       </div>
-
       <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">Nama Lengkap Pengemudi:</label>
-        <input type="text" id="editName" name="name" required class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-white">
+        <label class="label">Nomor WhatsApp / HP</label>
+        <input type="tel" name="phone" placeholder="081234567890" class="field">
       </div>
+    </div>
+    <div>
+      <label class="label">Status Operasional Awal</label>
+      <select name="status" class="field">
+        <option value="standby">STANDBY (Masuk antrean pangkalan)</option>
+        <option value="off_duty">OFF DUTY (Libur / tidak bertugas)</option>
+        <option value="suspended">DISUSPEN (Ditangguhkan)</option>
+      </select>
+    </div>
+    <div>
+      <label class="label">Catatan Tambahan (Opsional)</label>
+      <input type="text" name="notes" placeholder="Contoh: Warga Desa Mekarjaya RT 02" class="field">
+    </div>
+    <div class="flex items-center justify-end gap-2 pt-2 border-t border-line">
+      <x-ui.button variant="secondary" onclick="document.getElementById('modalAddDriver').classList.add('hidden')">Batal</x-ui.button>
+      <x-ui.button type="submit" icon="check">Simpan Pengemudi</x-ui.button>
+    </div>
+  </form>
+</x-ui.modal>
 
+<x-ui.modal id="modalEditDriver" title="Edit Pengemudi Ojek" eyebrow="Master Driver" maxWidth="sm:max-w-md">
+  <form id="formEditDriver" method="POST" class="space-y-4">
+    @csrf
+    @method('PUT')
+    <div>
+      <label class="label">Nomor Rompi / Lambung</label>
+      <input type="text" id="editRegNumber" name="registration_number" required class="field font-bold uppercase">
+    </div>
+    <div>
+      <label class="label">Nama Lengkap Pengemudi</label>
+      <input type="text" id="editName" name="name" required class="field">
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">Plat Nomor Kendaraan:</label>
-        <input type="text" id="editPlate" name="plate_number" required class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-white font-bold uppercase">
+        <label class="label">Plat Nomor Kendaraan</label>
+        <input type="text" id="editPlate" name="plate_number" required class="field font-bold uppercase">
       </div>
-
       <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">Nomor WhatsApp / HP:</label>
-        <input type="text" id="editPhone" name="phone" class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-white">
+        <label class="label">Nomor WhatsApp / HP</label>
+        <input type="tel" id="editPhone" name="phone" class="field">
       </div>
+    </div>
+    <div>
+      <label class="label">Status Operasional</label>
+      <select id="editStatus" name="status" class="field">
+        <option value="standby">STANDBY</option>
+        <option value="on_trip">ON TRIP</option>
+        <option value="off_duty">OFF DUTY</option>
+        <option value="suspended">SUSPENDED</option>
+      </select>
+    </div>
+    <div>
+      <label class="label">Catatan Tambahan</label>
+      <input type="text" id="editNotes" name="notes" class="field">
+    </div>
+    <div class="flex items-center justify-end gap-2 pt-2 border-t border-line">
+      <x-ui.button variant="secondary" onclick="document.getElementById('modalEditDriver').classList.add('hidden')">Batal</x-ui.button>
+      <x-ui.button type="submit" variant="info" icon="check">Simpan Perubahan</x-ui.button>
+    </div>
+  </form>
+</x-ui.modal>
 
-      <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">Status Operasional:</label>
-        <select id="editStatus" name="status" class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-white">
-          <option value="standby">STANDBY</option>
-          <option value="on_trip">ON TRIP</option>
-          <option value="off_duty">OFF DUTY</option>
-          <option value="suspended">SUSPENDED</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-[10px] text-stone-400 uppercase mb-1">Catatan Tambahan:</label>
-        <input type="text" id="editNotes" name="notes" class="w-full bg-raised border border-line-strong rounded-lg p-2.5 text-white">
-      </div>
-
-      <div class="flex items-center justify-end gap-2 pt-3 border-t border-line">
-        <button type="button" onclick="document.getElementById('modalEditDriver').classList.add('hidden')" class="px-3 py-2 bg-raised text-stone-300 rounded-lg hover:text-white">Batal</button>
-        <button type="submit" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition">Simpan Perubahan</button>
-      </div>
-    </form>
-  </div>
-</div>
-
+@push('scripts')
 <script>
   function openEditModal(driver) {
     document.getElementById('formEditDriver').action = '/management/ojek/drivers/' + driver.id;
@@ -225,4 +206,5 @@
     document.getElementById('modalEditDriver').classList.remove('hidden');
   }
 </script>
+@endpush
 @endsection
