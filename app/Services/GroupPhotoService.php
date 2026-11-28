@@ -114,67 +114,131 @@ class GroupPhotoService
     }
 
     /**
-     * Draw modern dark overlay with SAR metadata on the image canvas.
+     * Draw professional watermark banner with SAMSARA branding on the bottom of the image.
+     *
+     * Layout (bottom banner, 2-panel):
+     *  ┌─────────────────────────────────────────────────────────────────────┐
+     *  │ ░ ACCENT LINE (orange) ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+     *  │  [LOGO PANEL]  │  [INFO PANEL]                                      │
+     *  │   SAMSARA      │  REG: xxx  KETUA: yyy                              │
+     *  │   ⛰ MTN NAME  │  WAKTU: ...  MANIFEST TERVALIDASI                 │
+     *  └─────────────────────────────────────────────────────────────────────┘
      */
     protected function applyWatermark(&$image, int $width, int $height, SimaksiRegistration $registration): void
     {
-        $bannerHeight = max(100, (int) round($height * 0.16));
-        $startY = $height - $bannerHeight;
+        // --- Sizing ---
+        $bannerHeight = max(110, (int) round($height * 0.18));
+        $startY       = $height - $bannerHeight;
 
-        // Banner background: semi-transparent black
+        // --- Colours ---
+        $bgDark    = imagecolorallocatealpha($image, 8, 10, 16, 20);   // ~92 % opaque near-black
+        $bgPanel   = imagecolorallocatealpha($image, 20, 25, 35, 30);  // slightly lighter panel bg
+        $orange    = imagecolorallocate($image, 255, 85, 30);
+        $orangeDim = imagecolorallocate($image, 180, 55, 15);
+        $white     = imagecolorallocate($image, 255, 255, 255);
+        $offWhite  = imagecolorallocate($image, 220, 225, 232);
+        $emerald   = imagecolorallocate($image, 52, 211, 153);
+        $divider   = imagecolorallocate($image, 60, 70, 90);
+
         imagealphablending($image, true);
-        $blackAlpha = imagecolorallocatealpha($image, 10, 14, 20, 24); // ~90% opacity dark slate
-        imagefilledrectangle($image, 0, $startY, $width, $height, $blackAlpha);
 
-        // Top accent line: flame orange
-        $orange = imagecolorallocate($image, 255, 87, 34);
-        imagefilledrectangle($image, 0, $startY, $width, $startY + 4, $orange);
+        // Full banner background
+        imagefilledrectangle($image, 0, $startY, $width, $height, $bgDark);
 
-        // Colors
-        $white = imagecolorallocate($image, 255, 255, 255);
-        $emerald = imagecolorallocate($image, 52, 211, 153);
-        $amber = imagecolorallocate($image, 251, 191, 36);
-        $gray = imagecolorallocate($image, 203, 213, 225);
+        // Top accent line (orange, 5 px)
+        imagefilledrectangle($image, 0, $startY, $width, $startY + 5, $orange);
 
-        // Font discovery
-        $fontBold = base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSans-Bold.ttf');
+        // --- Font paths ---
+        $fontBold    = base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSans-Bold.ttf');
         $fontRegular = base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSans.ttf');
-        $hasTtf = function_exists('imagettftext') && file_exists($fontBold);
+        $hasTtf      = function_exists('imagettftext') && file_exists($fontBold) && file_exists($fontRegular);
 
+        // --- Expedition profile ---
         $expProfile = AppSetting::getExpeditionProfile();
-        $mountain = $expProfile['mountain_name'] ?? 'Gunung Cikuray';
-        $expName = $expProfile['expedition_name'] ?? 'SAMSARA EXPEDITION';
+        $mountain   = strtoupper($expProfile['mountain_name'] ?? 'GUNUNG CIKURAY');
+        $expName    = strtoupper($expProfile['expedition_name'] ?? 'SAMSARA EXPEDITION');
 
-        $timestampStr = Carbon::now()->translatedFormat('d M Y, H:i').' WIB';
-        $line1 = "{$expName} - {$mountain} • BASECAMP CHECK-IN";
-        $line2 = "REG: {$registration->registration_code} • KETUA: {$registration->leader_name} ({$registration->total_climbers} PENDAKI)";
-        $line3 = "WAKTU: {$timestampStr} • MANIFEST TERVALIDASI RESMI";
+        // --- Content strings ---
+        $reg         = $registration->registration_code;
+        $leaderName  = strtoupper($registration->leader_name);
+        $totalPeople = (int) $registration->total_climbers;
+        $timestamp   = Carbon::now()->translatedFormat('d M Y, H:i') . ' WIB';
+
+        $logoLine1 = $expName;
+        $logoLine2 = '⛰ ' . $mountain;
+
+        $infoLine1 = "REG: {$reg}  •  KETUA: {$leaderName} ({$totalPeople} PENDAKI)";
+        $infoLine2 = "WAKTU: {$timestamp}";
+        $infoLine3 = '✔ MANIFEST TERVALIDASI RESMI';
 
         if ($hasTtf) {
-            $baseFontSize = max(11, (int) round($width * 0.016));
-            $fontSizeL1 = $baseFontSize + 2;
-            $fontSizeL2 = $baseFontSize + 3;
-            $fontSizeL3 = $baseFontSize;
+            // --- Adaptive font sizes ---
+            $base          = max(10, (int) round($width / 90));   // ~15–17 px at 1400 px wide
+            $sizeLogoMain  = $base + 4;
+            $sizeLogoSub   = $base + 1;
+            $sizeInfoMain  = $base + 2;
+            $sizeInfoSub   = $base;
+            $sizeVerify    = $base - 1;
 
-            $paddingX = max(18, (int) round($width * 0.025));
-            $y1 = $startY + (int) ($bannerHeight * 0.32);
-            $y2 = $startY + (int) ($bannerHeight * 0.64);
-            $y3 = $startY + (int) ($bannerHeight * 0.90);
+            // --- Logo panel width: 28 % of image ---
+            $logoPanelW = (int) round($width * 0.28);
+            $dividerX   = $logoPanelW;
 
-            // Line 1: Orange Tag
-            imagettftext($image, $fontSizeL1, 0, $paddingX, $y1, $orange, $fontBold, $line1);
+            // Logo panel subtle background
+            imagefilledrectangle($image, 0, $startY + 6, $dividerX - 1, $height, $bgPanel);
 
-            // Line 2: Bold White
-            imagettftext($image, $fontSizeL2, 0, $paddingX, $y2, $white, $fontBold, $line2);
+            // Vertical divider line
+            imagefilledrectangle($image, $dividerX, $startY + 6, $dividerX + 2, $height, $divider);
 
-            // Line 3: Emerald verification
-            imagettftext($image, $fontSizeL3, 0, $paddingX, $y3, $emerald, $fontRegular, $line3);
+            // --- Logo panel: centred horizontally in $logoPanelW ---
+            $innerPadX = max(14, (int) round($width * 0.015));
+
+            // Measure logo line 1 to centre it
+            $bb1 = imagettfbbox($sizeLogoMain, 0, $fontBold, $logoLine1);
+            $tw1 = abs($bb1[4] - $bb1[0]);
+            $lx1 = max($innerPadX, (int) round(($logoPanelW - $tw1) / 2));
+
+            $bb2 = imagettfbbox($sizeLogoSub, 0, $fontRegular, $logoLine2);
+            $tw2 = abs($bb2[4] - $bb2[0]);
+            $lx2 = max($innerPadX, (int) round(($logoPanelW - $tw2) / 2));
+
+            // Vertical placement (vertically centred in banner)
+            $contentH = $bannerHeight - 6;    // minus accent line
+            $ly1 = $startY + 6 + (int) round($contentH * 0.42);
+            $ly2 = $startY + 6 + (int) round($contentH * 0.76);
+
+            // Orange stroke effect for logo main line (draw bg copy 1 px offset)
+            imagettftext($image, $sizeLogoMain, 0, $lx1 + 1, $ly1 + 1, $orangeDim, $fontBold, $logoLine1);
+            imagettftext($image, $sizeLogoMain, 0, $lx1,     $ly1,     $orange,    $fontBold, $logoLine1);
+
+            // Sub line: mountain name (off-white)
+            imagettftext($image, $sizeLogoSub, 0, $lx2, $ly2, $offWhite, $fontRegular, $logoLine2);
+
+            // --- Info panel ---
+            $infoPadX = $dividerX + max(16, (int) round($width * 0.018));
+
+            $iy1 = $startY + 6 + (int) round($contentH * 0.32);
+            $iy2 = $startY + 6 + (int) round($contentH * 0.60);
+            $iy3 = $startY + 6 + (int) round($contentH * 0.86);
+
+            // Line 1: REG + KETUA (white bold)
+            imagettftext($image, $sizeInfoMain, 0, $infoPadX, $iy1, $white, $fontBold, $infoLine1);
+
+            // Line 2: timestamp (off-white regular)
+            imagettftext($image, $sizeInfoSub, 0, $infoPadX, $iy2, $offWhite, $fontRegular, $infoLine2);
+
+            // Line 3: verification badge (emerald)
+            imagettftext($image, $sizeVerify, 0, $infoPadX, $iy3, $emerald, $fontBold, $infoLine3);
+
         } else {
-            // Built-in GD font fallback
-            $paddingX = 15;
-            imagestring($image, 4, $paddingX, $startY + 12, $line1, $orange);
-            imagestring($image, 5, $paddingX, $startY + 35, $line2, $white);
-            imagestring($image, 4, $paddingX, $startY + 65, $line3, $emerald);
+            // --- GD built-in font fallback (no TTF) ---
+            $px = 14;
+            $sy = $startY + 10;
+            imagestring($image, 5, $px, $sy,       $logoLine1, $orange);
+            imagestring($image, 3, $px, $sy + 22,  $logoLine2, $offWhite);
+            imagestring($image, 4, $px + (int)round($width * 0.28) + 10, $sy,      $infoLine1, $white);
+            imagestring($image, 3, $px + (int)round($width * 0.28) + 10, $sy + 22, $infoLine2, $offWhite);
+            imagestring($image, 3, $px + (int)round($width * 0.28) + 10, $sy + 44, $infoLine3, $emerald);
         }
     }
 
